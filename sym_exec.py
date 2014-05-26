@@ -53,6 +53,10 @@ parser.add_option("-s", "--single-step", dest="single_step", action="store", hel
 if len(args) == 0 or not os.path.exists(args[0]):
 	parser.error("Missing app to execute")
 
+if not "PYTHONHOME" in os.environ:
+	print "Please set PYTHONHOME to location of your python installation."
+	sys.exit(1)
+
 app_dir = os.path.abspath(args[0])
 if not os.path.isdir(app_dir):
 	print "Please provide a directory name on the command line."

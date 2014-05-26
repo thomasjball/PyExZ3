@@ -32,15 +32,14 @@ import threading
 import dis
 import os
 import pprint
-
 from eratosthenes import eratosthenes # Prime number generator, used to create new opcode IDs. Each module is associated with its own prime number.
 from python_context import PythonContext
 from bytecode_parser import ByteCodeParser
-
 import utils
 import logging
-log = logging.getLogger("se.tracer")
 from stats import getStats
+
+log = logging.getLogger("se.tracer")
 stats = getStats()
 
 class Ignore:
@@ -48,13 +47,11 @@ class Ignore:
  	def __init__(self, modules = None, dirs = None):
 		self._mods = modules or []
 		self._dirs = dirs or []
-		
 		self._dirs = map(os.path.normpath, self._dirs)
 		self._ignore = { '<string>': 1 }
  	
 	def modname(self, path):
-		"""Return a plausible module name for the patch."""
-
+		"""Return a plausible module name for the path."""
 		base = os.path.basename(path)
 		filename = os.path.splitext(base)[0]
 		return filename
@@ -107,7 +104,7 @@ class Ignore:
 
 class PythonTracer:
 	def __init__(self, debug):
-		self.ignore = Ignore(modules = [], dirs = [os.path.dirname(__file__), "c:\Python27"])
+		self.ignore = Ignore(modules = [], dirs = [os.path.dirname(__file__), os.environ["PYTHONHOME"]])
 
 		self.SI = None
 		self.trace_func = self._Tracer
