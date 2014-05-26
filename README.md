@@ -12,10 +12,11 @@ a variety of platforms.
 Requirements:
 
 - Python version 2.7.6 (https://www.python.org/download/releases/2.7.6/)
-- Z3 (Windows: http://z3.codeplex.com/releases, Other platforms, build from source: http://z3.codeplex.com/SourceControl/latest#README); install Z3 to directory *Z3HOME*
-- If you are using Python 32-bits, then you must use the 32-bit Z3 binaries.
+- Install Z3 to directory *Z3HOME* from http://z3.codeplex.com/releases (click on the "Planned" link on the right to get the latest binaries for all platforms)
+- Make sure that you are using Python 32-bit (64-bit) then use the Z3 32-bit (64-bit) binaries.
 
 Setup instructions:
 
+- set PYTHONHOME to the location of your Python distribution
+- add PYTHOHHOME to PATH
 - add *Z3HOME*\bin to PATH and PYTHONPATH
-
