@@ -1,5 +1,3 @@
-#!/usr/bin/python
-#
 # Copyright (c) 2011, EPFL (Ecole Politechnique Federale de Lausanne)
 # All rights reserved.
 #
@@ -34,7 +32,6 @@ import shutil
 import cPickle
 import logging
 from optparse import OptionParser
-#import logger
 from stats import getStats
 from symbolic.concolic import ConcolicEngine
 from symbolic import preprocess
@@ -52,7 +49,8 @@ parser.add_option("-s", "--single-step", dest="single_step", action="store", hel
 
 if len(args) == 0 or not os.path.exists(args[0]):
 	parser.error("Missing app to execute")
-
+	sys.exit(1)
+	
 if not "PYTHONHOME" in os.environ:
 	print "Please set PYTHONHOME to location of your python installation."
 	sys.exit(1)
@@ -135,6 +133,3 @@ if not options.quiet:
 	if options.logfile != "stdout":
 		print stats.getProfilingOutput()
 		print stats.getCounterOutput()
-
-#pprint(engine.getConstraints())
-
