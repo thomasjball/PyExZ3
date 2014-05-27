@@ -36,6 +36,12 @@ from stats import getStats
 from symbolic.concolic import ConcolicEngine
 from symbolic import preprocess
 
+print "PyExZ3 (Python Symbolic Execution via Z3)"
+
+if not "PYTHONHOME" in os.environ:
+	print "Please set PYTHONHOME to the location of your python installation."
+	sys.exit(1)
+
 sys.path = [os.path.abspath(os.path.join(os.path.dirname(__file__)))] + sys.path
 usage = "usage: %prog [options] <se_descr.py path>"
 parser = OptionParser(usage=usage)
@@ -51,35 +57,26 @@ if len(args) == 0 or not os.path.exists(args[0]):
 	parser.error("Missing app to execute")
 	sys.exit(1)
 	
-if not "PYTHONHOME" in os.environ:
-	print "Please set PYTHONHOME to location of your python installation."
-	sys.exit(1)
-
 app_dir = os.path.abspath(args[0])
-if not os.path.isdir(app_dir):
-	print "Please provide a directory name on the command line."
-	sys.exit(1)
-
+# TBALL: can the following fail?
 app_args = args[1:]
 
-logging.basicConfig(filename='logfile',level=logging.DEBUG)
+if not os.path.isdir(app_dir):
+	print "Please provide a directory name for app."
+	sys.exit(1)
+app_dir = os.path.abspath(app_dir)
+os.chdir(app_dir)
+
+
+logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
 log = logging.getLogger()
-
-print "PySE (Python Symbolic Execution)"
-
 stats = getStats()
 stats.pushProfile("se total")
 
 se_dir = os.path.abspath(os.path.dirname(__file__))
-app_dir = os.path.abspath(app_dir)
-
-os.chdir(app_dir)
-
 se_instr_dir = os.path.abspath("se_normalized")
-
 if options.force_normalize and os.path.exists(se_instr_dir):
 	shutil.rmtree(se_instr_dir)
-
 if not os.path.exists(se_instr_dir):
 	os.mkdir(se_instr_dir)
 
@@ -94,7 +91,7 @@ sys.path[0] = se_instr_dir
 # Get the object describing the application
 app_description = app_description.factory(app_args)
 
-print "Running PySE on " + app_description.APP_NAME
+print "Running PyExZ3 on " + app_description.APP_NAME
 
 preprocess.instrumentLibrary(os.path.join(se_dir, "sym_exec_lib"), se_instr_dir)
 

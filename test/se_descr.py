@@ -33,13 +33,14 @@ from symbolic.symbolic_types.symbolic_store import newInteger
 # Do not import you packages here, but do it in the callbacks below.
 # Otherwise the application will run with non-instrumented versions of those modules.
 
+# TBALL: we should use reflection to eliminate a lot of this boilerplat.
+
 class SymExecApp:
 	APP_NAME="SE regression test suite"
 	NORMALIZE_MODS = ["many_branches.py", "shallow_branches.py", "loop.py",
-			"logical_op.py", "elseif.py", "dictionary.py", "count_packets.py",
+			"logical_op.py", "elseif.py", "dictionary.py",
 			"expressions.py"] # list of single modules (filenames with relative path from current dir) to normalize
 	NORMALIZE_PACKAGES = [] # As above, but for packages. The normalization will be recursive and cover the full package
-	USES_NOX_API = True # This will cause the NOX SE library to be instrumented and copied in the import PATH
 
 	def __init__(self, which_test):
 		if which_test == "many_branches":
@@ -54,8 +55,6 @@ class SymExecApp:
 			self.test_name = "elif"
 		elif which_test == "dictionary":
 			self.test_name = "dictionary"
-		elif which_test == "count_packets":
-			self.test_name = "count_packets"
 		elif which_test == "expressions":
 			self.test_name = "expressions"
 		else:
@@ -90,11 +89,6 @@ class SymExecApp:
 		elif self.test_name == "dictionary":
 			inv = invocation.FunctionInvocation(self.run_dictionary)
 			inv.addSymbolicParameter("in1", "in1", newInteger)
-		elif self.test_name == "count_packets":
-			from nox.lib.packet.ethernet import ethernet
-			inv = invocation.FunctionInvocation(self.run_count_packets)
-			inv.addParameter("cnt", {'lldp' : 0, 'normal' : 0})
-			inv.addSymbolicParameter("packet", "packet", ethernet)
 		elif self.test_name == "expressions":
 			inv = invocation.FunctionInvocation(self.run_expressions)
 			inv.addSymbolicParameter("in1", "in1", newInteger)
@@ -115,8 +109,6 @@ class SymExecApp:
 			self.app = __import__("elseif")
 		elif self.test_name == "dictionary":
 			self.app = __import__("dictionary")
-		elif self.test_name == "count_packets":
-			self.app = __import__("count_packets")
 		elif self.test_name == "expressions":
 			self.app = __import__("expressions")
 
@@ -137,9 +129,6 @@ class SymExecApp:
 
 	def run_dictionary(self, **args):
 		return self.app.dictionary(**args)
-
-	def run_count_packets(self, **args):
-		return self.app.packet_in_callback(**args)
 
 	def run_expressions(self, **args):
 		return self.app.expressions(**args)
@@ -176,12 +165,6 @@ class SymExecApp:
 			res = map(lambda x: x[0], return_vals)
 			res.sort()
 			self.check(res, [1, 2])
-		elif self.test_name == "count_packets":
-			res = map(lambda x: x[0], return_vals)
-			self.check(res, [{'lldp': 1, 'normal': 1}, {'lldp': 1, 'normal': 1}])
-		elif self.test_name == "count_packets":
-			res = map(lambda x: x[0], return_vals)
-			self.check(res, [{'lldp': 1, 'normal': 1}, {'lldp': 1, 'normal': 1}])
 		elif self.test_name == "expressions":
 			res = map(lambda x: x[0], return_vals)
 			self.check(res, [0, -1, 0, 0])
