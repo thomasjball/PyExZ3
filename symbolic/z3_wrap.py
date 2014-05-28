@@ -98,6 +98,7 @@ def ast2SymExpr(expr, bitlen):
 			return z3_l - z3_r
 		elif isinstance(expr.op, ast.Mult):
 			return z3_l * z3_r
+		# TBALL: more conversions to do here
 		else:
 			utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
 	elif isinstance(expr, SymbolicType):

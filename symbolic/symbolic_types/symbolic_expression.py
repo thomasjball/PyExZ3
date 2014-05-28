@@ -100,11 +100,12 @@ class SymbolicExpression(SymbolicType):
 	def __repr__(self):
 		return "SymExpr(" + ast.dump(self.expr) + ")"
 
-if __name__ == "__main__":
-	e = SymbolicExpression(None)
-	e.concrete_value = 0
-	if e:
-		print "true"
-	else:
-		print "false"
+# TBALL: looks like debugging to me...
+#if __name__ == "__main__":
+#	e = SymbolicExpression(None)
+#	e.concrete_value = 0
+#	if e:
+#		print "true"
+#	else:
+#		print "false"
 

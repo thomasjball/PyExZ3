@@ -140,11 +140,12 @@ class Predicate:
 			else:
 				utils.crash("Cannot build symbolic expression for unknown operator %s" % stmt.name)
 		elif isinstance(stmt, bc.Attribute) or isinstance(stmt, bc.LocalReference) or isinstance(stmt, bc.GlobalReference) or isinstance(stmt, bc.Subscr):
+			# memory locations
 			if stmt.isSymbolic():
 				sym_var = stmt.reference # could be an expression
 				sym_vars = sym_var.getSymVariable()
-				for name, var, sym_var in sym_vars:
-					self.sym_variables[name] = (var, sym_var)
+				for name, var, sv in sym_vars:
+					self.sym_variables[name] = (var, sv)
 				if isinstance(sym_var, SymbolicExpression):
 					return z3_wrap.ast2SymExpr(sym_var.expr, sym_var.getBitLength())
 				else:

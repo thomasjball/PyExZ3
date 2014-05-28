@@ -42,7 +42,9 @@ log = logging.getLogger("se.opcodes")
 class GenericOpCode:
 	def __init__(self, opcode_id):
 		self.name = "generic_no_name"
-		self.reference = None # Be careful with this field, it becomes outdated (e.g. after assignements)
+		# TBALL: this is a huge hack to represent storing into locations, thus the comment
+                # "Be careful with this field, it becomes outdated (e.g. after assignements)"
+		self.reference = None 
 		self.opcode_id = opcode_id
 
 	def __repr__(self):
@@ -106,7 +108,6 @@ class LocalReference(GenericOpCode):
 				self.value = copy.copy(self.reference)
 
 	def __repr__(self):
-		# We want "packet0", "packet1" instead of "packet" for symbolic variables
 		return "LocalRef(" + self.name + ")"
 
 	def getSymbolicVariables(self):

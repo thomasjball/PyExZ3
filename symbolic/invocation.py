@@ -27,11 +27,18 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# symbolic tainting starts at FunctionInvocation by adding a symbolic parameter
+# via the method addSymbolicParameter with a subclass of SymbolicType
+# see test/se_descr.py for example of setting it up with SymbolicInteger
+
+# TODO: should protect itself against bad uses, such as adding parameter
+# and symbolic parameter with same name
+
 class FunctionInvocation:
 	def __init__(self, function):
 		self.function = function
 		self.inputs = {}
-		self.symbolic_inputs = {}
+		self.symbolic_inputs = {}  # name -> SymbolicType
 
 	def addParameter(self, param, value):
 		""" Add ordinary parameter
@@ -41,6 +48,8 @@ class FunctionInvocation:
 	def addSymbolicParameter(self, name, symbolic_name, type_ref):
 		""" Add symbolic parameter with specified name
 		"""
+		# wouldn't a type system be nice? 
+		# type_ref: string -> SymbolicType
 		self.symbolic_inputs[name] = type_ref(symbolic_name)
 
 	def setupTracer(self, tracer):

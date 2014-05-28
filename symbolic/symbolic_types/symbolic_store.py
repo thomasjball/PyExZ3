@@ -29,8 +29,8 @@
 
 from integers import SymbolicInteger
 
+# TBALL: where is this used besides below?
 symbolic_vars = {}
-symbolic_packets = {}
 
 def newInteger(name, bitlen=32):
 	if name not in symbolic_vars.keys():

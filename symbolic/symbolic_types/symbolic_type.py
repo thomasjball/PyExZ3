@@ -29,6 +29,8 @@
 
 import ast
 
+# the base class for representing any expression that depends on a symbolic input
+# it also tracks the corresponding concrete value for the expression (aka concolic execution)
 class SymbolicType:
 	def __init__(self, name):
 		self.name = name
@@ -49,6 +51,7 @@ class SymbolicType:
 	def __ord__(self):
 		return self
 
+	# TBALL: why not symbolic?
 	def __ror__(self, other):
 		return self.getConcrValue() | other
 
@@ -62,7 +65,7 @@ class SymbolicType:
 		return self._do_bin_op(other, lambda x, y: x + y, ast.Add)
 
 	def __sub__(self, other):
-		return self._do_bin_op(other, lambda x, y: x + y, ast.Sub)
+		return self._do_bin_op(other, lambda x, y: x - y, ast.Sub)
 
 	def __mul__(self, other):
 		return self._do_bin_op(other, lambda x, y: x * y, ast.Mult)
@@ -104,7 +107,6 @@ class SymbolicType:
 			right_expr, right_concr = other.getExprConcr()
 		else:
 			return NotImplemented
-		
 		aux = ast.BinOp(left=left_expr, op=ast_op(), right=right_expr)
 		ret = SymbolicExpression(aux)
 		ret.concrete_value = fun(left_concr, right_concr)
