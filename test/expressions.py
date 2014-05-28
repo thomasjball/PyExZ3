@@ -34,7 +34,7 @@ def expressions(in1, in2):
     b = in2 + 47
     c = a * b
     # only solution should be a==1, b==6
-    if c == 583 and a > 0 and a < 20:
+    if a > 0 and a < 20 and b < 100 and c == 53:
         d = -1
     else:
         d = 0

@@ -55,7 +55,7 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 	_z3.push()
 	_z3.assert_exprs(z3_asserts)
 	_z3.assert_exprs(Not(z3_query))
-	print _z3.assertions()
+#	print _z3.assertions()
 	ret = _z3.check()
 	if ret == unsat:
 		log.warning("Z3: UNSAT")
@@ -73,8 +73,6 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 	for var_name in z3_variables:
 		(instance, z3_var) = z3_variables[var_name]
 		ce = model.eval(z3_var)
-		print z3_var 
-		print ce
 		res.append((var_name, instance, ce.as_signed_long()))
 	_z3.pop()
 	return res
