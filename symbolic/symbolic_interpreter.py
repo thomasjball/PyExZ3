@@ -64,6 +64,7 @@ class SymbolicInterpreter:
 		if not stmt.isSymbolic():
 			return
 
+		# add both possible predicate outcomes to constraint (tree)
 		p = Predicate(stmt, result)
 		p.negate()
 		cneg = self.current_constraint.findChild(p)
@@ -119,6 +120,5 @@ class SymbolicInterpreter:
 			pass
 		else:
 			utils.crash("Unknown symbolic statement: %s" % repr(stmt))
-		
 		return
 

@@ -28,10 +28,10 @@
 #
 
 import bytecode_opcodes as bc
-
-import logging
-log = logging.getLogger("se.parser")
 import utils
+import logging
+
+log = logging.getLogger("se.parser")
 
 # Overall note: We assume that each codeblock leaves the stack in the previous state,
 # i.e. we do not reuse variables remaining on the stack from previous codeblock.

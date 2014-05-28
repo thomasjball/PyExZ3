@@ -32,7 +32,9 @@ import threading
 import dis
 import os
 import pprint
-from eratosthenes import eratosthenes # Prime number generator, used to create new opcode IDs. Each module is associated with its own prime number.
+
+# Prime number generator, used to create new opcode IDs. Each module is associated with its own prime number.
+from eratosthenes import eratosthenes 
 from python_context import PythonContext
 from bytecode_parser import ByteCodeParser
 import utils
@@ -104,6 +106,9 @@ class Ignore:
 
 class PythonTracer:
 	def __init__(self, debug):
+		# this line is very important; if the ignore directories are not correctly set 
+		# (especially PYTHONHOME), the whole thing silently fails to work. Should make
+		# more robust in future
 		self.ignore = Ignore(modules = [], dirs = [os.path.dirname(__file__), os.environ["PYTHONHOME"]])
 
 		self.SI = None
@@ -162,6 +167,7 @@ class PythonTracer:
 			if len(linestarts) == 1:
 				stmts = self.parser.parse(codeblock)
 			else:
+				# TBALL: this is rather ghastly... should figure it out someday
 				start = None
 				end = None
 				aux = linestarts.values()
@@ -185,7 +191,6 @@ class PythonTracer:
 						if cb[0] == end:
 							end = codeblock.index(cb)
 							break
-
 				# The codeblock is upside-down...
 				aux = start
 				start = end + 1

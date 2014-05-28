@@ -33,12 +33,11 @@
 
 import copy
 import types
-
 from symbolic_types import SymbolicType
-
-import logging
-log = logging.getLogger("se.opcodes")
 import utils
+import logging
+
+log = logging.getLogger("se.opcodes")
 
 class GenericOpCode:
 	def __init__(self, opcode_id):
@@ -305,6 +304,7 @@ class ConstantValue(GenericOpCode):
 		return self.bitlen
 
 class UnaryOperator(GenericOpCode):
+	# TBALL: fix this
 	def __init__(self, opcode, stack, context):
 		GenericOpCode.__init__(self, opcode[0])
 		if opcode[1] == "UNARY_NOT":
@@ -350,7 +350,6 @@ class BinaryOperator(GenericOpCode):
 			self.name = "*"
 		else:
 			utils.crash("Unknown binary operator: %s" % str(opcode))
-
 		self.right = stack.pop()
 		self.left = stack.pop()
 
@@ -382,7 +381,7 @@ class Assignment(GenericOpCode):
 	def __init__(self, opcode, stack, context):
 		GenericOpCode.__init__(self, opcode[0])
 		self.name = "assignment"
-
+		
 		if opcode[1] == "STORE_SUBSCR":
 			self.rvalue = Subscr(opcode, stack, context)
 			self.lvalue = stack.pop()
@@ -393,7 +392,6 @@ class Assignment(GenericOpCode):
 				self.rvalue = GlobalReference(opcode, stack, context)
 			else: # Separated to make it explicit, the variable has not been created yet
 				self.rvalue = LocalReference(opcode, stack, context)
-
 			self.lvalue = stack.pop()
 		elif opcode[1] == "STORE_ATTR":
 			self.lvalue = Attribute(opcode, stack, context)

@@ -65,8 +65,6 @@ if not os.path.isdir(app_dir):
 	print "Please provide a directory name for app."
 	sys.exit(1)
 app_dir = os.path.abspath(app_dir)
-os.chdir(app_dir)
-
 
 logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
 log = logging.getLogger()
@@ -79,6 +77,8 @@ if options.force_normalize and os.path.exists(se_instr_dir):
 	shutil.rmtree(se_instr_dir)
 if not os.path.exists(se_instr_dir):
 	os.mkdir(se_instr_dir)
+
+os.chdir(app_dir)
 
 # add the app directory to the import path, just to get the configuration
 sys.path = [app_dir] + sys.path
@@ -94,8 +94,6 @@ app_description = app_description.factory(app_args)
 print "Running PyExZ3 on " + app_description.APP_NAME
 
 preprocess.instrumentLibrary(os.path.join(se_dir, "sym_exec_lib"), se_instr_dir)
-
-os.chdir(app_dir)
 
 for m in app_description.NORMALIZE_MODS:
 	preprocess.instrumentModule(m, se_instr_dir, is_app=True)
