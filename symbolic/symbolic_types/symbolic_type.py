@@ -73,6 +73,8 @@ class SymbolicType:
 	def __and__(self, other):
 		return self._do_bin_op(other, lambda x, y: x & y, ast.BitAnd)
 
+	# TBALL: what about or?
+
 	def __eq__(self, other):
 		if isinstance(other, type(None)):
 			return False
@@ -97,6 +99,7 @@ class SymbolicType:
 	def __ge__(self, other):
 		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
 
+	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, ast_op):
 		from symbolic_expression import SymbolicExpression # dodge circular reference
 		left_expr, left_concr = self.getExprConcr()

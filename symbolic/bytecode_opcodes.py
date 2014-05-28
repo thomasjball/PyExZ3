@@ -36,6 +36,10 @@ import types
 from symbolic_types import SymbolicType
 import utils
 import logging
+from functools import reduce
+
+def flatten(l):
+	return reduce(lambda x,y : x + y, l)
 
 log = logging.getLogger("se.opcodes")
 
@@ -44,6 +48,7 @@ class GenericOpCode:
 		self.name = "generic_no_name"
 		# TBALL: this is a huge hack to represent storing into locations, thus the comment
                 # "Be careful with this field, it becomes outdated (e.g. after assignements)"
+		# TBALL: we should properly have a symbolic store
 		self.reference = None 
 		self.opcode_id = opcode_id
 
@@ -275,10 +280,7 @@ class FunctionCall(GenericOpCode):
 		self.reference = self.fun_name.reference
 
 	def getSymbolicVariables(self):
-		l = []
-		for p in self.params:
-			l += p.getSymbolicVariables()
-		return l
+		return flatten([p.getSymbolicVariables() for p in self.params])
 
 	def getBitLength(self):
 		return self.params[0].getBitLength()
@@ -475,9 +477,7 @@ class BuildList(GenericOpCode):
 			self.name = "list"
 		else:
 			utils.crash("Unknown BuildList opcode")
-		self.elems = []
-		for _i in range(0, opcode[2]):
-			self.elems.append(stack.pop())
+		self.elems = [ stack.pop() for _i in range(0, opcode[2]) ]
 
 	def __repr__(self):
 		return self.name + "(" + repr(self.elems) + ")"
@@ -493,10 +493,7 @@ class BuildList(GenericOpCode):
 			e.refreshRef(context)
 
 	def getSymbolicVariables(self):
-		l = []
-		for e in self.elems:
-			l.append(e.getSymbolicVariables())
-		return l
+		return flatten([ e.getSymbolicVariables() for e in self.elems ])
 
 class PrintItem(GenericOpCode):
 	def __init__(self, opcode, stack, context):
