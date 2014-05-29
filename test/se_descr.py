@@ -167,7 +167,7 @@ class SymExecApp:
 			self.check(res, [1, 2])
 		elif self.test_name == "expressions":
 			res = map(lambda x: x[0], return_vals)
-			self.check(res, [0, -1, 0, 0])
+			self.check(res, [0, 0, 0, 0, -1])
 		else:
 			print "---------------------> Unknown test <-------------------"
 	
