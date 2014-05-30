@@ -30,33 +30,27 @@
 
 from symbolic import invocation
 from symbolic.symbolic_types.symbolic_store import newInteger
+
 # Do not import you packages here, but do it in the callbacks below.
 # Otherwise the application will run with non-instrumented versions of those modules.
 
-# TBALL: we should use reflection to eliminate a lot of this boilerplat.
+# TBALL: we should use metadata and reflection to eliminate a lot of this boilerplate:
+#
+# - list of functions to test
+# - make all input parameters to function symbolic integers
+# - the import and calling of function
+# - the check of function result
 
 class SymExecApp:
 	APP_NAME="SE regression test suite"
-	NORMALIZE_MODS = ["many_branches.py", "shallow_branches.py", "loop.py",
-			"logical_op.py", "elseif.py", "dictionary.py",
-			"expressions.py"] # list of single modules (filenames with relative path from current dir) to normalize
+	TESTS = ["many_branches", "shallow_branches", "loop", "hashval", "logical_op", "elseif", "dictionary", "expressions"] 
+	# list of single modules (filenames with relative path from current dir) to normalize
+	NORMALIZE_MODS = [ t + ".py" for t in TESTS ]
 	NORMALIZE_PACKAGES = [] # As above, but for packages. The normalization will be recursive and cover the full package
 
 	def __init__(self, which_test):
-		if which_test == "many_branches":
-			self.test_name = "many_branches"
-		elif which_test == "shallow_branches":
-			self.test_name = "shallow_branches"
-		elif which_test == "loop":
-			self.test_name = "loop"
-		elif which_test == "logical_op":
-			self.test_name = "logical_op"
-		elif which_test == "elif":
-			self.test_name = "elif"
-		elif which_test == "dictionary":
-			self.test_name = "dictionary"
-		elif which_test == "expressions":
-			self.test_name = "expressions"
+		if which_test in TESTS:
+			self.test_name = which_test
 		else:
 			print "No test specified"
 		self.app = None
@@ -93,6 +87,9 @@ class SymExecApp:
 			inv = invocation.FunctionInvocation(self.run_expressions)
 			inv.addSymbolicParameter("in1", "in1", newInteger)
 			inv.addSymbolicParameter("in2", "in2", newInteger)
+		elif self.test_name == "hashval":
+			inv = invocation.FunctionInvocation(self.run_hashval)
+			inv.addSymbolicParameter("in1", "in1", newInteger)
 		invocation_sequence.append(inv)
 		return invocation_sequence
 
@@ -111,6 +108,8 @@ class SymExecApp:
 			self.app = __import__("dictionary")
 		elif self.test_name == "expressions":
 			self.app = __import__("expressions")
+		elif self.test_name == "hashval":
+			self.app = __import__("hashval")
 
 	def run_shallow_branches(self, **args):
 		return self.app.shallow_branches(**args)
@@ -132,6 +131,9 @@ class SymExecApp:
 
 	def run_expressions(self, **args):
 		return self.app.expressions(**args)
+
+	def run_hashval(self, **args):
+		return self.app.hashval(**args)
 
 	def check(self, computed, expected):
 		if len(computed) != len(expected) or computed != expected:
@@ -168,6 +170,9 @@ class SymExecApp:
 		elif self.test_name == "expressions":
 			res = map(lambda x: x[0], return_vals)
 			self.check(res, [0, 0, 0, 0, -1])
+		elif self.test_name == "hashval":
+			res = map(lambda x: x[0], return_vals)
+			self.check(res, [0, 1])
 		else:
 			print "---------------------> Unknown test <-------------------"
 	
