@@ -1,4 +1,6 @@
-def hash(in1):
+# Created by Thomas Ball (2014)
+
+def hashval(in1):
 	hash = 0
 	hash = hash + in1
 	hash = hash + (hash << 10)
@@ -10,3 +12,6 @@ def hash(in1):
 		return 0;
 	else:
 		return 1;
+
+def expected_result():
+	return [0,1]

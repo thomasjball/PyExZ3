@@ -1,10 +1,11 @@
-# vim: set expandtab ts=4 sw=4:
 #
 # Copyright (c) 2011, EPFL (Ecole Politechnique Federale de Lausanne)
 # All rights reserved.
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 # To this file contributed: Peter Peresini
+#
+# Updated by Thomas Ball (2014)
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -57,3 +58,5 @@ def many_branches(in1, in2, in3):
 
     return 0
 
+def expected_result():
+	return [1, 2, 3, 4, 5, 6, 7, 8]

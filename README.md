@@ -5,9 +5,9 @@ NICE Symbolic Execution for Python (Z3)
 
 This code is a port of the NICE project's (http://code.google.com/p/nice-of/) 
 symbolic execution engine for Python to use the Z3 theorem prover (http://z3.codeplex.com).
-The port removes all the NICE-specific dependences and forms the basis for
-experimentation with symbolic execution on a small code base across
-a variety of platforms.
+The port removes all the NICE-specific dependences, platform-specific code, and
+makes various improvements so the code base can be used by students or anyone wanting to
+experiment with dynamic symbolic execution.
 
 Setup instructions:
 

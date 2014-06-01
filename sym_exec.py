@@ -3,6 +3,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -105,7 +107,6 @@ engine = ConcolicEngine(options.debug)
 
 invocation_sequence = app_description.create_invocations()
 engine.setInvocationSequence(invocation_sequence)
-
 engine.setResetCallback(app_description.reset_callback)
 
 stats.pushProfile("engine only")

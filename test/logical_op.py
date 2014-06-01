@@ -6,6 +6,8 @@
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 # To this file contributed: Peter Peresini
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -41,3 +43,5 @@ def logical_op(in1, in2):
 
     return 0
 
+def expected_result():
+	return [2,3]
