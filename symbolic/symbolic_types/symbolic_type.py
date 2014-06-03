@@ -31,6 +31,7 @@ import ast
 
 # the base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
+
 class SymbolicType:
 	def __init__(self, name):
 		self.name = name

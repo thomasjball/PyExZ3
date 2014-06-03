@@ -1,17 +1,24 @@
 # Created by Thomas Ball (2014)
 
-def hashval(in1):
-	hash = 0
-	hash = hash + in1
-	hash = hash + (hash << 10)
-	hash = hash ^ (hash >> 6)
-	hash = hash + (hash << 3)
-	hash = hash ^ (hash >> 11)	
-	hash = hash + (hash << 15)
-	if (hash == 34):
+def compute(x):
+	res = 0
+#	res = x + res 
+	res = res + x
+	res = res + (res << 10)
+	res = res ^ (res >> 6)
+	res = res + (res << 3)
+	res = res ^ (res >> 11)	
+	res = res + (res << 15)
+	return res
+	
+def hashval(key):
+	hv = compute(key)
+	if (hv == 34):
 		return 0;
 	else:
 		return 1;
 
 def expected_result():
 	return [0,1]
+
+# test = compute(10010130)
