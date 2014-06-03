@@ -201,10 +201,15 @@ class PythonTracer:
 				stats.popProfile()
 
 			for s in stmts:
+				# DEBUG
+				print s
 				if self.SI.isStatementInteresting(s):
+					print "--interesting"
 					stats.pushProfile("symbolic interpreter")
 					self.SI.symbolicExamine(s)
 					stats.popProfile()
+				else:
+					print "--not interesting"
 
 		elif event == "call": # Use the same filtering mechanism as in Python's trace module
 
@@ -250,7 +255,6 @@ class PythonTracer:
 	def _symbolicExecFunction(self):
 		threading.settrace(self.trace_func)
 		sys.settrace(self.trace_func)
-
 		try:
 			self.inside_tracing_code = False
 			result = self.function_to_be_traced(**self.arguments)
@@ -258,7 +262,6 @@ class PythonTracer:
 			self.inside_tracing_code = True
 			sys.settrace(None)
 			threading.settrace(None)
-
 		return result
 
 	def _disassemble(self, co, lasti):
