@@ -114,4 +114,5 @@ def factory(param):
 		except KeyError:
 			return None
 	else:
+		print "Missing name of test to run"
 		return None
