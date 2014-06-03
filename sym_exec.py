@@ -97,6 +97,7 @@ sys.path[0] = se_instr_dir
 
 print "Running PyExZ3 on " + app_description.APP_NAME
 
+# instrument the code to be analyzed
 preprocess.instrumentLibrary(os.path.join(se_dir, "sym_exec_lib"), se_instr_dir)
 
 for m in app_description.NORMALIZE_MODS:
@@ -105,9 +106,7 @@ for m in app_description.NORMALIZE_MODS:
 for p in app_description.NORMALIZE_PACKAGES:
 	preprocess.instrumentPackage(p, se_instr_dir)
 
-print se_instr_dir
 os.chdir(se_instr_dir)
-
 
 engine = ConcolicEngine(options.debug)
 app_description.reset_callback()
@@ -124,14 +123,8 @@ else:
 	return_vals = engine.run()
 stats.popProfile()
 
-result = app_description.execution_complete(return_vals)
-if result == None or result == True:
-	sys.exit(0);
-else:
-	sys.exit(1);	
-
+# print statistics
 stats.popProfile() # SE total
-
 if not options.quiet:
 	print "---- Execution summary ----"
 	log.info("\n" + stats.getProfilingOutput())
@@ -139,3 +132,11 @@ if not options.quiet:
 	if options.logfile != "stdout":
 		print stats.getProfilingOutput()
 		print stats.getCounterOutput()
+
+# check the result
+result = app_description.execution_complete(return_vals)
+if result == None or result == True:
+	sys.exit(0);
+else:
+	sys.exit(1);	
+
