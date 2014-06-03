@@ -110,7 +110,7 @@ class ByteCodeParser:
 			elif op[1] in OPS_IGNORE_POP:
 				components.pop()
 			elif op[1] in OPS:
-				elem = OPS[op[1]](op, components, self.PT.execution_context)
+				elem = OPS[op[1]](op, components, self.PT.execution_context)	
 				components.append(elem)
 			else:
 				utils.crash("Opcode %s is unknown: %s" % (op[1], cb))

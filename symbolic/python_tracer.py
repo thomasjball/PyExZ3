@@ -197,6 +197,7 @@ class PythonTracer:
 				end = aux + 1
 				stats.pushProfile("bytecode parsing")
 				stmts = self.parser.parse(codeblock[start:end])
+
 				stats.popProfile()
 
 			for s in stmts:
