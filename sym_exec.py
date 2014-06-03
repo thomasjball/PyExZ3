@@ -87,11 +87,13 @@ sys.path = [app_dir] + sys.path
 
 app_description = __import__("se_descr")
 
-# then remove it and put in the instrumented version directory
-sys.path[0] = se_instr_dir
-
 # Get the object describing the application
 app_description = app_description.factory(app_args)
+if app_description == None:
+	sys.exit(1)
+
+# then remove it and put in the instrumented version directory
+sys.path[0] = se_instr_dir
 
 print "Running PyExZ3 on " + app_description.APP_NAME
 
@@ -103,8 +105,12 @@ for m in app_description.NORMALIZE_MODS:
 for p in app_description.NORMALIZE_PACKAGES:
 	preprocess.instrumentPackage(p, se_instr_dir)
 
-engine = ConcolicEngine(options.debug)
+print se_instr_dir
+os.chdir(se_instr_dir)
 
+
+engine = ConcolicEngine(options.debug)
+app_description.reset_callback()
 invocation_sequence = app_description.create_invocations()
 engine.setInvocationSequence(invocation_sequence)
 engine.setResetCallback(app_description.reset_callback)
@@ -118,7 +124,11 @@ else:
 	return_vals = engine.run()
 stats.popProfile()
 
-app_description.execution_complete(return_vals)
+result = app_description.execution_complete(return_vals)
+if result == None or result == True:
+	sys.exit(0);
+else:
+	sys.exit(1);	
 
 stats.popProfile() # SE total
 
