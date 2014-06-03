@@ -57,8 +57,7 @@ class SymExecApp:
 			self.test_name = which_test
 			self.reset_callback(True)
 		else:
-			print "No test matched: " + which_test
-			raise KeyError()
+			print "No test specified"
 
 	def create_invocations(self):
 		inv = invocation.FunctionInvocation(self.execute)

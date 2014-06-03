@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -31,11 +33,10 @@ from symbolic_interpreter import SymbolicInterpreter
 from python_tracer import PythonTracer
 from symbolic import instrumentation
 from collections import deque
-
 import logging
-log = logging.getLogger("se.conc")
-
 from stats import getStats
+
+log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
@@ -91,16 +92,20 @@ class ConcolicEngine:
 		log.info("Iteration end")
 		return return_values
 
+	def record_inputs(self):
+		concr_inputs = {}
+		for k in self.invocation_sequence[0].symbolic_inputs:
+			concr_inputs[k] = self.invocation_sequence[0].symbolic_inputs[k].getConcrValue()
+		self.generated_inputs.append(concr_inputs)
+		
 	def run(self, max_iterations=0):
 		# first iteration, find some constraints to bootstrap with
 		ret = self.execute(self.invocation_sequence)
 		self.execution_return_values.append(ret)
 
 		iterations = 1
-		concr_inputs = {}
-		for k in self.invocation_sequence[0].symbolic_inputs:
-			concr_inputs[k] = self.invocation_sequence[0].symbolic_inputs[k].getConcrValue()
-		self.generated_inputs.append(concr_inputs)
+		# record the default inputs
+		self.record_inputs()
 
 		if max_iterations != 0 and iterations >= max_iterations:
 			log.debug("Maximum number of iterations reached, terminating")
@@ -117,15 +122,14 @@ class ConcolicEngine:
 			stats.pushProfile("constraint solving")
 			ret = selected.negateConstraint(self.tracer.execution_context)
 			stats.popProfile()
+
 			if not ret:
 				log.warning("Unsolvable constraints, skipping iteration")
 				iterations += 1
 				continue
 
-			concr_inputs = {}
-			for k in self.invocation_sequence[0].symbolic_inputs:
-				concr_inputs[k] = self.invocation_sequence[0].symbolic_inputs[k].getConcrValue()
-			self.generated_inputs.append(concr_inputs)
+			# record newly generated inputs
+			self.record_inputs()	
 
 			ret = self.execute(self.invocation_sequence)
 			self.execution_return_values.append(ret)
