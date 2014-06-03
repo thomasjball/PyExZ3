@@ -149,6 +149,8 @@ class PythonTracer:
 		self.inside_tracing_code = True
 		ctx = PythonContext(frame)
 		self.execution_context = ctx
+		# DEBUG
+		print ctx
 		if event == "line" and not self.no_symbolic:
 			key = self.execution_context.filename + ":" + self.execution_context.name
 			if not key in self.known_code_blocks:
@@ -197,10 +199,11 @@ class PythonTracer:
 				end = aux + 1
 				stats.pushProfile("bytecode parsing")
 				stmts = self.parser.parse(codeblock[start:end])
-
 				stats.popProfile()
 
 			for s in stmts:
+				# DEBUG
+				print s
 				if self.SI.isStatementInteresting(s):
 					stats.pushProfile("symbolic interpreter")
 					self.SI.symbolicExamine(s)
