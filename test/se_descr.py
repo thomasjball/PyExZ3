@@ -50,11 +50,11 @@ class SymExecApp:
 	NORMALIZE_PACKAGES = [] 
 
 	def __init__(self, which_test):
-		# TBALL: do the import here and fail if import doesn't work
 		if which_test in TESTS:
 			self.test_name = which_test
 		else:
 			print "No test specified"
+		# TBALL: do the import here and fail if import doesn't work
 		self.reset_callback()
 
 	def create_invocations(self):
@@ -62,7 +62,6 @@ class SymExecApp:
 		inv = invocation.FunctionInvocation(self.execute)
 		func = self.app.__dict__[self.test_name]
 		# TODO: it should be a function
-		# TODO: find number of arguments
 		argspec = inspect.getargspec(func)
 		for a in argspec.args:
 			inv.addSymbolicParameter(a, a, newInteger)
@@ -85,6 +84,7 @@ class SymExecApp:
 			print "%s test passed <---" % self.test_name
 
 	def execution_complete(self, return_vals):
+		# precondition: require "expected_result"
 		res = map(lambda x: x[0], return_vals)
 		res.sort()
 		self.check(res, self.app.__dict__["expected_result"]())
