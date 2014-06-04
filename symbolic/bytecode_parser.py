@@ -107,10 +107,8 @@ class ByteCodeParser:
 		while len(cb) > 0:
 			op = cb.pop()
 			if op[1] in OPS_IGNORE:
-				print "IGNORE"
 				pass
 			elif op[1] in OPS_IGNORE_POP:
-				print "IGNORE"
 				components.pop()
 			elif op[1] in OPS:
 				elem = OPS[op[1]](op, components, self.PT.execution_context)	

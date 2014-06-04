@@ -30,6 +30,18 @@
 #
 
 import ast
+import sys
+
+def correct(value, bits, signed):
+    base = 1 << bits
+    value %= base
+    return value - base if signed and value.bit_length() == bits else value
+
+char, word, dword, qword, byte, sword, sdword, sqword = (
+    lambda v: correct(v, 8, True), lambda v: correct(v, 16, True),
+    lambda v: correct(v, 32, True), lambda v: correct(v, 64, True),
+    lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
+    lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
 
 # the base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
@@ -62,36 +74,6 @@ class SymbolicType:
 	def __cmp__(self, other):
 		return NotImplemented
 
-	def __add__(self, other):
-		return self._do_bin_op(other, lambda x, y: x + y, ast.Add)
-	def __radd__(self,other):
-		return self.__add__(other)
-
-	def __sub__(self, other):
-		return self._do_bin_op(other, lambda x, y: x - y, ast.Sub)
-	def __rsub__(self,other):
-		return self.__sub__(other)
-
-	def __mul__(self, other):
-		return self._do_bin_op(other, lambda x, y: x * y, ast.Mult)
-	def __rmul__(self,other):
-		return self.__mul__(other)
-
-	def __and__(self, other):
-		return self._do_bin_op(other, lambda x, y: x & y, ast.BitAnd)
-	def __rand__(self,other):
-		return self.__and__(other)
-
-	def __or__(self, other):
-		return self._do_bin_op(other, lambda x, y: x | y, ast.BitOr)
-	def __ror__(self,other):
-		return self.__or__(other)
-
-	def __xor__(self, other):
-		return self._do_bin_op(other, lambda x, y: x ^ y, ast.BitXor)
-	def __rxor__(self,other):
-		return self.__xor__(other)
-
 	def __eq__(self, other):
 		if isinstance(other, type(None)):
 			return False
@@ -115,17 +97,6 @@ class SymbolicType:
 
 	def __ge__(self, other):
 		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
-
-
-	def __lshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: x << y, ast.LShift)
-	def __rlshift__(self,other):
-		return self.__lshift__(other)
-
-	def __rshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >> y, ast.RShift)
-	def __rrshift__(self,other):
-		return self.__rshift__(other)
 
 	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, ast_op):
@@ -156,4 +127,47 @@ class SymbolicType:
 		filtered_dict = {}
 		filtered_dict["concrete_value"] = self.concrete_value
 		return filtered_dict
+
+	# Integer results only from now on... :(
+	# also, non-standard interpretation of Python integers
+	
+	def __add__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x+y), ast.Add)
+	def __radd__(self,other):
+		return self.__add__(other)
+
+	def __sub__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x - y), ast.Sub)
+	def __rsub__(self,other):
+		return self.__sub__(other)
+
+	def __mul__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x*y), ast.Mult)
+	def __rmul__(self,other):
+		return self.__mul__(other)
+
+	def __and__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x & y), ast.BitAnd)
+	def __rand__(self,other):
+		return self.__and__(other)
+
+	def __or__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x | y), ast.BitOr)
+	def __ror__(self,other):
+		return self.__or__(other)
+
+	def __xor__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x ^ y), ast.BitXor)
+	def __rxor__(self,other):
+		return self.__xor__(other)
+
+	def __lshift__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x << y), ast.LShift)
+	def __rlshift__(self,other):
+		return self.__lshift__(other)
+
+	def __rshift__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x >> y), ast.RShift)
+	def __rrshift__(self,other):
+		return self.__rshift__(other)
 

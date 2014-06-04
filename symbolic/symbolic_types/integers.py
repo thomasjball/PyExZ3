@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -56,4 +58,3 @@ class SymbolicInteger(SymbolicType):
 			return [(self.name, self, self.z3_var)]
 		else:
 			return [(self.name, self, z3.extract(self.z3_var, self.z3_start, self.z3_end))]
-
