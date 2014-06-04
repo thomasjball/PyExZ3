@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -32,6 +34,8 @@ import ast
 # the base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
+#TODO: need to add reverse ops everywhere!!!
+
 class SymbolicType:
 	def __init__(self, name):
 		self.name = name
@@ -52,7 +56,6 @@ class SymbolicType:
 	def __ord__(self):
 		return self
 
-	# TBALL: why not symbolic?
 	def __ror__(self, other):
 		return self.getConcrValue() | other
 
@@ -64,17 +67,19 @@ class SymbolicType:
 
 	def __add__(self, other):
 		return self._do_bin_op(other, lambda x, y: x + y, ast.Add)
+	def __radd__(self,other):
+		self.__add__(other)
 
 	def __sub__(self, other):
 		return self._do_bin_op(other, lambda x, y: x - y, ast.Sub)
+	def __rsub__(self,other):
+		self.__sub__(other)
 
 	def __mul__(self, other):
 		return self._do_bin_op(other, lambda x, y: x * y, ast.Mult)
 
 	def __and__(self, other):
 		return self._do_bin_op(other, lambda x, y: x & y, ast.BitAnd)
-
-	# TBALL: what about or?
 
 	def __eq__(self, other):
 		if isinstance(other, type(None)):
@@ -100,9 +105,16 @@ class SymbolicType:
 	def __ge__(self, other):
 		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
 
+	def __lshift__(self, other):
+		return self._do_bin_op(other, lambda x, y: x << y, ast.LeftShift)
+	def __rlshift__(self,other):
+		self.__lshift__(other)
+
+
 	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, ast_op):
 		from symbolic_expression import SymbolicExpression # dodge circular reference
+
 		left_expr, left_concr = self.getExprConcr()
 		if isinstance(other, int) or isinstance(other, long):
 			right_expr = other
@@ -114,6 +126,7 @@ class SymbolicType:
 		aux = ast.BinOp(left=left_expr, op=ast_op(), right=right_expr)
 		ret = SymbolicExpression(aux)
 		ret.concrete_value = fun(left_concr, right_concr)
+		print ret
 		return ret
 
 	def getConcrValue(self):

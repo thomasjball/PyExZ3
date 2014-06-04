@@ -2,7 +2,6 @@
 
 def compute(x):
 	res = 0
-#	res = x + res 
 	res = res + x
 	res = res + (res << 10)
 	res = res ^ (res >> 6)

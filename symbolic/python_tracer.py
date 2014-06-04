@@ -149,8 +149,6 @@ class PythonTracer:
 		self.inside_tracing_code = True
 		ctx = PythonContext(frame)
 		self.execution_context = ctx
-		# DEBUG
-		print ctx
 		if event == "line" and not self.no_symbolic:
 			key = self.execution_context.filename + ":" + self.execution_context.name
 			if not key in self.known_code_blocks:
@@ -202,15 +200,10 @@ class PythonTracer:
 				stats.popProfile()
 
 			for s in stmts:
-				# DEBUG
-				print s
 				if self.SI.isStatementInteresting(s):
-					print "--interesting"
 					stats.pushProfile("symbolic interpreter")
 					self.SI.symbolicExamine(s)
 					stats.popProfile()
-				else:
-					print "--not interesting"
 
 		elif event == "call": # Use the same filtering mechanism as in Python's trace module
 
@@ -236,6 +229,13 @@ class PythonTracer:
 				pprint.pprint(codeblock)
 				pprint.pprint(linestarts)
 				print "--------"
+		else:
+			# DANGER: we lose visibility into error source here
+			# TODO: this branch can be executed when
+			# TODO: our code throws an exception when invoked
+			# TODO: should we stop everything?
+			# TODO: event == "exception"
+			pass
 
 		self.inside_tracing_code = False
 		return self.trace_func

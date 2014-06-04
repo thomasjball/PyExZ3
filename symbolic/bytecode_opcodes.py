@@ -67,6 +67,9 @@ class GenericOpCode:
 		else:
 			return False
 
+	# the reason for refreshing is that the context may change out
+	# from underneath us when underlying code executes this operation
+	# again
 	def refreshRef(self, context):
 		pass
 
@@ -307,7 +310,6 @@ class ConstantValue(GenericOpCode):
 		return self.bitlen
 
 class UnaryOperator(GenericOpCode):
-	# TBALL: fix this
 	def __init__(self, opcode, stack, context):
 		GenericOpCode.__init__(self, opcode[0])
 		if opcode[1] == "UNARY_NOT":

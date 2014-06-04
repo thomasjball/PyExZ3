@@ -31,6 +31,9 @@ import inspect
 import linecache
 import __builtin__
 
+# here we step from "native" Python state (frame) to our view of Python state (PythonContext)
+# PythonContext is a view on Python state
+
 class PythonContext:
 	"""This object contains the whole context associated to a particular line of code executed."""
 	def __init__(self, frame):
