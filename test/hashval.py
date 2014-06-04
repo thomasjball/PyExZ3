@@ -11,13 +11,15 @@ def compute(x):
 	return res
 	
 def hashval(key):
-	hv = compute(key)
-	if (hv == 34):
-		return 0;
-	else:
-		return 1;
+        if 0 < key and key < 100000000:
+		hv = compute(key)
+		if (hv == 1010101):
+			return 0
+		else:
+			return 1
+	return 2
 
 def expected_result():
-	return [0,1]
+	return [0,1,2]
 
 # test = compute(10010130)

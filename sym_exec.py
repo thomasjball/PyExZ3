@@ -106,6 +106,8 @@ for m in app_description.NORMALIZE_MODS:
 for p in app_description.NORMALIZE_PACKAGES:
 	preprocess.instrumentPackage(p, se_instr_dir)
 
+# now do the concolic execution
+
 os.chdir(se_instr_dir)
 
 engine = ConcolicEngine(options.debug)

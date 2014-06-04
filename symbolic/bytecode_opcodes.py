@@ -349,8 +349,12 @@ class BinaryOperator(GenericOpCode):
 			self.name = "-"
 		elif opcode[1] == "BINARY_LSHIFT":
 			self.name = "<<"
+		elif opcode[1] == "BINARY_RSHIFT":
+			self.name = ">>"
 		elif opcode[1] == "BINARY_OR":
 			self.name = "|"
+		elif opcode[1] == "BINARY_XOR":
+			self.name = "^"
 		elif opcode[1] == "BINARY_MULTIPLY":
 			self.name = "*"
 		else:

@@ -64,8 +64,10 @@ OPS = { "LOAD_FAST": bc.LocalReference,
 		"BINARY_AND": bc.BinaryOperator,
 		"BINARY_ADD": bc.BinaryOperator,
 		"BINARY_SUBTRACT": bc.BinaryOperator,
+		"BINARY_RSHIFT": bc.BinaryOperator,
 		"BINARY_LSHIFT": bc.BinaryOperator,
 		"BINARY_OR": bc.BinaryOperator,
+		"BINARY_XOR": bc.BinaryOperator,
 		"BINARY_MULTIPLY": bc.BinaryOperator,
 		"UNARY_NOT": bc.UnaryOperator,
 		"RETURN_VALUE": bc.ReturnValue,
@@ -85,6 +87,8 @@ OPS = { "LOAD_FAST": bc.LocalReference,
 		"END_FINALLY": bc.BreakLoop,
 }
 
+
+
 # Note: We assume that POP_TOP instruction is used only at the end of the block
 # and it is used to clear the stack after the last statement.
 # We do not want to do pop here -- in fact, the top of the stack is what is interesting for us
@@ -99,21 +103,19 @@ class ByteCodeParser:
 	def parse(self, cb):
 		""" components is stack, but at the end should contain a list of statements """
 		components = []
-#		log.debug("Parsing this codeblock: %s" % cb)
-		if len(cb) == 0:
-#			log.debug("Skipping empty codeblock")
-			return components
+		#log.debug("Parsing this codeblock: %s" % cb)
 		while len(cb) > 0:
 			op = cb.pop()
 			if op[1] in OPS_IGNORE:
+				print "IGNORE"
 				pass
 			elif op[1] in OPS_IGNORE_POP:
+				print "IGNORE"
 				components.pop()
 			elif op[1] in OPS:
 				elem = OPS[op[1]](op, components, self.PT.execution_context)	
 				components.append(elem)
 			else:
 				utils.crash("Opcode %s is unknown: %s" % (op[1], cb))
-
 		return components
 

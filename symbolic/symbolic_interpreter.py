@@ -103,22 +103,10 @@ class SymbolicInterpreter:
 		self.current_constraint = self.root_constraint
 
 	def symbolicExamine(self, stmt):
-		# what kind of beast are we looking at here ?
-		if isinstance(stmt, ConditionalJump): # A predicate !
+		if isinstance(stmt, ConditionalJump):
+			# A predicate !
 			# The real work will be done after jump because we do not know
 			# the taken branch yet
 			self.branch_result_stack.append(stmt)
-		elif isinstance(stmt, Assignment):
-			pass
-		elif isinstance(stmt, BuildList):
-			pass
-		elif isinstance(stmt, FunctionCall):
-			pass
-		elif isinstance(stmt, ForLoop):
-			pass
-		elif isinstance(stmt, ReturnValue):
-			pass
-		else:
-			utils.crash("Unknown symbolic statement: %s" % repr(stmt))
-		return
+
 

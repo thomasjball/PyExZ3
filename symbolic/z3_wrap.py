@@ -55,7 +55,7 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 	_z3.push()
 	_z3.assert_exprs(z3_asserts)
 	_z3.assert_exprs(Not(z3_query))
-#	print _z3.assertions()
+	print _z3.assertions()
 	ret = _z3.check()
 	if ret == unsat:
 		log.warning("Z3: UNSAT")
@@ -68,8 +68,8 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 		return None
 	res = []
         model = _z3.model()
-#	print "Model is "
-#	print model
+	print "Model is "
+	print model
 	for var_name in z3_variables:
 		(instance, z3_var) = z3_variables[var_name]
 		ce = model.eval(z3_var)
@@ -96,7 +96,16 @@ def ast2SymExpr(expr, bitlen):
 			return z3_l - z3_r
 		elif isinstance(expr.op, ast.Mult):
 			return z3_l * z3_r
-		# TBALL: more conversions to do here
+		elif isinstance(expr.op, ast.LShift):
+			return z3_l << z3_r
+		elif isinstance(expr.op, ast.RShift):
+			return z3_l >> z3_r
+		elif isinstance(expr.op, ast.BitXor):
+			return z3_l ^ z3_r
+		elif isinstance(expr.op, ast.BitOr):
+			return z3_l | z3_r
+		elif isinstance(expr.op, ast.BitAnd):
+			return z3_l & z3_r
 		else:
 			utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
 	elif isinstance(expr, SymbolicType):

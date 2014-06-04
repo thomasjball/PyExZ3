@@ -29,8 +29,8 @@
 
 import sys
 import traceback
-#import logging
-#log = logging.getLogger("se.utils")
+import logging
+log = logging.getLogger("se.utils")
 
 def _traceback():
 	stack = traceback.format_stack()
@@ -38,8 +38,8 @@ def _traceback():
 
 def crash(msg):
 	stack = _traceback()
-#	log.critical("\n"+"".join(stack))
-#	log.critical(msg)
+	print("\n"+"".join(stack))
+	print msg
 	sys.exit(-1)
 
 def serialize_dict(d):

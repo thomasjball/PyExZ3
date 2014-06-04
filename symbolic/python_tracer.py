@@ -200,6 +200,8 @@ class PythonTracer:
 				stats.popProfile()
 
 			for s in stmts:
+				# DEBUG
+				print s
 				if self.SI.isStatementInteresting(s):
 					stats.pushProfile("symbolic interpreter")
 					self.SI.symbolicExamine(s)
@@ -230,6 +232,8 @@ class PythonTracer:
 				pprint.pprint(linestarts)
 				print "--------"
 		else:
+			# DEBUG
+			print event
 			# DANGER: we lose visibility into error source here
 			# TODO: this branch can be executed when
 			# TODO: our code throws an exception when invoked
