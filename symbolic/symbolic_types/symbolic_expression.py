@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#sawdxqz
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -100,12 +102,4 @@ class SymbolicExpression(SymbolicType):
 	def __repr__(self):
 		return "SymExpr(" + ast.dump(self.expr) + ")"
 
-# TBALL: looks like debugging to me...
-#if __name__ == "__main__":
-#	e = SymbolicExpression(None)
-#	e.concrete_value = 0
-#	if e:
-#		print "true"
-#	else:
-#		print "false"
 

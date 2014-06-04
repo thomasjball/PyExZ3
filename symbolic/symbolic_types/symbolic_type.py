@@ -34,8 +34,6 @@ import ast
 # the base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
-#TODO: need to add reverse ops everywhere!!!
-
 class SymbolicType:
 	def __init__(self, name):
 		self.name = name
@@ -56,8 +54,9 @@ class SymbolicType:
 	def __ord__(self):
 		return self
 
-	def __ror__(self, other):
-		return self.getConcrValue() | other
+	# this was the previous implementation - very odd
+	#def __ror__(self, other):
+	#	return self.getConcrValue() | other
 
 	def __hash__(self):
 		return hash(self.getConcrValue())
@@ -68,18 +67,27 @@ class SymbolicType:
 	def __add__(self, other):
 		return self._do_bin_op(other, lambda x, y: x + y, ast.Add)
 	def __radd__(self,other):
-		self.__add__(other)
+		return self.__add__(other)
 
 	def __sub__(self, other):
 		return self._do_bin_op(other, lambda x, y: x - y, ast.Sub)
 	def __rsub__(self,other):
-		self.__sub__(other)
+		return self.__sub__(other)
 
 	def __mul__(self, other):
 		return self._do_bin_op(other, lambda x, y: x * y, ast.Mult)
+	def __rmul__(self,other):
+		return self.__mul__(other)
 
 	def __and__(self, other):
 		return self._do_bin_op(other, lambda x, y: x & y, ast.BitAnd)
+	def __rand__(self,other):
+		return self.__and__(other)
+
+	def __or__(self, other):
+		return self._do_bin_op(other, lambda x, y: x | y, ast.BitOr)
+	def __ror__(self,other):
+		return self.__or__(other)
 
 	def __eq__(self, other):
 		if isinstance(other, type(None)):
@@ -105,11 +113,18 @@ class SymbolicType:
 	def __ge__(self, other):
 		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
 
-	def __lshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: x << y, ast.LeftShift)
-	def __rlshift__(self,other):
-		self.__lshift__(other)
 
+	def __lshift__(self, other):
+		return self._do_bin_op(other, lambda x, y: x << y, ast.LShift)
+	def __rlshift__(self,other):
+		return self.__lshift__(other)
+
+	def __rshift__(self, other):
+		return self._do_bin_op(other, lambda x, y: x >> y, ast.RShift)
+	def __rrshift__(self,other):
+		return self.__rshift__(other)
+
+        #   MISSING: Mod | Pow  | BitXor | FloorDiv
 
 	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, ast_op):
@@ -126,7 +141,9 @@ class SymbolicType:
 		aux = ast.BinOp(left=left_expr, op=ast_op(), right=right_expr)
 		ret = SymbolicExpression(aux)
 		ret.concrete_value = fun(left_concr, right_concr)
+		# DEBUG
 		print ret
+		print ret.concrete_value
 		return ret
 
 	def getConcrValue(self):

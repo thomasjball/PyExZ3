@@ -6,7 +6,6 @@
 #
 # Updated by Thomas Ball (2014)
 #
-#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -34,20 +33,11 @@
 # via the method addSymbolicParameter with a subclass of SymbolicType
 # see test/se_descr.py for example of setting it up with SymbolicInteger
 
-# TODO: should protect itself against bad uses, such as adding parameter
-# and symbolic parameter with same name
-
 class FunctionInvocation:
 	def __init__(self, function):
 		self.function = function
-		self.inputs = {}
 		self.symbolic_inputs = {}  # name -> SymbolicType
 
-	def addParameter(self, param, value):
-		""" Add ordinary parameter
-		"""
-		self.inputs[param] = value
-	
 	def addSymbolicParameter(self, name, symbolic_name, type_ref):
 		""" Add symbolic parameter with specified name
 		"""
@@ -57,7 +47,5 @@ class FunctionInvocation:
 
 	def setupTracer(self, tracer):
 		tracer.setFunction(self.function)
-		for name, value in self.inputs.items():
-			tracer.addFunParam(name, value)
 		for name, value in self.symbolic_inputs.items():
 			tracer.addFunParam(name, value)
