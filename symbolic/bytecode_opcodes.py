@@ -46,15 +46,18 @@ log = logging.getLogger("se.opcodes")
 class GenericOpCode:
 	def __init__(self, opcode_id):
 		self.name = "generic_no_name"
-		# TBALL: this is a huge hack to represent storing into locations, thus the comment
-                # "Be careful with this field, it becomes outdated (e.g. after assignements)"
-		# TBALL: we should properly have a symbolic store
 		self.reference = None 
 		self.opcode_id = opcode_id
+
+	# the reason for refreshing is that the context may change out
+	# from underneath us when underlying code executes this operation again
+	def refreshRef(self, context):
+		pass
 
 	def __repr__(self):
 		return self.name
 
+	# does the computed expression contain a symbolic variable?
 	def isSymbolic(self):
 		if self.reference != None:
 			return isinstance(self.reference, SymbolicType)
@@ -67,14 +70,15 @@ class GenericOpCode:
 		else:
 			return False
 
-	# the reason for refreshing is that the context may change out
-	# from underneath us when underlying code executes this operation
-	# again
-	def refreshRef(self, context):
-		pass
-
 	def getBitLength(self):
 		utils.crash("getBitLength not implemented for this class")
+
+# opcodes that access memory
+
+class StorageOpCode(GenericOpCode):
+	def __init__(self, opcode, stack, context):
+		GenericOpCode.__init__(self, opcode[0])
+		self.name = opcode[2]
 
 	def shouldSaveValue(self):
 		"""This method should not be overridden"""
@@ -101,10 +105,9 @@ class GenericOpCode:
 				return False
 		return True
 
-class LocalReference(GenericOpCode):
+class LocalReference(StorageOpCode):
 	def __init__(self, opcode, stack, context):
-		GenericOpCode.__init__(self, opcode[0])
-		self.name = opcode[2]
+		StorageOpCode.__init__(self, opcode, stack, context)
 		self.reference = context.getLocalVariable(self.name)
 		if not self.isSymbolic() and self.shouldSaveValue():
 			self.value = copy.copy(self.reference)
@@ -130,10 +133,9 @@ class LocalReference(GenericOpCode):
 		else:
 			return 0
 
-class GlobalReference(GenericOpCode):
+class GlobalReference(StorageOpCode):
 	def __init__(self, opcode, stack, context):
-		GenericOpCode.__init__(self, opcode[0])
-		self.name = opcode[2]
+		StorageOpCode.__init__(self, opcode, stack, context)
 		self.reference = context.getGlobalVariable(self.name)
 		if not self.isSymbolic() and self.shouldSaveValue():
 			self.value = copy.copy(self.reference)
@@ -159,10 +161,9 @@ class GlobalReference(GenericOpCode):
 		else:
 			return 0
 
-class Attribute(GenericOpCode):
+class Attribute(StorageOpCode):
 	def __init__(self, opcode, stack, context):
-		GenericOpCode.__init__(self, opcode[0])
-		self.name = opcode[2]
+		StorageOpCode.__init__(self, opcode, stack, context)
 		if not len(stack) > 0:
 			utils.crash("Empty stack while parsing an attribute")
 		self.prev = stack.pop()
@@ -205,12 +206,48 @@ class Attribute(GenericOpCode):
 		else:
 			return 0
 
+class Subscr(StorageOpCode):
+	def __init__(self, opcode, stack, context):
+		StorageOpCode.__init__(self, opcode, stack, context)
+		self.name = "subscr"
+		self.needle = stack.pop()
+		self.haystack = stack.pop()
+		try:
+			self.reference = self.haystack.reference[self.needle.reference]
+			if not self.isSymbolic() and self.shouldSaveValue():
+				self.value = copy.copy(self.reference)
+		except KeyError:
+			# Assignment to a new element, the reference does not exist yet
+			self.reference = None
+		self.bitlength = 0
+
+	def __repr__(self):
+		return repr(self.haystack) + "[" + repr(self.needle) + "]"
+
+	def refreshRef(self, context):
+		if self.reference == None:
+			self.needle.refreshRef(context)
+			self.haystack.refreshRef(context)
+			self.reference = self.haystack.reference[self.needle.reference]
+			if not self.isSymbolic() and not hasattr(self.reference, "__call__"):
+				self.value = copy.copy(self.reference)
+
+	def getSymbolicVariables(self):
+		return self.needle.getSymbolicVariables() + self.haystack.getSymbolicVariables()
+
+	def getBitLength(self):
+		if self.isSymbolic():
+			return self.reference.getBitLength()
+		else:
+			return self.bitlength
+
+# control flow
+
 class ConditionalJump(GenericOpCode):
 	def __init__(self, opcode, stack, context):
 		GenericOpCode.__init__(self, opcode[0])
 		self.name = opcode[1]
 		self.target = opcode[2]
-
 		if not len(stack) > 0:
 			utils.crash("Empty stack while parsing a conditional jump")
 		self.condition = stack.pop()
@@ -218,7 +255,7 @@ class ConditionalJump(GenericOpCode):
 	def __repr__(self):
 		return self.name + "(" + repr(self.condition) + ") to " + repr(self.target)
 
-	def isSymbolic(self): # If returns True this is a Constraint !!
+	def isSymbolic(self):
 		return self.condition.isSymbolic()
 
 	def refreshRef(self, context):
@@ -421,41 +458,6 @@ class Assignment(GenericOpCode):
 	def getSymbolicVariables(self):
 		return self.lvalue.getSymbolicVariables() + self.rvalue.getSymbolicVariables()
 
-class Subscr(GenericOpCode):
-	def __init__(self, opcode, stack, context):
-		GenericOpCode.__init__(self, opcode[0])
-		self.name = "subscr"
-		self.needle = stack.pop()
-		self.haystack = stack.pop()
-		try:
-			self.reference = self.haystack.reference[self.needle.reference]
-			if not self.isSymbolic() and self.shouldSaveValue():
-				self.value = copy.copy(self.reference)
-		except KeyError:
-			# Assignment to a new element, the reference does not exist yet
-			self.reference = None
-		self.bitlength = 0
-
-	def __repr__(self):
-		return repr(self.haystack) + "[" + repr(self.needle) + "]"
-
-	def refreshRef(self, context):
-		if self.reference == None:
-			self.needle.refreshRef(context)
-			self.haystack.refreshRef(context)
-			self.reference = self.haystack.reference[self.needle.reference]
-			if not self.isSymbolic() and not hasattr(self.reference, "__call__"):
-				self.value = copy.copy(self.reference)
-
-	def getSymbolicVariables(self):
-		return self.needle.getSymbolicVariables() + self.haystack.getSymbolicVariables()
-
-	def getBitLength(self):
-		if self.isSymbolic():
-			return self.reference.getBitLength()
-		else:
-			return self.bitlength
-
 class ReturnValue(GenericOpCode):
 	def __init__(self, opcode, stack, context):
 		GenericOpCode.__init__(self, opcode[0])
@@ -513,7 +515,7 @@ class PrintItem(GenericOpCode):
 		return self.name + " " + repr(self.value)
 
 	def isSymbolic(self):
-		return False #nothing interesting in print
+		return False
 
 	def getSymbolicVariables(self):
 		return []

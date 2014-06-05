@@ -42,13 +42,13 @@ class PathToConstraint:
 		self.engine = engine
 		self.root_constraint = Constraint(None, None)
 		self.current_constraint = self.root_constraint
-		self.branch_result_stack = []
+		self.conditional_jumps = []
 		self.tracer = None
 
 	def reset(self):
-		if len(self.branch_result_stack) > 0:
+		if len(self.conditional_jumps) > 0:
 			log.error("One or more constraints were left without result during the previous execution")
-			for s in self.branch_result_stack:
+			for s in self.conditional_jumps:
 				log.error("--> " + str(s))
 			raise KeyError
 		self.current_constraint = self.root_constraint
@@ -62,18 +62,18 @@ class PathToConstraint:
 		jump. """
 		if self.tracer.inside_tracing_code:
 			return
-		if len(self.branch_result_stack) > 0:
-			stmt = self.branch_result_stack.pop()
-			self.addBranchAfterJump(stmt, branch)
+		if len(self.conditional_jumps) > 0:
+			conditional_jump = self.conditional_jumps.pop()
+			self.addBranchAfterJump(conditional_jump, branch)
 		else:
 			utils.crash("Branch result without a conditional jump, problems with the whichBranch instrumentation")
 
-	def addBranchAfterJump(self, stmt, result):
-		if not stmt.isSymbolic():
+	def addBranchAfterJump(self, conditional_jump, result):
+		if not conditional_jump.isSymbolic():
 			return
 
 		# add both possible predicate outcomes to constraint (tree)
-		p = Predicate(stmt, result)
+		p = Predicate(conditional_jump, result)
 		p.negate()
 		cneg = self.current_constraint.findChild(p)
 		p.negate()
@@ -104,7 +104,7 @@ class PathToConstraint:
 
 	def recordConditional(self, stmt):
 		if isinstance(stmt, ConditionalJump):
-			self.branch_result_stack.append(stmt)
+			self.conditional_jumps.append(stmt)
 
 
 

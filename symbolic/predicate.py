@@ -39,12 +39,8 @@ log = logging.getLogger("se.predicate")
 class Predicate:
 	"""Predicate is one specific ``if'' encountered during the program execution.
 	   """
-
-	def __init__(self, stmt, result):
-		"""stmt is statement under consideration
-			next_opcode_id is used to determine branch taken
-			"""
-		self.stmt = stmt
+	def __init__(self, conditional_jump, result):
+		self.stmt = conditional_jump
 		self.result = result
 		self.sym_variables = {}
 

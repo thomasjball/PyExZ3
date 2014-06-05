@@ -160,7 +160,6 @@ class PythonTracer:
 			if len(linestarts) == 1:
 				stmts = self.parser.parse(codeblock)
 			else:
-				# TBALL: this is rather ghastly... should figure it out someday
 				start = None
 				end = None
 				aux = linestarts.values()

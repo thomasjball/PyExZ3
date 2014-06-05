@@ -37,30 +37,36 @@ log = logging.getLogger("se.parser")
 # i.e. we do not reuse variables remaining on the stack from previous codeblock.
 # This assumption may fail if Python starts to do fancy optimizations of bytecode
 
-OPS = { "LOAD_FAST": bc.LocalReference,
+OPS = { 	"LOAD_FAST": bc.LocalReference,
+		"LOAD_GLOBAL": bc.GlobalReference,
 		"LOAD_ATTR": bc.Attribute,
-		"JUMP_IF_TRUE": bc.ConditionalJump,
-		"JUMP_IF_FALSE": bc.ConditionalJump,
+		
 		# Note: We assume that conditional jump is the last statement in the block
 		# and thus we do not need POP, see comment above POP_TOP
+		
+		"JUMP_FORWARD": bc.Jump,
+		"JUMP_IF_TRUE": bc.ConditionalJump,
+		"JUMP_IF_FALSE": bc.ConditionalJump,
 		"POP_JUMP_IF_TRUE": bc.ConditionalJump,
 		"POP_JUMP_IF_FALSE": bc.ConditionalJump,
 		"JUMP_IF_TRUE_OR_POP": bc.ConditionalJump,
 		"JUMP_IF_FALSE_OR_POP": bc.ConditionalJump,
-		"LOAD_GLOBAL": bc.GlobalReference,
+
 		"CALL_FUNCTION": bc.FunctionCall,
 		"CALL_FUNCTION_KW": bc.FunctionCall,
 		"CALL_FUNCTION_VAR_KW": bc.FunctionCall,
+
 		"LOAD_CONST": bc.ConstantValue,
-		"BINARY_MODULO": bc.BinaryOperator,
 		"BUILD_MAP": bc.ConstantValue,
+
 		"STORE_SUBSCR": bc.Assignment,
 		"STORE_ATTR": bc.Assignment,
 		"STORE_MAP": bc.Assignment,
-		"JUMP_FORWARD": bc.Jump,
-		"COMPARE_OP": bc.BinaryOperator,
 		"STORE_FAST": bc.Assignment,
 		"BINARY_SUBSCR": bc.Subscr,
+
+		"COMPARE_OP": bc.BinaryOperator,
+		"BINARY_MODULO": bc.BinaryOperator,
 		"BINARY_AND": bc.BinaryOperator,
 		"BINARY_ADD": bc.BinaryOperator,
 		"BINARY_SUBTRACT": bc.BinaryOperator,
@@ -69,15 +75,20 @@ OPS = { "LOAD_FAST": bc.LocalReference,
 		"BINARY_OR": bc.BinaryOperator,
 		"BINARY_XOR": bc.BinaryOperator,
 		"BINARY_MULTIPLY": bc.BinaryOperator,
+
 		"UNARY_NOT": bc.UnaryOperator,
+
 		"RETURN_VALUE": bc.ReturnValue,
+
 		"BUILD_TUPLE": bc.BuildList,
 		"BUILD_LIST": bc.BuildList,
+		
 		# Note: We are not interested in PRINT_ITEM operations, but we need their op_ids because
 		# otherwise we cannot correctly catch the branch of following statements:
 		# if expr:
 		#   print "something"
 		#   do_something;
+		
 		"PRINT_ITEM": bc.PrintItem,
 		"SETUP_LOOP": bc.SetupLoop,
 		"SETUP_EXCEPT": bc.SetupLoop,
@@ -87,14 +98,14 @@ OPS = { "LOAD_FAST": bc.LocalReference,
 		"END_FINALLY": bc.BreakLoop,
 }
 
-
-
 # Note: We assume that POP_TOP instruction is used only at the end of the block
 # and it is used to clear the stack after the last statement.
 # We do not want to do pop here -- in fact, the top of the stack is what is interesting for us
-OPS_IGNORE = ["POP_TOP", "PRINT_NEWLINE", "JUMP_ABSOLUTE", "POP_BLOCK", "IMPORT_NAME", "IMPORT_STAR", "IMPORT_FROM", "STORE_NAME", "LOAD_NAME", "MAKE_FUNCTION"]
 
-OPS_IGNORE_POP = []
+OPS_IGNORE = [
+	"POP_TOP", "PRINT_NEWLINE", "JUMP_ABSOLUTE", "POP_BLOCK", 
+	"IMPORT_NAME", "IMPORT_STAR", "IMPORT_FROM", 
+	"STORE_NAME", "LOAD_NAME", "MAKE_FUNCTION"]
 
 class ByteCodeParser:
 	def __init__(self, tracer):
@@ -108,8 +119,6 @@ class ByteCodeParser:
 			op = cb.pop()
 			if op[1] in OPS_IGNORE:
 				pass
-			elif op[1] in OPS_IGNORE_POP:
-				components.pop()
 			elif op[1] in OPS:
 				elem = OPS[op[1]](op, components, self.PT.execution_context)	
 				components.append(elem)

@@ -110,7 +110,6 @@ for p in app_description.NORMALIZE_PACKAGES:
 os.chdir(se_instr_dir)
 
 engine = ConcolicEngine(options.debug)
-app_description.reset_callback()
 invocation_sequence = app_description.create_invocations()
 engine.setInvocationSequence(invocation_sequence)
 engine.setResetCallback(app_description.reset_callback)
