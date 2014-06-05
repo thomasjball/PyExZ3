@@ -218,3 +218,5 @@ pip-log.txt
 # PyEx stuff
 
 se_normalized/
+logfile
+stdout
