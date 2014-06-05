@@ -89,13 +89,6 @@ class Ignore:
 		
 		# Ignore a file when it contains one of the ignorable paths
 		for d in self._dirs:
-			# The '+ os.sep' is to ensure that d is a parent directory,
-			# as compared to cases like:
-			# d = "/usr/local"
-			# filename = "/usr/local.py"
-			# or
-			# d = "/usr/local.py"
-			# filename = "/usr/local.py"
 			if filename.startswith(d + os.sep):
 				self._ignore[modulename] = 1
 				return 1
@@ -200,9 +193,9 @@ class PythonTracer:
 				stats.popProfile()
 
 			for s in stmts:
-				if self.SI.isStatementInteresting(s):
-					stats.pushProfile("symbolic interpreter")
-					self.SI.symbolicExamine(s)
+				if self.SI.isGoodConditional(s):
+					stats.pushProfile("path to constraint")
+					self.SI.recordConditional(s)
 					stats.popProfile()
 
 		elif event == "call": # Use the same filtering mechanism as in Python's trace module

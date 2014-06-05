@@ -33,9 +33,9 @@ from constraint import Constraint
 import logging
 import utils
 
-log = logging.getLogger("se.interpret")
+log = logging.getLogger("se.pathconstraint")
 
-class SymbolicInterpreter:
+class PathToConstraint:
 	def __init__(self, engine):
 		self.symbolic_variables = {}
 		self.constraints = {}
@@ -44,6 +44,14 @@ class SymbolicInterpreter:
 		self.current_constraint = self.root_constraint
 		self.branch_result_stack = []
 		self.tracer = None
+
+	def reset(self):
+		if len(self.branch_result_stack) > 0:
+			log.error("One or more constraints were left without result during the previous execution")
+			for s in self.branch_result_stack:
+				log.error("--> " + str(s))
+			raise KeyError
+		self.current_constraint = self.root_constraint
 
 	def setTracer(self, tracer):
 		self.tracer = tracer
@@ -86,27 +94,19 @@ class SymbolicInterpreter:
 
 		self.current_constraint = c
 
-	def isStatementInteresting(self, stmt):
+	def isGoodConditional(self, stmt):
 		if isinstance(stmt, ConditionalJump) and isinstance(stmt.condition, FunctionCall):
 			utils.crash("Function call in if statement, broken instrumentation")
 		elif isinstance(stmt, ConditionalJump):
 			return True
-		else:
-			return stmt.isSymbolic()
+		else:	
+			return False
 
-	def newExecution(self):
-		if len(self.branch_result_stack) > 0:
-			log.error("One or more constraints were left without result during the previous execution")
-			for s in self.branch_result_stack:
-				log.error("--> " + str(s))
-			raise KeyError
-		self.current_constraint = self.root_constraint
-
-	def symbolicExamine(self, stmt):
+	def recordConditional(self, stmt):
 		if isinstance(stmt, ConditionalJump):
-			# A predicate !
-			# The real work will be done after jump because we do not know
-			# the taken branch yet
 			self.branch_result_stack.append(stmt)
+
+
+
 
 

@@ -29,7 +29,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from symbolic_interpreter import SymbolicInterpreter
+from path_to_constraint import PathToConstraint
 from python_tracer import PythonTracer
 from symbolic import instrumentation
 from collections import deque
@@ -40,18 +40,16 @@ log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
-	PYTHON_FUNCTION_INVOCATIONS = 0
-
 	def __init__(self, debug):
 		self.constraints_to_solve = deque([])
 		self.num_negated_constraints = 0
-		self.interpreter = SymbolicInterpreter(self)
-		instrumentation.SI = self.interpreter
+		self.path = PathToConstraint(self)
+		instrumentation.SI = self.path
 		self.execution_return_values = []
 		self.reset_func = None
 		self.tracer = PythonTracer(debug)
-		self.tracer.setInterpreter(self.interpreter)
-		self.interpreter.setTracer(self.tracer)
+		self.tracer.setInterpreter(self.path)
+		self.path.setTracer(self.tracer)
 		self.invocation_sequence = None
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
@@ -75,19 +73,18 @@ class ConcolicEngine:
 			return False
 
 	def execute(self, invocation_sequence):
-		self.reset_func()
 		return_values = []
 		stats.incCounter("explored paths")
 		log.info("Iteration start")
 		stats.pushProfile("single iteration")
 		for invocation in invocation_sequence:
+			self.reset_func()
 			invocation.setupTracer(self.tracer)
 			stats.pushProfile("single invocation")
 			res = self.tracer.execute()
 			stats.popProfile()
 			return_values.append(res)
 			log.info("Invocation end")
-
 		stats.popProfile()
 		log.info("Iteration end")
 		return return_values
@@ -99,14 +96,12 @@ class ConcolicEngine:
 		self.generated_inputs.append(concr_inputs)
 		
 	def run(self, max_iterations=0):
-		# first iteration, find some constraints to bootstrap with
+		self.record_inputs()
+		self.path.reset()
 		ret = self.execute(self.invocation_sequence)
 		self.execution_return_values.append(ret)
 
 		iterations = 1
-		# record the default inputs
-		self.record_inputs()
-
 		if max_iterations != 0 and iterations >= max_iterations:
 			log.debug("Maximum number of iterations reached, terminating")
 			return self.execution_return_values
@@ -115,8 +110,6 @@ class ConcolicEngine:
 			selected = self.constraints_to_solve.popleft()
 			if selected.negated:
 				continue
-
-			self.interpreter.newExecution()
 
 			log.info("Solving constraint %s" % selected)
 			stats.pushProfile("constraint solving")
@@ -128,13 +121,12 @@ class ConcolicEngine:
 				iterations += 1
 				continue
 
-			# record newly generated inputs
 			self.record_inputs()	
-
+			self.path.reset()
 			ret = self.execute(self.invocation_sequence)
 			self.execution_return_values.append(ret)
-			iterations += 1
-			
+
+			iterations += 1			
 			self.num_negated_constraints += 1
 
 			if max_iterations != 0 and iterations >= max_iterations:
