@@ -60,7 +60,6 @@ if len(args) == 0 or not os.path.exists(args[0]):
 	sys.exit(1)
 	
 app_dir = os.path.abspath(args[0])
-# TBALL: can the following fail?
 app_args = args[1:]
 
 if not os.path.isdir(app_dir):

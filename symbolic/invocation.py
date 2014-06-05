@@ -36,15 +36,13 @@
 class FunctionInvocation:
 	def __init__(self, function):
 		self.function = function
-		self.symbolic_inputs = {}  # name -> SymbolicType
+		self.symbolic_inputs = {}  # string -> SymbolicType
 
+	# type_ref : string -> SymbolicType
 	def addSymbolicParameter(self, name, symbolic_name, type_ref):
-		""" Add symbolic parameter with specified name
-		"""
-		# wouldn't a type system be nice? 
-		# type_ref: string -> SymbolicType
 		self.symbolic_inputs[name] = type_ref(symbolic_name)
 
+	# tracer : PythonTracer
 	def setupTracer(self, tracer):
 		tracer.setFunction(self.function)
 		for name, value in self.symbolic_inputs.items():

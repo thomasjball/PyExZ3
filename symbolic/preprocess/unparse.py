@@ -28,6 +28,8 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+# TBALL says "there's no unparser already available in Python??? Hard to believe!"
+
 "Usage: unparse.py <path to source file>"
 import sys
 import ast

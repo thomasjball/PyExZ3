@@ -29,12 +29,12 @@
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-from symbolic import invocation
-from symbolic.symbolic_types.symbolic_store import newInteger
 import inspect
 import re
 import os
 import sys
+from symbolic.invocation import FunctionInvocation
+from symbolic.symbolic_types.integers import SymbolicInteger
 
 # INSTRUCTIONS: to add a test to the test suite, simply add a file foo.py to this
 # directory. foo.py should contain a function named "foo", which is the entry point
@@ -43,7 +43,14 @@ import sys
 
 # all the tests we will process
 test_dir = os.path.abspath(os.path.dirname(__file__))
-TESTS = [ f[:-3] for f in os.listdir(test_dir) if not re.search("se_descr.py$",f) and re.search(".py$",f) ]
+TESTS = [ f[:-3] for f in os.listdir(test_dir) if not ("se_descr.py" in f) and re.search(".py$",f) ]
+
+symbolic_vars = {}
+	
+def newInteger(name):
+	if name not in symbolic_vars.keys():
+		symbolic_vars[name] = SymbolicInteger(name)
+	return symbolic_vars[name]
 
 class SymExecApp:
 	APP_NAME="SE regression test suite"
@@ -60,7 +67,7 @@ class SymExecApp:
 			print "No test specified"
 
 	def create_invocations(self):
-		inv = invocation.FunctionInvocation(self.execute)
+		inv = FunctionInvocation(self.execute)
 		# associate a SymbolicInteger with each formal parameter of function
 		func = self.app.__dict__[self.test_name]
 		argspec = inspect.getargspec(func)
