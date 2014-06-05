@@ -49,7 +49,7 @@ symbolic_vars = {}
 	
 def newInteger(name):
 	if name not in symbolic_vars.keys():
-		symbolic_vars[name] = SymbolicInteger(name)
+		symbolic_vars[name] = SymbolicInteger(name,32)
 	return symbolic_vars[name]
 
 class SymExecApp:
