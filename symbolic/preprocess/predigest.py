@@ -64,7 +64,7 @@ class SplitBoolOpPass1(ast.NodeTransformer):
 		return node
 
 
-# remove function calls from predicates
+# lift all computation out of predicate (replace with local variable)
 
 class MoveFunctionCallsPass2(ast.NodeTransformer):
 	TYPES_TO_IGNORE = [ast.Num, ast.Str, ast.Name, ast.cmpop]
