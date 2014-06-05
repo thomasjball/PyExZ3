@@ -27,7 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from bytecode_opcodes import ConditionalJump, Assignment, FunctionCall, ForLoop, ReturnValue, BuildList
+from symbolic_types import SymbolicType
 from predicate import Predicate
 from constraint import Constraint
 import logging
@@ -42,38 +42,26 @@ class PathToConstraint:
 		self.engine = engine
 		self.root_constraint = Constraint(None, None)
 		self.current_constraint = self.root_constraint
-		self.conditional_jumps = []
 		self.tracer = None
 
 	def reset(self):
-		if len(self.conditional_jumps) > 0:
-			log.error("One or more constraints were left without result during the previous execution")
-			for s in self.conditional_jumps:
-				log.error("--> " + str(s))
-			raise KeyError
 		self.current_constraint = self.root_constraint
 
 	def setTracer(self, tracer):
 		self.tracer = tracer
 
-	def whichBranch(self, branch):
+	def whichBranch(self, branch, cond_expr):
 		""" To be called from the process being executed, this function acts as instrumentation.
 		branch can be either True or False, according to the branch taken after the last conditional
 		jump. """
 		if self.tracer.inside_tracing_code:
 			return
-		if len(self.conditional_jumps) > 0:
-			conditional_jump = self.conditional_jumps.pop()
-			self.addBranchAfterJump(conditional_jump, branch)
-		else:
-			utils.crash("Branch result without a conditional jump, problems with the whichBranch instrumentation")
 
-	def addBranchAfterJump(self, conditional_jump, result):
-		if not conditional_jump.isSymbolic():
+		if not (isinstance(cond_expr,SymbolicType)):
 			return
 
 		# add both possible predicate outcomes to constraint (tree)
-		p = Predicate(conditional_jump, result)
+		p = Predicate(cond_expr, branch)
 		p.negate()
 		cneg = self.current_constraint.findChild(p)
 		p.negate()
@@ -93,20 +81,6 @@ class PathToConstraint:
 			log.debug("New constraint: %s" % c)
 
 		self.current_constraint = c
-
-	def isGoodConditional(self, stmt):
-		if isinstance(stmt, ConditionalJump) and isinstance(stmt.condition, FunctionCall):
-			utils.crash("Function call in if statement, broken instrumentation")
-		elif isinstance(stmt, ConditionalJump):
-			return True
-		else:	
-			return False
-
-	def recordConditional(self, stmt):
-		if isinstance(stmt, ConditionalJump):
-			self.conditional_jumps.append(stmt)
-
-
 
 
 

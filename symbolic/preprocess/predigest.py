@@ -79,12 +79,12 @@ class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 		node = self.generic_visit(node) # recusion
 		self.funcs = []
 		new_node = ast.If(test=load_cond, body=node.body, orelse=node.orelse)
-		return [ ast.Assign(store_cond, value=node.test), new_node ]
+		return [ ast.Assign(targets=[store_cond], value=node.test), new_node ]
 
 	def visit_While(self, node):
 		node = self.generic_visit(node) # recusion
 		new_node = ast.While(test=load_cond, body=node.body, orelse=node.orelse)
-		return [ ast.Assign(store_cond, value=node.test), new_node ]
+		return [ ast.Assign(targets=[store_cond], value=node.test), new_node ]
 
 # add code to make the then-else branches explicit (even in the absence of user code)
 

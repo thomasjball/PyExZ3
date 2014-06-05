@@ -56,6 +56,9 @@ class SymbolicType:
 	def isSymbolic(self):
 		return True
 
+	def getSymVariable(self):
+		raise NotImplementedError
+
 	def getBitLength(self):
 		raise NotImplementedError
 

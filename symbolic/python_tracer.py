@@ -187,15 +187,18 @@ class PythonTracer:
 				aux = start
 				start = end + 1
 				end = aux + 1
-				stats.pushProfile("bytecode parsing")
-				stmts = self.parser.parse(codeblock[start:end],self.execution_context)
-				stats.popProfile()
+				# this is now not necessary, until we have a need to examine
+				# specific bytecodes
+				# stats.pushProfile("bytecode parsing")
+				# stmts = self.parser.parse(codeblock[start:end],self.execution_context)
+				# stats.popProfile()
 
-			for s in stmts:
-				if self.SI.isGoodConditional(s):
-					stats.pushProfile("path to constraint")
-					self.SI.recordConditional(s)
-					stats.popProfile()
+			# this is now dead code
+			# for s in stmts:
+			#	if self.SI.isGoodConditional(s):
+			#		stats.pushProfile("path to constraint")
+			#		self.SI.recordConditional(s)
+			#		stats.popProfile()
 
 		elif event == "call": # Use the same filtering mechanism as in Python's trace module
 

@@ -50,7 +50,7 @@ class Constraint:
 		else:
 			return False
 
-	def negateConstraint(self, context):
+	def negateConstraint(self):
 		# We want to mark this as negated even in case of error
 		# so it is best to do it at the beginning
 		self.negated = True
@@ -62,7 +62,7 @@ class Constraint:
 		tmp = self.parent
 		while tmp.predicate is not None:
 			p = tmp.predicate
-			(ret, expr) = p.buildSymPred(context)
+			(ret, expr) = p.buildSymPred()
 			res |= ret
 			if ret:
 				sym_asserts.append(expr)
@@ -70,7 +70,7 @@ class Constraint:
 					sym_vars[v] = p.sym_variables[v]
 			tmp = tmp.parent
 
-		(ret, expr) = self.predicate.buildSymPred(context)
+		(ret, expr) = self.predicate.buildSymPred()
 		if expr is None:
 			# We are not able to fix the last branch
 			return False

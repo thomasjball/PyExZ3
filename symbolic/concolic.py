@@ -113,7 +113,7 @@ class ConcolicEngine:
 
 			log.info("Solving constraint %s" % selected)
 			stats.pushProfile("constraint solving")
-			ret = selected.negateConstraint(self.tracer.execution_context)
+			ret = selected.negateConstraint()
 			stats.popProfile()
 
 			if not ret:
