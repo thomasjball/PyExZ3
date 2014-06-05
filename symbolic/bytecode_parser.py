@@ -108,10 +108,7 @@ OPS_IGNORE = [
 	"STORE_NAME", "LOAD_NAME", "MAKE_FUNCTION"]
 
 class ByteCodeParser:
-	def __init__(self, tracer):
-		self.PT = tracer
-
-	def parse(self, cb):
+	def parse(self, cb, execution_context):
 		""" components is stack, but at the end should contain a list of statements """
 		components = []
 		#log.debug("Parsing this codeblock: %s" % cb)
@@ -120,7 +117,7 @@ class ByteCodeParser:
 			if op[1] in OPS_IGNORE:
 				pass
 			elif op[1] in OPS:
-				elem = OPS[op[1]](op, components, self.PT.execution_context)	
+				elem = OPS[op[1]](op, components, execution_context)	
 				components.append(elem)
 			else:
 				utils.crash("Opcode %s is unknown: %s" % (op[1], cb))

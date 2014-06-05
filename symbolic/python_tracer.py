@@ -112,7 +112,7 @@ class PythonTracer:
 		self.execution_context = None
 		self.known_code_blocks = {}
 
-		self.parser = ByteCodeParser(self)
+		self.parser = ByteCodeParser()
 		self.prime_generator = eratosthenes()
 		self.arguments = {}
 		self.inside_tracing_code = True
@@ -158,7 +158,7 @@ class PythonTracer:
 			# in theory lasti is always on a line start, but in practice that is not true
 			# for loop conditions, so we just assume lasti to be anywhere in a line
 			if len(linestarts) == 1:
-				stmts = self.parser.parse(codeblock)
+				stmts = self.parser.parse(codeblock,self.execution_context)
 			else:
 				start = None
 				end = None
@@ -188,7 +188,7 @@ class PythonTracer:
 				start = end + 1
 				end = aux + 1
 				stats.pushProfile("bytecode parsing")
-				stmts = self.parser.parse(codeblock[start:end])
+				stmts = self.parser.parse(codeblock[start:end],self.execution_context)
 				stats.popProfile()
 
 			for s in stmts:

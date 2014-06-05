@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -43,14 +45,23 @@ def flatten(l):
 
 log = logging.getLogger("se.opcodes")
 
+# TBALL: the whole purpose of this mess is to build the symbolic expression
+# in a conditional jump - it's way overkill and should be simplified
+# one way to do this might be to ensure that a conditional only mentions
+# a local variable
+
 class GenericOpCode:
 	def __init__(self, opcode_id):
 		self.name = "generic_no_name"
 		self.reference = None 
 		self.opcode_id = opcode_id
 
+	# TBALL: HACK HACK
 	# the reason for refreshing is that the context may change out
 	# from underneath us when underlying code executes this operation again
+	# (this is because we are not pushing forward symbolic taint eagerly to expression,
+	#  but rather wait for a conditional jump to work backwards and figure out
+	#  what is symbolic)
 	def refreshRef(self, context):
 		pass
 
@@ -72,6 +83,10 @@ class GenericOpCode:
 
 	def getBitLength(self):
 		utils.crash("getBitLength not implemented for this class")
+
+
+class ExprOpCode(GenericOpCode):
+	pass
 
 # opcodes that access memory
 
