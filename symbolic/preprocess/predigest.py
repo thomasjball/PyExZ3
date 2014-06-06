@@ -79,15 +79,15 @@ class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 		node = self.generic_visit(node) # recusion
 		self.funcs = []
 		new_node = ast.If(test=load_cond, body=node.body, orelse=node.orelse)
-		extract  = ast.Expr(value=ast.Call(func=ast.Name(id='extractVal', ctx=ast.Load()), 
-			args=[node.test], keywords=[], starargs=None, kwargs=None))
+		extract  = ast.Call(func=ast.Name(id='extractVal', ctx=ast.Load()), 
+			args=[node.test], keywords=[], starargs=None, kwargs=None)
 		return [ ast.Assign(targets=[store_cond], value=extract), new_node ]
 
 	def visit_While(self, node):
 		node = self.generic_visit(node) # recusion
 		new_node = ast.While(test=load_cond, body=node.body, orelse=node.orelse)
-		extract  = ast.Expr(value=ast.Call(func=ast.Name(id='extractVal', ctx=ast.Load()), 
-			args=[node.test], keywords=[], starargs=None, kwargs=None))
+		extract  = ast.Call(func=ast.Name(id='extractVal', ctx=ast.Load()), 
+			args=[node.test], keywords=[], starargs=None, kwargs=None)
 		return [ ast.Assign(targets=[store_cond], value=extract), new_node ]
 
 # add code to make the then-else branches explicit (even in the absence of user code)
@@ -125,7 +125,7 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		if self.se_dict:
 			import_se_dict = ast.ImportFrom(module="se_dict", names=[ast.alias(name="SeDict", asname=None)], level=0)
 		import_instrumentation = ast.ImportFrom(module="symbolic.instrumentation", names=[ast.alias(name="whichBranch", asname=None)], level=0)
-		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="extract", asname=None)], level=0)
+		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="extractVal", asname=None)], level=0)
 
 		ord_function = ast.parse(ord_str).body
 		if self.se_dict:

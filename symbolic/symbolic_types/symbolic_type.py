@@ -116,8 +116,8 @@ class SymbolicType:
 		ret = SymbolicExpression(aux)
 		ret.concrete_value = fun(left_concr, right_concr)
 		# DEBUG
-		#print ret
-		#print ret.concrete_value
+		print ret
+		print ret.concrete_value
 		return ret
 
 	def getConcrValue(self):

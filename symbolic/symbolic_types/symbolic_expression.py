@@ -37,8 +37,8 @@ class SymbolicExpression(SymbolicType):
 	def __init__(self, expr):
 		SymbolicType.__init__(self, "se")
 		self.expr = expr
-		self.concrete_value = None
 		self._bitlen = None
+		self.concrete_value = None
 
 	def getExprConcr(self):
 		return (self.expr, self.concrete_value)

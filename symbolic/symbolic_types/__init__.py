@@ -35,8 +35,8 @@ SymbolicInteger = integers.SymbolicInteger
 SymbolicType = symbolic_type.SymbolicType
 SymbolicExpression = symbolic_expression.SymbolicExpression
 
-def extract(v):
-	if instanceof(v,SymbolicType):
-		return v.getConcreteValue()
+def extractVal(v):
+	if isinstance(v,SymbolicType):
+		return v.concrete_value
 	else:
 		return v
