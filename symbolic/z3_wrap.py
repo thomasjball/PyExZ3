@@ -54,7 +54,7 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 	   asserts remains valid."""
 	_z3.push()
 	_z3.assert_exprs(z3_asserts)
-	_z3.assert_exprs(Not(z3_query))
+	_z3.assert_exprs(z3_query)
 	print "Assertions"
 	print _z3.assertions()
 	ret = _z3.check()

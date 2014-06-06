@@ -35,3 +35,8 @@ SymbolicInteger = integers.SymbolicInteger
 SymbolicType = symbolic_type.SymbolicType
 SymbolicExpression = symbolic_expression.SymbolicExpression
 
+def extract(v):
+	if instanceof(v,SymbolicType):
+		return v.getConcreteValue()
+	else:
+		return v
