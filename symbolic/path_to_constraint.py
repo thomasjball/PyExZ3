@@ -73,11 +73,10 @@ class PathToConstraint:
 
 		# Have we (accidentally) negated some constraint?
 		# If yes, we can mark both as negated
-		# TBALL: THIS IS VERY CONFUSING!
+		# TBALL: doesn't make sense
 		if cneg is not None:
-			#utils.crash("FAIL")
-			#cneg.negated = True
-			#c.negated = True
+			cneg.negated = True
+			c.negated = True
 			log.debug("HERE - Negated constraint: %s" % c)
 		else:
 			log.debug("New constraint: %s" % c)
