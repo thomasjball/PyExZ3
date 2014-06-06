@@ -54,7 +54,6 @@ class Constraint:
 		# We want to mark this as negated even in case of error
 		# so it is best to do it at the beginning
 		self.negated = True
-		# TBALL: don't we need to change the value of predicate.result?
 		res = False
 		sym_asserts = []
 		sym_vars = {}
@@ -66,8 +65,8 @@ class Constraint:
 			res |= ret
 			if ret:
 				sym_asserts.append(expr)
-				for v in p.getSymVariable():
-					sym_vars[v] = p.sym_variables[v]
+				for v in p.sym_vars:
+					sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
 
 		(ret, expr) = self.predicate.buildSymPred()
@@ -75,9 +74,10 @@ class Constraint:
 			# We are not able to fix the last branch
 			return False
 		if ret:
-			for v in self.predicate.sym_variables:
-				sym_vars[v] = self.predicate.sym_variables[v]
+			for v in self.predicate.sym_vars:
+				sym_vars[v] = self.predicate.sym_vars[v]
 		res |= ret
+		print sym_vars
 		new_values = z3_mod.findCounterexample(sym_asserts, expr, sym_vars)
 		if new_values != None:
 			for (var, instance, new_val) in new_values:

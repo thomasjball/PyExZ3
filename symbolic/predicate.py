@@ -41,10 +41,13 @@ class Predicate:
 	def __init__(self, condexpr, result):
 		self.expr = condexpr
 		self.result = result
+		self.sym_vars = {}
+		svars = self.expr.getSymVariable()
+		for name, var, sv in svars:
+			self.sym_vars[name] = (var, sv)
 
 	def __eq__(self, other):
-		""" Two Predicates are equal iff
-		    they have the same statement, same symbolic variables
+		""" Two Predicates are equal iff they have the same symbolic variables
 		    and same result
 		"""
 		if isinstance(other, Predicate):
@@ -52,17 +55,7 @@ class Predicate:
 			if self.result != other.result:
 				return False
 			# different variables (i.e. another invocation of function for example)
-			my_vars = self.expr.getSymVariable()
-			other_vars = other.expr.getSymVariable()
-			if len(my_vars) != len(other_vars):
-				return False
-			for i in range(0, len(my_vars)):
-				if isinstance(my_vars[i], SymbolicExpression):
-					if not my_vars[i].symbolicEq(other_vars[i]):
-						return False
-				elif my_vars[i] is not other_vars[i]:
-					return False
-			return True
+			return self.expr == other.expr
 		else:
 			return False
 
@@ -82,6 +75,7 @@ class Predicate:
 			utils.crash("This predicate has an unknown result: %s" % self)
 
 		sym_expr = self.buildZ3Expr()
+		
 		if not is_bool(sym_expr):
 			# make it boolean
 			sym_expr = sym_expr != z3_wrap.int2BitVec(0, self.expr.getBitLength())
