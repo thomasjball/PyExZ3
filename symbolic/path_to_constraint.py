@@ -67,15 +67,18 @@ class PathToConstraint:
 
 		if c is None:
 			c = self.current_constraint.addChild(p)
+			# Important: we are adding the new constraint
+			# to the queue of the engine for later processing
 			self.engine.addConstraint(c)
 
 		# Have we (accidentally) negated some constraint?
 		# If yes, we can mark both as negated
 		# TBALL: THIS IS VERY CONFUSING!
 		if cneg is not None:
-			cneg.negated = True
-			c.negated = True
-			log.debug("Negated constraint: %s" % c)
+			#utils.crash("FAIL")
+			#cneg.negated = True
+			#c.negated = True
+			log.debug("HERE - Negated constraint: %s" % c)
 		else:
 			log.debug("New constraint: %s" % c)
 
