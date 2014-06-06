@@ -77,7 +77,6 @@ class Constraint:
 			for v in self.predicate.sym_vars:
 				sym_vars[v] = self.predicate.sym_vars[v]
 		res |= ret
-		print sym_vars
 		new_values = z3_mod.findCounterexample(sym_asserts, expr, sym_vars)
 		if new_values != None:
 			for (var, instance, new_val) in new_values:

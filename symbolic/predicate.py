@@ -47,20 +47,20 @@ class Predicate:
 			self.sym_vars[name] = (var, sv)
 
 	def __eq__(self, other):
-		""" Two Predicates are equal iff they have the same symbolic variables
-		    and same result
-		"""
 		if isinstance(other, Predicate):
-			# different result
-			if self.result != other.result:
-				return False
-			# different variables (i.e. another invocation of function for example)
-			return self.expr == other.expr
+			res = self.result == other.result and self.expr.symbolicEq(other.expr)
+			return res
 		else:
 			return False
 
 	def __hash__(self):
 		return hash(self.expr)
+
+	def __str__(self):
+		return str(self.expr) + " (was %s)" % (self.result)
+
+	def __repr__(self):
+		return repr(self.expr) + " (was %s)" % (self.result)
 
 	def getSymVariable(self):
 		return self.expr.getSymVariable()
@@ -83,19 +83,9 @@ class Predicate:
 			sym_expr = Not(sym_expr)
 		return (True, sym_expr)
 
-	def __str__(self):
-		return str(self.expr) + " (was %s)" % (self.result)
-
-	def __repr__(self):
-		return repr(self.expr) + " (was %s)" % (self.result)
-
 	def buildZ3Expr(self):
 		if not (isinstance(self.expr,SymbolicType)):
 			utils.crash("Unexpected expression %s" % self.expr)
 		return z3_wrap.ast2SymExpr(self.expr, self.expr.getBitLength())
-
-		#elif isinstance(stmt, bc.FunctionCall):
-		#	if stmt.name == "ord": # We know that our ord does nothing
-		#		return self.buildSymExprFromStatement(z3, stmt.params[0], bitlen)
 
 
