@@ -31,6 +31,7 @@ import ast
 import logging
 import utils
 from symbolic_types.symbolic_type import SymbolicType
+from symbolic_types.symbolic_expression import SymbolicExpression
 from z3 import *
 
 _z3 = Solver()
@@ -87,13 +88,13 @@ def extract(var, start, end):
 def eqExpr(e1, e2):
 	return e1 == e1
 
-def ast2SymExpr(expr, bitlen):
+def astToZ3Expr(expr, bitlen):
 	if isinstance(expr, ast.BinOp):
-		z3_l = ast2SymExpr(expr.left, bitlen)
-		z3_r = ast2SymExpr(expr.right, bitlen)
+		z3_l = astToZ3Expr(expr.left, bitlen)
+		z3_r = astToZ3Expr(expr.right, bitlen)
 		if isinstance(expr.op, ast.Add):
 			return z3_l + z3_r
-		if isinstance(expr.op, ast.Sub):
+		elif isinstance(expr.op, ast.Sub):
 			return z3_l - z3_r
 		elif isinstance(expr.op, ast.Mult):
 			return z3_l * z3_r
@@ -107,8 +108,22 @@ def ast2SymExpr(expr, bitlen):
 			return z3_l | z3_r
 		elif isinstance(expr.op, ast.BitAnd):
 			return z3_l & z3_r
+		elif isinstance(expr.op, ast.Eq):
+			return z3_l == z3_r
+		elif isinstance(expr.op, ast.NotEq):
+			return z3_l != z3_r
+		elif isinstance(expr.op, ast.Lt):
+			return z3_l < z3_r
+		elif isinstance(expr.op, ast.Gt):
+			return z3_l > z3_r
+		elif isinstance(expr.op, ast.LtE):
+			return z3_l <= z3_r
+		elif isinstance(expr.op, ast.GtE):
+			return z3_l >= z3_r
 		else:
 			utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
+	elif isinstance(expr, SymbolicExpression):
+		return astToZ3Expr(expr.expr,bitlen)
 	elif isinstance(expr, SymbolicType):
 		return expr.getSymVariable()[0][2]
 	elif isinstance(expr, int) or isinstance(expr, long):

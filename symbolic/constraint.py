@@ -39,7 +39,7 @@ class Constraint:
 	   position in the code."""
 	def __init__(self, parent, last_predicate):
 		self.predicate = last_predicate
-		self.negated = False
+		self.processed = False
 		self.parent = parent
 		self.children = []
 
@@ -53,9 +53,9 @@ class Constraint:
 			return False
 
 	def negateConstraint(self):
-		# We want to mark this as negated even in case of error
+		# We want to mark this as processed even in case of error
 		# so it is best to do it at the beginning
-		self.negated = True
+		self.processed = True
 		res = False
 		sym_asserts = []
 		sym_vars = {}
@@ -63,7 +63,7 @@ class Constraint:
 		tmp = self.parent
 		while tmp.predicate is not None:
 			p = tmp.predicate
-			(ret, expr) = p.buildSymPred()
+			(ret, expr) = p.buildZ3Expr()
 			res |= ret
 			if ret:
 				sym_asserts.append(expr)
@@ -71,7 +71,7 @@ class Constraint:
 					sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
 
-		(ret, expr) = self.predicate.buildSymPred()
+		(ret, expr) = self.predicate.buildZ3Expr()
 		if expr is None:
 			# We are not able to fix the last branch
 			return False
@@ -94,11 +94,11 @@ class Constraint:
 		return 1 + self.parent.getLength()
 
 	def __str__(self):
-		return str(self.predicate) + "  (was negated: %s, path_len: %d)" % (self.negated,
+		return str(self.predicate) + "  (processed: %s, path_len: %d)" % (self.processed,
 		self.getLength())
 
 	def __repr__(self):
-		s = repr(self.predicate) + " (was negated: %s)" % (self.negated)
+		s = repr(self.predicate) + " (processed: %s)" % (self.processed)
 		if self.parent is not None:
 			s += "\n  path: %s" % repr(self.parent)
 		return s

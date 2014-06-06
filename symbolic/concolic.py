@@ -42,7 +42,7 @@ stats = getStats()
 class ConcolicEngine:
 	def __init__(self, debug):
 		self.constraints_to_solve = deque([])
-		self.num_negated_constraints = 0
+		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
 		instrumentation.SI = self.path
 		self.execution_return_values = []
@@ -69,7 +69,7 @@ class ConcolicEngine:
 			log.info("Exploration complete")
 			return True
 		else:
-			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_negated_constraints + num_constr, self.num_negated_constraints))
+			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_processed_constraints + num_constr, self.num_processed_constraints))
 			return False
 
 	def execute(self, invocation_sequence):
@@ -108,7 +108,7 @@ class ConcolicEngine:
 
 		while not self.isExplorationComplete():
 			selected = self.constraints_to_solve.popleft()
-			if selected.negated:
+			if selected.processed:
 				continue
 
 			log.info("Solving constraint %s" % selected)
@@ -127,7 +127,7 @@ class ConcolicEngine:
 			self.execution_return_values.append(ret)
 
 			iterations += 1			
-			self.num_negated_constraints += 1
+			self.num_processed_constraints += 1
 
 			if max_iterations != 0 and iterations >= max_iterations:
 				log.debug("Maximum number of iterations reached, terminating")

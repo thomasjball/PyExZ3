@@ -70,11 +70,11 @@ class Predicate:
 		assert(self.result is not None)
 		self.result = not self.result
 
-	def buildSymPred(self):
+	def buildZ3Expr(self):
 		if self.result == None:
 			utils.crash("This predicate has an unknown result: %s" % self)
 
-		sym_expr = self.buildZ3Expr()
+		sym_expr = self._buildZ3Expr()
 		
 		if not is_bool(sym_expr):
 			# make it boolean
@@ -83,9 +83,9 @@ class Predicate:
 			sym_expr = Not(sym_expr)
 		return (True, sym_expr)
 
-	def buildZ3Expr(self):
+	def _buildZ3Expr(self):
 		if not (isinstance(self.expr,SymbolicType)):
 			utils.crash("Unexpected expression %s" % self.expr)
-		return z3_wrap.ast2SymExpr(self.expr, self.expr.getBitLength())
+		return z3_wrap.astToZ3Expr(self.expr, self.expr.getBitLength())
 
 
