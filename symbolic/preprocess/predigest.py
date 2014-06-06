@@ -78,17 +78,19 @@ class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 	def visit_If(self, node):
 		node = self.generic_visit(node) # recusion
 		self.funcs = []
-		new_node = ast.If(test=load_cond, body=node.body, orelse=node.orelse)
-		extract  = ast.Call(func=ast.Name(id='extractVal', ctx=ast.Load()), 
-			args=[node.test], keywords=[], starargs=None, kwargs=None)
-		return [ ast.Assign(targets=[store_cond], value=extract), new_node ]
+                getSym   = ast.Assign(targets=[store_cond], value=node.test)
+		extract  = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
+			args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		new_node = ast.If(test=extract, body=node.body, orelse=node.orelse)
+		return [ getSym, new_node ]
 
 	def visit_While(self, node):
 		node = self.generic_visit(node) # recusion
-		new_node = ast.While(test=load_cond, body=node.body, orelse=node.orelse)
-		extract  = ast.Call(func=ast.Name(id='extractVal', ctx=ast.Load()), 
-			args=[node.test], keywords=[], starargs=None, kwargs=None)
-		return [ ast.Assign(targets=[store_cond], value=extract), new_node ]
+                getSym   = ast.Assign(targets=[store_cond], value=node.test)
+		extract  = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
+			args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		new_node = ast.While(test=extract, body=node.body, orelse=node.orelse)
+		return [ getSym, new_node ]
 
 # add code to make the then-else branches explicit (even in the absence of user code)
 
@@ -125,7 +127,7 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		if self.se_dict:
 			import_se_dict = ast.ImportFrom(module="se_dict", names=[ast.alias(name="SeDict", asname=None)], level=0)
 		import_instrumentation = ast.ImportFrom(module="symbolic.instrumentation", names=[ast.alias(name="whichBranch", asname=None)], level=0)
-		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="extractVal", asname=None)], level=0)
+		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="getConcrete", asname=None)], level=0)
 
 		ord_function = ast.parse(ord_str).body
 		if self.se_dict:

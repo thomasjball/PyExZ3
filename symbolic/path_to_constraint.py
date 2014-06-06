@@ -54,8 +54,6 @@ class PathToConstraint:
 		""" To be called from the process being executed, this function acts as instrumentation.
 		branch can be either True or False, according to the branch taken after the last conditional
 		jump. """
-		if self.tracer.inside_tracing_code:
-			return
 
 		if not (isinstance(cond_expr,SymbolicType)):
 			return
@@ -73,6 +71,7 @@ class PathToConstraint:
 
 		# Have we (accidentally) negated some constraint?
 		# If yes, we can mark both as negated
+		# TBALL: THIS IS VERY CONFUSING!
 		if cneg is not None:
 			cneg.negated = True
 			c.negated = True
