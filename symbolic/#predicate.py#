@@ -27,58 +27,62 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from symbolic_types import SymbolicType
-from predicate import Predicate
-from constraint import Constraint
+import symbolic.z3_wrap as z3_wrap
+from symbolic_types import SymbolicType, SymbolicExpression
 import logging
 import utils
+from z3 import *
 
-log = logging.getLogger("se.pathconstraint")
+log = logging.getLogger("se.predicate")
 
-class PathToConstraint:
-	def __init__(self, engine):
-		self.symbolic_variables = {}
-		self.constraints = {}
-		self.engine = engine
-		self.root_constraint = Constraint(None, None)
-		self.current_constraint = self.root_constraint
-		self.tracer = None
+class Predicate:
+	"""Predicate is one specific ``if'' encountered during the program execution.
+	   """
+	def __init__(self, condexpr, result):
+		self.expr = condexpr
+		self.result = result
+		self.sym_vars = {}
+		svars = self.expr.getSymVariable()
+		for name, var, sv in svars:
+			self.sym_vars[name] = (var, sv)
 
-	def reset(self):
-		self.current_constraint = self.root_constraint
+	def __eq__(self, other):
+		if isinstance(other, Predicate):
+			res = self.result == other.result and self.expr.symbolicEq(other.expr)
+			return res
+		else:
+			return False
 
-	def setTracer(self, tracer):
-		self.tracer = tracer
+	def __hash__(self):
+		return hash(self.expr)
 
-	def whichBranch(self, branch, cond_expr):
-		""" To be called from the process being executed, this function acts as instrumentation.
-		branch can be either True or False, according to the branch taken after the last conditional
-		jump. """
+	def __str__(self):
+		return str(self.expr) + " (was %s)" % (self.result)
 
-		if not (isinstance(cond_expr,SymbolicType)):
-			return
+	def __repr__(self):
+		return repr(self.expr) + " (was %s)" % (self.result)
 
-		# add both possible predicate outcomes to constraint (tree)
-		p = Predicate(cond_expr, branch)
-		p.negate()
-		cneg = self.current_constraint.findChild(p)
-		p.negate()
-		c = self.current_constraint.findChild(p)
+	def getSymVariable(self):
+		return self.expr.getSymVariable()
 
-		if c is None:
-			c = self.current_constraint.addChild(p)
-			# Important: we are adding the new constraint
-			# to the queue of the engine for later processing
-			log.debug("New constraint: %s" % c)
-			self.engine.addConstraint(c)
+	def negate(self):
+		"""Negates the current predicate"""
+		assert(self.result is not None)
+		self.result = not self.result
 
-		if cneg is not None:
-			# We've already processed both
-			cneg.processed = True
-			c.processed = True
-			log.debug("Processed constraint: %s" % c)
+	def buildZ3Expr(self):
+		if self.result == None:
+			utils.crash("This predicate has an unknown result: %s" % self)
+		sym_expr = self._buildZ3Expr()		
+		if not is_bool(sym_expr):
+			sym_expr = sym_expr != z3_wrap.int2BitVec(0, self.expr.getBitLength())
+		if not self.result:
+			sym_expr = Not(sym_expr)
+		return (True, sym_expr)
 
-		self.current_constraint = c
-
+	def _buildZ3Expr(self):
+		if not (isinstance(self.expr,SymbolicType)):
+			utils.crash("Unexpected expression %s" % self.expr)
+		return z3_wrap.astToZ3Expr(self.expr, self.expr.getBitLength())
 
 

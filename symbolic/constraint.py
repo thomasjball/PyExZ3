@@ -94,8 +94,7 @@ class Constraint:
 		return 1 + self.parent.getLength()
 
 	def __str__(self):
-		return str(self.predicate) + "  (processed: %s, path_len: %d)" % (self.processed,
-		self.getLength())
+		return str(self.predicate) + "  (processed: %s, path_len: %d)" % (self.processed,self.getLength())
 
 	def __repr__(self):
 		s = repr(self.predicate) + " (processed: %s)" % (self.processed)
