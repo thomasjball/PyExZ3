@@ -41,7 +41,6 @@ class Predicate:
 	def __init__(self, condexpr, result):
 		self.expr = condexpr
 		self.result = result
-		self.sym_variables = {}
 
 	def __eq__(self, other):
 		""" Two Predicates are equal iff
@@ -70,6 +69,9 @@ class Predicate:
 	def __hash__(self):
 		return hash(self.expr)
 
+	def getSymVariable(self):
+		return self.expr.getSymVariable()
+
 	def negate(self):
 		"""Negates the current predicate"""
 		assert(self.result is not None)
@@ -79,7 +81,6 @@ class Predicate:
 		if self.result == None:
 			utils.crash("This predicate has an unknown result: %s" % self)
 
-		z3 = z3_wrap._z3
 		sym_expr = self.buildZ3Expr()
 		if not is_bool(sym_expr):
 			# make it boolean

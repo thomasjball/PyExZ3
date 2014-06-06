@@ -93,6 +93,8 @@ class ConcolicEngine:
 		concr_inputs = {}
 		for k in self.invocation_sequence[0].symbolic_inputs:
 			concr_inputs[k] = self.invocation_sequence[0].symbolic_inputs[k].getConcrValue()
+		print "INPUTS"
+		print concr_inputs
 		self.generated_inputs.append(concr_inputs)
 		
 	def run(self, max_iterations=0):

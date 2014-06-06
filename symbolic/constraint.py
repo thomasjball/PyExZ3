@@ -66,7 +66,7 @@ class Constraint:
 			res |= ret
 			if ret:
 				sym_asserts.append(expr)
-				for v in p.sym_variables:
+				for v in p.getSymVariable():
 					sym_vars[v] = p.sym_variables[v]
 			tmp = tmp.parent
 
