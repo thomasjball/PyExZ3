@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thonas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -85,5 +87,3 @@ class Predicate:
 		if not (isinstance(self.expr,SymbolicType)):
 			utils.crash("Unexpected expression %s" % self.expr)
 		return z3_wrap.astToZ3Expr(self.expr, self.expr.getBitLength())
-
-

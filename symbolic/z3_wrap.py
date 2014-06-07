@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -130,4 +132,3 @@ def astToZ3Expr(expr, bitlen):
 		return int2BitVec(expr, bitlen)
 	else:
 		utils.crash("Unknown node during conversion from ast to stp (expressions): %s" % expr)
-

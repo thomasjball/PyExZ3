@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -42,13 +44,9 @@ class PathToConstraint:
 		self.engine = engine
 		self.root_constraint = Constraint(None, None)
 		self.current_constraint = self.root_constraint
-		self.tracer = None
 
 	def reset(self):
 		self.current_constraint = self.root_constraint
-
-	def setTracer(self, tracer):
-		self.tracer = tracer
 
 	def whichBranch(self, branch, cond_expr):
 		""" To be called from the process being executed, this function acts as instrumentation.
@@ -79,6 +77,3 @@ class PathToConstraint:
 			log.debug("Processed constraint: %s" % c)
 
 		self.current_constraint = c
-
-
-

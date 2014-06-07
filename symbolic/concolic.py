@@ -47,7 +47,7 @@ class ConcolicEngine:
 		instrumentation.SI = self.path
 		self.execution_return_values = []
 		self.reset_func = None
-		self.tracer = None # PythonTracer(debug)
+		# self.tracer = PythonTracer(debug)
 		# self.tracer.setInterpreter(self.path)
 		# self.path.setTracer(self.tracer)
 		stats.newCounter("explored paths")
@@ -74,7 +74,6 @@ class ConcolicEngine:
 		log.info("Iteration start")
 		stats.pushProfile("single iteration")
 		self.reset_func()
-		
 		# invocation.setupTracer(self.tracer)
 		stats.pushProfile("single invocation")
 		# res = self.tracer.execute()
@@ -91,13 +90,16 @@ class ConcolicEngine:
 		for k in self.invocation.symbolic_inputs:
 			concr_inputs[k] = self.invocation.symbolic_inputs[k].getConcrValue()
 		self.generated_inputs.append(concr_inputs)
+		print concr_inputs
 		
-	def run(self, max_iterations=0):
+	def one_execution(self):
 		self.record_inputs()
 		self.path.reset()
 		ret = self.execute(self.invocation)
 		self.execution_return_values.append(ret)
 
+	def run(self, max_iterations=0):
+		self.one_execution()
 		iterations = 1
 		if max_iterations != 0 and iterations >= max_iterations:
 			log.debug("Maximum number of iterations reached, terminating")
@@ -110,7 +112,7 @@ class ConcolicEngine:
 
 			log.info("Solving constraint %s" % selected)
 			stats.pushProfile("constraint solving")
-			ret = selected.negateConstraint()
+			ret = selected.processConstraint()
 			stats.popProfile()
 
 			if not ret:
@@ -118,10 +120,7 @@ class ConcolicEngine:
 				iterations += 1
 				continue
 
-			self.record_inputs()	
-			self.path.reset()
-			ret = self.execute(self.invocation)
-			self.execution_return_values.append(ret)
+			self.one_execution()
 
 			iterations += 1			
 			self.num_processed_constraints += 1
@@ -131,4 +130,3 @@ class ConcolicEngine:
 				break
 
 		return self.execution_return_values
-

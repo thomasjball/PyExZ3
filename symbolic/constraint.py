@@ -52,7 +52,7 @@ class Constraint:
 		else:
 			return False
 
-	def negateConstraint(self):
+	def processConstraint(self):
 		# We want to mark this as processed even in case of error
 		# so it is best to do it at the beginning
 		self.processed = True
