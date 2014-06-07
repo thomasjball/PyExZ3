@@ -42,8 +42,4 @@ class FunctionInvocation:
 	def addSymbolicParameter(self, name, symbolic_name, type_ref):
 		self.symbolic_inputs[name] = type_ref(symbolic_name)
 
-	# tracer : PythonTracer
-	def setupTracer(self, tracer):
-		tracer.setFunction(self.function)
-		for name, value in self.symbolic_inputs.items():
-			tracer.addFunParam(name, value)
+

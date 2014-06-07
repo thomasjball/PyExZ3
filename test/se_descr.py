@@ -66,14 +66,14 @@ class SymExecApp:
 		else:
 			print "No test specified"
 
-	def create_invocations(self):
+	def create_invocation(self):
 		inv = FunctionInvocation(self.execute)
 		# associate a SymbolicInteger with each formal parameter of function
 		func = self.app.__dict__[self.test_name]
 		argspec = inspect.getargspec(func)
 		for a in argspec.args:
 			inv.addSymbolicParameter(a, a, newInteger)
-		return [inv]
+		return inv
 
 	def reset_callback(self,firstpass=False):
 		self.app = None
