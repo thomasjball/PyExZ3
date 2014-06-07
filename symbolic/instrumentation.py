@@ -29,7 +29,7 @@
 
 SI = None
 
-def whichBranch(branch):
+def whichBranch(branch,cond_expr):
 	if SI != None:
-		SI.whichBranch(branch)
+		SI.whichBranch(branch,cond_expr)
 

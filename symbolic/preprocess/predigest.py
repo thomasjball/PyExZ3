@@ -63,59 +63,34 @@ class SplitBoolOpPass1(ast.NodeTransformer):
 		node = self.generic_visit(node) # recursion
 		return node
 
+	# TODO: missing the same for While loop
+
 
 # lift all computation out of predicate (replace with local variable)
 
-class MoveFunctionCallsPass2(ast.NodeTransformer):
-	TYPES_TO_IGNORE = [ast.Num, ast.Str, ast.Name, ast.cmpop]
+load_cond = ast.Name(id="__se_cond__", ctx=ast.Load())
+store_cond = ast.Name(id="__se_cond__", ctx=ast.Store())
 
+class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 	def __init__(self):
 		ast.NodeTransformer.__init__(self)
-		self.counter = 1
-		self.funcs = None
 
 	def visit_If(self, node):
 		node = self.generic_visit(node) # recusion
 		self.funcs = []
-		new_node = ast.If(test=self.getFuncs(node.test), body=node.body, orelse=node.orelse)
-		exprs = []
-		for (var, func) in self.funcs:
-			exprs.append(ast.Assign(targets=[ast.Name(id=var, ctx=ast.Store())], value=func))
-		exprs.append(new_node)
-		return exprs
+                getSym   = ast.Assign(targets=[store_cond], value=node.test)
+		extract  = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
+			args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		new_node = ast.If(test=extract, body=node.body, orelse=node.orelse)
+		return [ getSym, new_node ]
 
 	def visit_While(self, node):
 		node = self.generic_visit(node) # recusion
-		self.funcs = []
-		new_node = ast.While(test=self.getFuncs(node.test), body=node.body, orelse=node.orelse)
-		exprs = []
-		for (var, func) in self.funcs:
-			exprs.append(ast.Assign(targets=[ast.Name(id=var, ctx=ast.Store())], value=func))
-		exprs.append(new_node)
-		return exprs
-
-	def getFuncs(self, node):
-		if not isinstance(node, ast.expr) and not isinstance(node, list):
-			return node
-
-		if isinstance(node, list):
-			new_list = []
-			for _j, v in enumerate(node):
-				new_list.append(self.getFuncs(v))
-			return new_list
-
-		for _i, f in enumerate(node._fields):
-			setattr(node, f, self.getFuncs(getattr(node, f)))
-
-		if type(node) is ast.Call:
-			varname = "__se_tmp_"+str(self.counter)
-			self.counter += 1
-			self.funcs.append((varname, node))
-			newnode = ast.Name(id=varname, ctx=ast.Load())
-			return ast.copy_location(newnode, node)
-		else:
-			return node
-
+                getSym   = ast.Assign(targets=[store_cond], value=node.test)
+		extract  = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
+			args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		new_node = ast.While(test=extract, body=node.body, orelse=node.orelse)
+		return [ getSym, new_node ]
 
 # add code to make the then-else branches explicit (even in the absence of user code)
 
@@ -125,18 +100,22 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		self.se_dict = import_se_dict
 
 	def visit_If(self, node):
-		node = self.generic_visit(node) # recusion
-		call_node_true = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), args=[ast.Name(id='True', ctx=ast.Load())], keywords=[], starargs=None, kwargs=None))
-		call_node_false = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), args=[ast.Name(id='False', ctx=ast.Load())], keywords=[], starargs=None, kwargs=None))
+		node = self.generic_visit(node) # recursion
+		call_node_true = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
+			args=[ast.Name(id='True', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
+		call_node_false = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
+			args=[ast.Name(id='False', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
 		new_body = [call_node_true] + node.body
 		new_orelse = [call_node_false] + node.orelse
 		new_node = ast.If(test=node.test, body=new_body, orelse=new_orelse)
 		return ast.copy_location(new_node, node)
 
 	def visit_While(self, node):
-		node = self.generic_visit(node) # recusion
-		call_node_true = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), args=[ast.Name(id='True', ctx=ast.Load())], keywords=[], starargs=None, kwargs=None))
-		call_node_false = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), args=[ast.Name(id='False', ctx=ast.Load())], keywords=[], starargs=None, kwargs=None))
+		node = self.generic_visit(node) # recursion
+		call_node_true = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
+			args=[ast.Name(id='True', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
+		call_node_false = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
+			args=[ast.Name(id='False', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
 		new_body = [call_node_true] + node.body
 		new_orelse = [call_node_false] + node.orelse
 		new_node = ast.While(test=node.test, body=new_body, orelse=new_orelse)
@@ -148,12 +127,13 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		if self.se_dict:
 			import_se_dict = ast.ImportFrom(module="se_dict", names=[ast.alias(name="SeDict", asname=None)], level=0)
 		import_instrumentation = ast.ImportFrom(module="symbolic.instrumentation", names=[ast.alias(name="whichBranch", asname=None)], level=0)
+		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="getConcrete", asname=None)], level=0)
 
 		ord_function = ast.parse(ord_str).body
 		if self.se_dict:
-			node.body = [import_se_dict, import_instrumentation] + ord_function + node.body
+			node.body = [import_se_dict,import_instrumentation,import_extract] + ord_function + node.body
 		else:
-			node.body = [import_instrumentation] + ord_function + node.body
+			node.body = [import_instrumentation,import_extract] + ord_function + node.body
 		return node
 
 	def visit_Dict(self, node):
@@ -182,7 +162,7 @@ def instrumentModule(module_filename, out_dir, is_app=False, in_dir=""):
 		return
 	root_node = ast.parse(module_contents)
 	SplitBoolOpPass1().visit(root_node)
-	MoveFunctionCallsPass2().visit(root_node)
+	LiftComputationFromConditionalPass2().visit(root_node)
 	BranchIdentifierPass3(import_se_dict).visit(root_node)
 	ast.fix_missing_locations(root_node)
 	compile(root_node, module_filename, 'exec') # to make sure the new AST is ok

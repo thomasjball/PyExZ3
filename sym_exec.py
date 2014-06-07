@@ -109,9 +109,8 @@ for p in app_description.NORMALIZE_PACKAGES:
 
 os.chdir(se_instr_dir)
 
-engine = ConcolicEngine(options.debug)
-invocation_sequence = app_description.create_invocations()
-engine.setInvocationSequence(invocation_sequence)
+inv = app_description.create_invocation()
+engine = ConcolicEngine(inv,options.debug)
 engine.setResetCallback(app_description.reset_callback)
 
 stats.pushProfile("engine only")

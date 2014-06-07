@@ -4,6 +4,8 @@
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
 #
+# Updated by Thomas Ball (2014)
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -37,7 +39,7 @@ class Constraint:
 	   position in the code."""
 	def __init__(self, parent, last_predicate):
 		self.predicate = last_predicate
-		self.negated = False
+		self.processed = False
 		self.parent = parent
 		self.children = []
 
@@ -50,11 +52,10 @@ class Constraint:
 		else:
 			return False
 
-	def negateConstraint(self, context):
-		# We want to mark this as negated even in case of error
+	def negateConstraint(self):
+		# We want to mark this as processed even in case of error
 		# so it is best to do it at the beginning
-		self.negated = True
-		# TBALL: don't we need to change the value of predicate.result?
+		self.processed = True
 		res = False
 		sym_asserts = []
 		sym_vars = {}
@@ -62,21 +63,21 @@ class Constraint:
 		tmp = self.parent
 		while tmp.predicate is not None:
 			p = tmp.predicate
-			(ret, expr) = p.buildSymPred(context)
+			(ret, expr) = p.buildZ3Expr()
 			res |= ret
 			if ret:
 				sym_asserts.append(expr)
-				for v in p.sym_variables:
-					sym_vars[v] = p.sym_variables[v]
+				for v in p.sym_vars:
+					sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
 
-		(ret, expr) = self.predicate.buildSymPred(context)
+		(ret, expr) = self.predicate.buildZ3Expr()
 		if expr is None:
 			# We are not able to fix the last branch
 			return False
 		if ret:
-			for v in self.predicate.sym_variables:
-				sym_vars[v] = self.predicate.sym_variables[v]
+			for v in self.predicate.sym_vars:
+				sym_vars[v] = self.predicate.sym_vars[v]
 		res |= ret
 		new_values = z3_mod.findCounterexample(sym_asserts, expr, sym_vars)
 		if new_values != None:
@@ -93,11 +94,10 @@ class Constraint:
 		return 1 + self.parent.getLength()
 
 	def __str__(self):
-		return str(self.predicate) + "  (was negated: %s, path_len: %d)" % (self.negated,
-		self.getLength())
+		return str(self.predicate) + "  (processed: %s, path_len: %d)" % (self.processed,self.getLength())
 
 	def __repr__(self):
-		s = repr(self.predicate) + " (was negated: %s)" % (self.negated)
+		s = repr(self.predicate) + " (processed: %s)" % (self.processed)
 		if self.parent is not None:
 			s += "\n  path: %s" % repr(self.parent)
 		return s

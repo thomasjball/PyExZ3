@@ -27,10 +27,9 @@
 # INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 # LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
+
 
 from path_to_constraint import PathToConstraint
-from python_tracer import PythonTracer
 from symbolic import instrumentation
 from collections import deque
 import logging
@@ -40,25 +39,22 @@ log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
-	def __init__(self, debug):
+	def __init__(self, funcinv, debug):
+		self.invocation = funcinv
 		self.constraints_to_solve = deque([])
-		self.num_negated_constraints = 0
+		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
 		instrumentation.SI = self.path
 		self.execution_return_values = []
 		self.reset_func = None
-		self.tracer = PythonTracer(debug)
-		self.tracer.setInterpreter(self.path)
-		self.path.setTracer(self.tracer)
-		self.invocation_sequence = None
+		self.tracer = None # PythonTracer(debug)
+		# self.tracer.setInterpreter(self.path)
+		# self.path.setTracer(self.tracer)
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
 
 	def setResetCallback(self, reset_func):
 		self.reset_func = reset_func
-
-	def setInvocationSequence(self, sequence):
-		self.invocation_sequence = sequence
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
@@ -69,36 +65,37 @@ class ConcolicEngine:
 			log.info("Exploration complete")
 			return True
 		else:
-			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_negated_constraints + num_constr, self.num_negated_constraints))
+			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_processed_constraints + num_constr, self.num_processed_constraints))
 			return False
 
-	def execute(self, invocation_sequence):
+	def execute(self, invocation):
 		return_values = []
 		stats.incCounter("explored paths")
 		log.info("Iteration start")
 		stats.pushProfile("single iteration")
-		for invocation in invocation_sequence:
-			self.reset_func()
-			invocation.setupTracer(self.tracer)
-			stats.pushProfile("single invocation")
-			res = self.tracer.execute()
-			stats.popProfile()
-			return_values.append(res)
-			log.info("Invocation end")
+		self.reset_func()
+		
+		# invocation.setupTracer(self.tracer)
+		stats.pushProfile("single invocation")
+		# res = self.tracer.execute()
+		res = invocation.function(**invocation.symbolic_inputs)
+		stats.popProfile()
+		return_values.append(res)
+		log.info("Invocation end")
 		stats.popProfile()
 		log.info("Iteration end")
 		return return_values
 
 	def record_inputs(self):
 		concr_inputs = {}
-		for k in self.invocation_sequence[0].symbolic_inputs:
-			concr_inputs[k] = self.invocation_sequence[0].symbolic_inputs[k].getConcrValue()
+		for k in self.invocation.symbolic_inputs:
+			concr_inputs[k] = self.invocation.symbolic_inputs[k].getConcrValue()
 		self.generated_inputs.append(concr_inputs)
 		
 	def run(self, max_iterations=0):
 		self.record_inputs()
 		self.path.reset()
-		ret = self.execute(self.invocation_sequence)
+		ret = self.execute(self.invocation)
 		self.execution_return_values.append(ret)
 
 		iterations = 1
@@ -108,12 +105,12 @@ class ConcolicEngine:
 
 		while not self.isExplorationComplete():
 			selected = self.constraints_to_solve.popleft()
-			if selected.negated:
+			if selected.processed:
 				continue
 
 			log.info("Solving constraint %s" % selected)
 			stats.pushProfile("constraint solving")
-			ret = selected.negateConstraint(self.tracer.execution_context)
+			ret = selected.negateConstraint()
 			stats.popProfile()
 
 			if not ret:
@@ -123,11 +120,11 @@ class ConcolicEngine:
 
 			self.record_inputs()	
 			self.path.reset()
-			ret = self.execute(self.invocation_sequence)
+			ret = self.execute(self.invocation)
 			self.execution_return_values.append(ret)
 
 			iterations += 1			
-			self.num_negated_constraints += 1
+			self.num_processed_constraints += 1
 
 			if max_iterations != 0 and iterations >= max_iterations:
 				log.debug("Maximum number of iterations reached, terminating")
