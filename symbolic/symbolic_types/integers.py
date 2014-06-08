@@ -53,6 +53,9 @@ class SymbolicInteger(SymbolicType):
 	def isTerm(self):
 		return True
 
+	def symbolicEq(self, other):
+		return self is other
+
 	def getSymVariable(self):
 		if self.z3_start == self.z3_end == 0:
 			return [(self.name, self, self.z3_var)]

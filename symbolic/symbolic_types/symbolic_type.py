@@ -56,6 +56,9 @@ class SymbolicType:
 	def isSymbolic(self):
 		return True
 
+	def symbolicEq(self, other):
+		raise NotImplementedError
+
 	def getSymVariable(self):
 		raise NotImplementedError
 
