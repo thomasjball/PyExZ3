@@ -1,5 +1,5 @@
-def diamond(x,y,y):
-	ret = 0;
+def diamond(x,y,z):
+	ret = 0
 	if (x):
 		ret = ret + 1
 	if (y):
@@ -8,5 +8,5 @@ def diamond(x,y,y):
 		ret = ret + 1
 	return ret
 
-def expected_result()
+def expected_result():
 	return [ 0, 1, 1, 1, 2, 2, 2, 3]

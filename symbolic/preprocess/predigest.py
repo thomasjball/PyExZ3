@@ -71,7 +71,6 @@ class SplitBoolOpPass1(ast.NodeTransformer):
 load_cond = ast.Name(id="__se_cond__", ctx=ast.Load())
 store_cond = ast.Name(id="__se_cond__", ctx=ast.Store())
 
-
 # turn while(E): B into  if (E) { while (true) { B if (!E) break} }
 class RewriteWhileLoop(ast.NodeTransformer):
 	def __init__(self):
@@ -145,33 +144,31 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="getConcrete", asname=None)], level=0)
 
 		ord_function = ast.parse(ord_str).body
-		if self.se_dict:
-			node.body = [import_se_dict,import_instrumentation,import_extract] + ord_function + node.body
-		else:
-			node.body = [import_instrumentation,import_extract] + ord_function + node.body
+		#if self.se_dict:
+		#	node.body = [import_se_dict,import_instrumentation,import_extract] + ord_function + node.body
+		#else:
+		node.body = [import_instrumentation,import_extract] + ord_function + node.body
 		return node
 
 	def visit_Dict(self, node):
 		return ast.Call(func=ast.Name(id='SeDict', ctx=ast.Load()), args=[node], keywords=[], starargs=None, kwargs=None)
 
 def instrumentModule(module_filename, out_dir, is_app=False, in_dir=""):
-	(dirname, mod_name) = os.path.split(module_filename)
-	if len(dirname) > 0:
-		out_dir = os.path.join(out_dir, dirname)
-		if not os.path.exists(out_dir):
-			os.makedirs(out_dir)
 
-	mod_file = os.path.join(out_dir, mod_name)
+	mod_file = os.path.join(out_dir, module_filename)
 
 	if os.path.exists(mod_file) and os.stat(os.path.join(in_dir, module_filename)).st_mtime < os.stat(mod_file).st_mtime:
 		return
+
 	print "Instrumenting %s" % module_filename
+
 	if "se_dict.py" in module_filename:
 		import_se_dict = False
 	else:
 		import_se_dict = True
 
 	module_contents = file(os.path.join(in_dir, module_filename), "U").read()
+
 	if len(module_contents.strip()) == 0:
 		file(mod_file, "w").close()
 		return

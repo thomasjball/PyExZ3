@@ -45,13 +45,9 @@ def newInteger(name):
 
 class Loader:
 	def __init__(self, filename):
-		self.filename = filename
 		self.test_name = os.path.basename(filename)
 		self.test_name = self.test_name[:-3]
 		self.reset_callback(True)
-
-	def getFile(self): 
-		return self.filename
 
 	def create_invocation(self):
 		inv = FunctionInvocation(self.execute)
@@ -105,8 +101,8 @@ def loaderFactory(filename):
 		print "Please provide a Python file to load"
 		return None
 	try: 
-		sys.path = [ os.path.dirname(filename) ] + sys.path
-		print sys.path
+		dir = os.path.dirname(filename)
+		sys.path = [ dir ] + sys.path
 		ret = Loader(filename)
 		sys.path = sys.path[1:]
 		return ret

@@ -80,13 +80,14 @@ if options.force_normalize and os.path.exists(se_instr_dir):
 if not os.path.exists(se_instr_dir):
 	os.mkdir(se_instr_dir)
 
-print "Running PyExZ3 on " + app_description.APP_NAME
-
-# instrument the code to be analyzed
-preprocess.instrumentLibrary(os.path.join(se_dir, "sym_exec_lib"), se_instr_dir)
-preprocess.instrumentModule(filename, se_instr_dir, is_app=True)
+print "Running PyExZ3 on " + app.test_name
 
 os.chdir(se_instr_dir)
+
+# instrument the code to be analyzed
+preprocess.instrumentModule(app.test_name + ".py", se_instr_dir, is_app=True, in_dir=os.path.dirname(filename))
+
+sys.path = [ se_instr_dir ] + sys.path
 
 stats.pushProfile("engine only")
 engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
