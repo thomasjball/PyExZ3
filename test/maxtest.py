@@ -12,7 +12,7 @@ def max4(a,b,c,d):
 	return max2(max2(a,b),max2(c,d))
 
 
-def test(a,b,c,d):
+def maxtest(a,b,c,d):
 	return max4(a,b,c,d)
 
 
