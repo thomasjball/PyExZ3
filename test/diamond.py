@@ -1,4 +1,4 @@
-def simple(x,y,y):
+def diamond(x,y,y):
 	ret = 0;
 	if (x):
 		ret = ret + 1

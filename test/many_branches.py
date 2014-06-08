@@ -32,7 +32,7 @@
 
 # Test if engine explores all paths
 
-def many_branches(in1, in2, in3):
+def test(in1, in2, in3):
     if in1 == 0:
         if in2 == 5:
             if in3 == 10:

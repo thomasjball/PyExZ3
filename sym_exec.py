@@ -33,7 +33,7 @@ import sys
 import shutil
 import cPickle
 import logging
-import symbolic.loader
+from symbolic.loader import loaderFactory
 from optparse import OptionParser
 from stats import getStats
 from symbolic.loader import Loader
@@ -64,9 +64,8 @@ if len(args) == 0 or not os.path.exists(args[0]):
 filename = os.path.abspath(args[0])
 app_args = args[1:]
 
-
 # Get the object describing the application
-app = loader.factory(filename,app_args)
+app = loaderFactory(filename)
 if app == None:
 	sys.exit(1)
 
@@ -89,9 +88,8 @@ preprocess.instrumentModule(filename, se_instr_dir, is_app=True)
 
 os.chdir(se_instr_dir)
 
-engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
-
 stats.pushProfile("engine only")
+engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
 if options.single_step:
 	return_vals = engine.run(1)
 	inputs = engine.generateAllInputs()

@@ -1,5 +1,3 @@
-# vim: set expandtab ts=4 sw=4:
-#
 # Copyright (c) 2011, EPFL (Ecole Politechnique Federale de Lausanne)
 # All rights reserved.
 #

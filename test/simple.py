@@ -1,4 +1,4 @@
-def simple(x):
+def test(x):
 	if (x):
 		return 42
 	else:

@@ -46,11 +46,11 @@ def newInteger(name):
 class Loader:
 	def __init__(self, filename):
 		self.filename = filename
-		# extract the name of the test
-		self.test_name = re.search(".py$")
+		self.test_name = os.path.basename(filename)
+		self.test_name = self.test_name[:-3]
 		self.reset_callback(True)
 
-	def getFile(self) 
+	def getFile(self): 
 		return self.filename
 
 	def create_invocation(self):
@@ -100,14 +100,18 @@ class Loader:
 			print self.test_name + ".py contains no expected_result function"
 			return None
 	
-def factory(filename):
-	if not os.path.isfile(filename):
-		print "Please provide a Python file to execute."
+def loaderFactory(filename):
+	if not os.path.isfile(filename) or not re.search(".py$",filename):
+		print "Please provide a Python file to load"
 		return None
-	try
-		# change into the directory of the filename to get the import
+	try: 
+		sys.path = [ os.path.dirname(filename) ] + sys.path
+		print sys.path
 		ret = Loader(filename)
-		return 
+		sys.path = sys.path[1:]
+		return ret
 	except KeyError:
+		sys.path = sys.path[1:]
 		return None
+
 

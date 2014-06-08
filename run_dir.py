@@ -1,5 +1,3 @@
-# test_dir = os.path.abspath(os.path.dirname(__file__))
-
 (options, args) = parser.parse_args()
 
 if len(args) == 0 or not os.path.exists(args[0]):
@@ -13,11 +11,7 @@ if not os.path.isdir(app_dir):
 	print "Please provide a directory name for app."
 	sys.exit(1)
 
-# add the app directory to the import path, just to get the configuration
-sys.path = [app_dir] + sys.path
+files = [ f[:-3] for f in os.listdir(test_dir) if re.search(".py$",f) ]
 
-app_description = __import__("test_descr")
-
-for t in test_descr.TESTS:
+for t in files:
 	# execute the python runner for this test
-	

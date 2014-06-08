@@ -33,7 +33,7 @@
 
 # Test if engine explores all paths
 
-def shallow_branches(in1, in2, in3, in4, in5):
+def test(in1, in2, in3, in4, in5):
     if in1 ==  0:
         return 1
 
