@@ -33,8 +33,10 @@ import sys
 import shutil
 import cPickle
 import logging
+import symbolic.loader
 from optparse import OptionParser
 from stats import getStats
+from symbolic.loader import Loader
 from symbolic.concolic import ConcolicEngine
 from symbolic import preprocess
 
@@ -59,59 +61,35 @@ if len(args) == 0 or not os.path.exists(args[0]):
 	parser.error("Missing app to execute")
 	sys.exit(1)
 	
-app_dir = os.path.abspath(args[0])
+filename = os.path.abspath(args[0])
 app_args = args[1:]
 
-if not os.path.isdir(app_dir):
-	print "Please provide a directory name for app."
+
+# Get the object describing the application
+app = loader.factory(filename,app_args)
+if app == None:
 	sys.exit(1)
-app_dir = os.path.abspath(app_dir)
 
 logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
 log = logging.getLogger()
 stats = getStats()
 stats.pushProfile("se total")
 
-se_dir = os.path.abspath(os.path.dirname(__file__))
 se_instr_dir = os.path.abspath("se_normalized")
 if options.force_normalize and os.path.exists(se_instr_dir):
 	shutil.rmtree(se_instr_dir)
 if not os.path.exists(se_instr_dir):
 	os.mkdir(se_instr_dir)
 
-os.chdir(app_dir)
-
-# add the app directory to the import path, just to get the configuration
-sys.path = [app_dir] + sys.path
-
-app_description = __import__("se_descr")
-
-# Get the object describing the application
-app_description = app_description.factory(app_args)
-if app_description == None:
-	sys.exit(1)
-
-# then remove it and put in the instrumented version directory
-sys.path[0] = se_instr_dir
-
 print "Running PyExZ3 on " + app_description.APP_NAME
 
 # instrument the code to be analyzed
 preprocess.instrumentLibrary(os.path.join(se_dir, "sym_exec_lib"), se_instr_dir)
-
-for m in app_description.NORMALIZE_MODS:
-	preprocess.instrumentModule(m, se_instr_dir, is_app=True)
-
-for p in app_description.NORMALIZE_PACKAGES:
-	preprocess.instrumentPackage(p, se_instr_dir)
-
-# now do the concolic execution
+preprocess.instrumentModule(filename, se_instr_dir, is_app=True)
 
 os.chdir(se_instr_dir)
 
-inv = app_description.create_invocation()
-engine = ConcolicEngine(inv,options.debug)
-engine.setResetCallback(app_description.reset_callback)
+engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
 
 stats.pushProfile("engine only")
 if options.single_step:
@@ -133,7 +111,7 @@ if not options.quiet:
 		print stats.getCounterOutput()
 
 # check the result
-result = app_description.execution_complete(return_vals)
+result = app.execution_complete(return_vals)
 if result == None or result == True:
 	sys.exit(0);
 else:

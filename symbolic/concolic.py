@@ -39,22 +39,19 @@ log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
-	def __init__(self, funcinv, debug):
+	def __init__(self, funcinv, reset, debug):
 		self.invocation = funcinv
+		self.reset_func = reset
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
 		instrumentation.SI = self.path
 		self.execution_return_values = []
-		self.reset_func = None
 		# self.tracer = PythonTracer(debug)
 		# self.tracer.setInterpreter(self.path)
 		# self.path.setTracer(self.tracer)
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
-
-	def setResetCallback(self, reset_func):
-		self.reset_func = reset_func
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
@@ -100,6 +97,7 @@ class ConcolicEngine:
 
 	def run(self, max_iterations=0):
 		self.one_execution()
+		
 		iterations = 1
 		if max_iterations != 0 and iterations >= max_iterations:
 			log.debug("Maximum number of iterations reached, terminating")

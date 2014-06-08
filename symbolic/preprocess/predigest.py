@@ -63,32 +63,47 @@ class SplitBoolOpPass1(ast.NodeTransformer):
 		node = self.generic_visit(node) # recursion
 		return node
 
-	# TODO: missing the same for While loop
-
+	# To do the above for a while loop is a little trickier.
+	# perhaps we whould rewrite a while loop as a separate pass?
 
 # lift all computation out of predicate (replace with local variable)
 
 load_cond = ast.Name(id="__se_cond__", ctx=ast.Load())
 store_cond = ast.Name(id="__se_cond__", ctx=ast.Store())
 
+
+# turn while(E): B into  if (E) { while (true) { B if (!E) break} }
+class RewriteWhileLoop(ast.NodeTransformer):
+	def __init__(self):
+		ast.NodeTransformer.__init__(self)
+
+	def visit_While(self,node):
+		node = self.generic_visit(node)
+		surround_if = ast.If(test=node.test, body=node, orelse=node.orelse)
+		node.test = ast.Expr(True)
+		end_if = ast.If(test=node.test, body=ast.Continue, orelse=ast.Break)
+		node.body = node.body.append(end_if)
+		return [surround_if]
+
 class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 	def __init__(self):
 		ast.NodeTransformer.__init__(self)
 
+	def worker(self,node):
+		node = self.generic_visit(node)
+		getSym = ast.Assign(targets=[store_cond], value=node.test)
+		extract = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
+							args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		return (extract, getSym)
+
 	def visit_If(self, node):
-		node = self.generic_visit(node) # recusion
-		self.funcs = []
-                getSym   = ast.Assign(targets=[store_cond], value=node.test)
-		extract  = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
-			args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		extract, getSym = self.worker(node)
 		new_node = ast.If(test=extract, body=node.body, orelse=node.orelse)
 		return [ getSym, new_node ]
 
 	def visit_While(self, node):
-		node = self.generic_visit(node) # recusion
-                getSym   = ast.Assign(targets=[store_cond], value=node.test)
-		extract  = ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
-			args=[load_cond], keywords=[], starargs=None, kwargs=None)
+		# special case: don't extract if this is a While(true)
+		extract, getSym = self.worker(node)
 		new_node = ast.While(test=extract, body=node.body, orelse=node.orelse)
 		return [ getSym, new_node ]
 
