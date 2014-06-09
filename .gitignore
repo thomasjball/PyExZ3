@@ -220,3 +220,4 @@ pip-log.txt
 se_normalized/
 logfile
 stdout
+*.out
