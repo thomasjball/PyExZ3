@@ -40,11 +40,7 @@ from symbolic.loader import Loader
 from symbolic.concolic import ConcolicEngine
 from symbolic import preprocess
 
-print "PyExZ3 (Python Symbolic Execution via Z3)"
-
-if not "PYTHONHOME" in os.environ:
-	print "Please set PYTHONHOME to the location of your python installation."
-	sys.exit(1)
+print("PyExZ3 (Python Symbolic Execution via Z3)")
 
 sys.path = [os.path.abspath(os.path.join(os.path.dirname(__file__)))] + sys.path
 usage = "usage: %prog [options] <se_descr.py path>"
@@ -80,7 +76,7 @@ if options.force_normalize and os.path.exists(se_instr_dir):
 if not os.path.exists(se_instr_dir):
 	os.mkdir(se_instr_dir)
 
-print "Running PyExZ3 on " + app.test_name
+print ("Running PyExZ3 on " + app.test_name)
 
 os.chdir(se_instr_dir)
 
@@ -102,12 +98,12 @@ stats.popProfile()
 # print statistics
 stats.popProfile() # SE total
 if not options.quiet:
-	print "---- Execution summary ----"
+	print("---- Execution summary ----")
 	log.info("\n" + stats.getProfilingOutput())
 	log.info("\n" + stats.getCounterOutput())
 	if options.logfile != "stdout":
-		print stats.getProfilingOutput()
-		print stats.getCounterOutput()
+		print(stats.getProfilingOutput())
+		print(stats.getCounterOutput())
 
 # check the result
 result = app.execution_complete(return_vals)
