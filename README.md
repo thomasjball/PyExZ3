@@ -17,3 +17,7 @@ Setup instructions:
 - Set PYTHONHOME to the location of your Python distribution
 - Add PYTHOHHOME to PATH
 - Add Z3HOME\bin to PATH and PYTHONPATH
+
+Check that everything works:
+- "python run_tests.py test" should pass all tests
+- "python sym_exec.py test\FILE.py" to run a single test from test directory
