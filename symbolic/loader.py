@@ -61,19 +61,19 @@ class Loader:
 	def reset_callback(self,firstpass=False):
 		self.app = None
 		if firstpass and self.test_name in sys.modules:
-			print "There already is a module loaded named " + self.test_name
+			print("There already is a module loaded named " + self.test_name)
 			raise KeyError()
 		try:
 			if (not firstpass and self.test_name in sys.modules):
 				del(sys.modules[self.test_name])
 			self.app =__import__(self.test_name)
 			if not self.test_name in self.app.__dict__:
-				print which_test + ".py doesn't contain a function named " + which_test
+				print(which_test + ".py doesn't contain a function named " + which_test)
 				raise KeyError()
 			# TODO: check that we have a function
-		except Exception, arg:
-			print "Couldn't import " + self.test_name
-			print arg
+		except Exception(arg):
+			print("Couldn't import " + self.test_name)
+			print(arg)
 			raise KeyError()
 
 	def execute(self, **args):
@@ -81,11 +81,11 @@ class Loader:
 
 	def check(self, computed, expected):
 		if len(computed) != len(expected) or computed != expected:
-			print "-------------------> %s test failed <---------------------" % self.test_name
-			print "Expected: %s, found: %s" % (expected, computed)
+			print("-------------------> %s test failed <---------------------" % self.test_name)
+			print("Expected: %s, found: %s" % (expected, computed))
 			return False
 		else:
-			print "%s test passed <---" % self.test_name
+			print("%s test passed <---" % self.test_name)
 			return True
 
 	def execution_complete(self, return_vals):
@@ -94,12 +94,12 @@ class Loader:
 			res.sort()
 			return self.check(res, self.app.__dict__["expected_result"]())
 		else:
-			print self.test_name + ".py contains no expected_result function"
+			print(self.test_name + ".py contains no expected_result function")
 			return None
 	
 def loaderFactory(filename):
 	if not os.path.isfile(filename) or not re.search(".py$",filename):
-		print "Please provide a Python file to load"
+		print("Please provide a Python file to load")
 		return None
 	try: 
 		dir = os.path.dirname(filename)

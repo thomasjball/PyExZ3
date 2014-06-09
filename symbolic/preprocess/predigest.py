@@ -160,7 +160,7 @@ def instrumentModule(module_filename, out_dir, is_app=False, in_dir=""):
 	if os.path.exists(mod_file) and os.stat(os.path.join(in_dir, module_filename)).st_mtime < os.stat(mod_file).st_mtime:
 		return
 
-	print "Instrumenting %s" % module_filename
+	print("Instrumenting %s" % module_filename)
 
 	if "se_dict.py" in module_filename:
 		import_se_dict = False

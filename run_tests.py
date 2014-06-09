@@ -13,7 +13,7 @@ if len(args) == 0 or not os.path.exists(args[0]):
 test_dir = os.path.abspath(args[0])
 
 if not os.path.isdir(test_dir):
-	print "Please provide a directory of test scripts."
+	print("Please provide a directory of test scripts.")
 	sys.exit(1)
 
 files = [ f for f in os.listdir(test_dir) if re.search(".py$",f) ]
@@ -23,7 +23,7 @@ for f in files:
 	full = test_dir + os.sep + f
 	ret = os.system("python sym_exec.py -l "+full+".log "+full+" > "+full+".out")
 	if (ret == 0):
-		print "Test " + f + " passed."
+		print("Test " + f + " passed.")
 	else:
-		print "Test " + f + " failed."
+		print("Test " + f + " failed.")
 

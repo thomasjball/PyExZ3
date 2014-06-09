@@ -89,13 +89,13 @@ class Unparser:
 			for t in tree:
 				self.dispatch(t)
 			return
-#		 print tree.__class__.__name__
+#		 print(tree.__class__.__name__)
 		try:
 			meth = getattr(self, "_"+tree.__class__.__name__)
 		except AttributeError:
-			print "Unsupported node: _"+tree.__class__.__name__
+			print("Unsupported node: _"+tree.__class__.__name__)
 			ast.dump(tree)
-			print tree
+			print(tree)
 			sys.exit(1)
 		meth(tree)
 
@@ -147,10 +147,10 @@ class Unparser:
 		self.dispatch(value)
 
 	def _AssAttr(self, t):
-		print t
+		print(t)
 
 	def _Const(self, t):
-		print t
+		print(t)
 
 	def _AugAssign(self, t):
 		self.fill()

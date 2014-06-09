@@ -39,7 +39,7 @@ def _traceback():
 def crash(msg):
 	stack = _traceback()
 	print("\n"+"".join(stack))
-	print msg
+	print(msg)
 	sys.exit(-1)
 
 def serialize_dict(d):
