@@ -30,6 +30,7 @@
 
 import os
 import sys
+import platform
 import shutil
 import cPickle
 import logging
@@ -41,10 +42,6 @@ from symbolic.concolic import ConcolicEngine
 from symbolic import preprocess
 
 print "PyExZ3 (Python Symbolic Execution via Z3)"
-
-if not "PYTHONHOME" in os.environ:
-	print "Please set PYTHONHOME to the location of your python installation."
-	sys.exit(1)
 
 sys.path = [os.path.abspath(os.path.join(os.path.dirname(__file__)))] + sys.path
 usage = "usage: %prog [options] <se_descr.py path>"
