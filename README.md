@@ -15,6 +15,7 @@ experiment with dynamic symbolic execution.
 - Install Python version 2.7.6 (https://www.python.org/download/releases/2.7.6/)
 - Install Z3 to directory Z3HOME from http://z3.codeplex.com/releases (click on the "Planned" link on the right to get the latest binaries for all platforms)
 - Add Z3HOME\bin to PATH and PYTHONPATH
+- MacOS: see setup.sh for Homebrew default locations for Python and Z3
 
 ### MacOS specific
 
