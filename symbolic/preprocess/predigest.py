@@ -46,6 +46,7 @@ ord = se_ord
 """
 
 # remove And/Or in If conditionals and create explicit control-flow instead
+# NOTE: removing Or duplicates code
 
 class SplitBoolOpPass1(ast.NodeTransformer):
 	def visit_If(self, node):
@@ -63,30 +64,18 @@ class SplitBoolOpPass1(ast.NodeTransformer):
 		node = self.generic_visit(node) # recursion
 		return node
 
-	# To do the above for a while loop is a little trickier.
-	# perhaps we whould rewrite a while loop as a separate pass?
-
 # lift all computation out of predicate (replace with local variable)
 
 load_cond = ast.Name(id="__se_cond__", ctx=ast.Load())
 store_cond = ast.Name(id="__se_cond__", ctx=ast.Store())
 
-# turn while(E): B into  if (E) { while (true) { B if (!E) break} }
-class RewriteWhileLoop(ast.NodeTransformer):
-	def __init__(self):
-		ast.NodeTransformer.__init__(self)
-
-	def visit_While(self,node):
-		node = self.generic_visit(node)
-		surround_if = ast.If(test=node.test, body=node, orelse=node.orelse)
-		node.test = ast.Expr(True)
-		end_if = ast.If(test=node.test, body=ast.Continue, orelse=ast.Break)
-		node.body = node.body.append(end_if)
-		return [surround_if]
-
 class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 	def __init__(self):
 		ast.NodeTransformer.__init__(self)
+
+	def wrapExpr(self,expr):
+		return ast.Call(func=ast.Name(id='getConcrete', ctx=ast.Load()), 
+			args=[expr], keywords=[], starargs=None, kwargs=None)
 
 	def worker(self,node):
 		node = self.generic_visit(node)
@@ -101,11 +90,19 @@ class LiftComputationFromConditionalPass2(ast.NodeTransformer):
 		return [ getSym, new_node ]
 
 	def visit_While(self, node):
-		# special case: don't extract if this is a While(true)
+		# TODO: need to extract to end of loop too
 		extract, getSym = self.worker(node)
 		new_node = ast.While(test=extract, body=node.body, orelse=node.orelse)
 		return [ getSym, new_node ]
 
+	#TODO: we need to wrap examined expressions with getConcrete
+	# For(expr target, expr iter, stmt* body, stmt* orelse)
+	def visit_For(self,node):
+		new_node = ast.For(target=self.wrapExpr(node.target),expr=self.wrapExpr(node.expr),body=node.body,orelse=node.orelse)
+		return [new_node]
+
+	#def visit_Print(self,node):
+		
 # add code to make the then-else branches explicit (even in the absence of user code)
 
 class BranchIdentifierPass3(ast.NodeTransformer):
@@ -113,7 +110,7 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		ast.NodeTransformer.__init__(self)
 		self.se_dict = import_se_dict
 
-	def visit_If(self, node):
+	def worker(self,node):
 		node = self.generic_visit(node) # recursion
 		call_node_true = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
 			args=[ast.Name(id='True', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
@@ -121,17 +118,15 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 			args=[ast.Name(id='False', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
 		new_body = [call_node_true] + node.body
 		new_orelse = [call_node_false] + node.orelse
+		return new_body, new_orelse
+
+	def visit_If(self, node):
+		new_body, new_orelse = self.worker(node)
 		new_node = ast.If(test=node.test, body=new_body, orelse=new_orelse)
 		return ast.copy_location(new_node, node)
 
 	def visit_While(self, node):
-		node = self.generic_visit(node) # recursion
-		call_node_true = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
-			args=[ast.Name(id='True', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
-		call_node_false = ast.Expr(value=ast.Call(func=ast.Name(id='whichBranch', ctx=ast.Load()), 
-			args=[ast.Name(id='False', ctx=ast.Load()), load_cond], keywords=[], starargs=None, kwargs=None))
-		new_body = [call_node_true] + node.body
-		new_orelse = [call_node_false] + node.orelse
+		new_body, new_orelse = self.worker(node)
 		new_node = ast.While(test=node.test, body=new_body, orelse=new_orelse)
 		return ast.copy_location(new_node, node)
 
@@ -139,19 +134,24 @@ class BranchIdentifierPass3(ast.NodeTransformer):
 		""" Add the imports needed to run symbolically """
 		node = self.generic_visit(node)
 		if self.se_dict:
-			import_se_dict = ast.ImportFrom(module="se_dict", names=[ast.alias(name="SeDict", asname=None)], level=0)
+			import_se_dict = ast.ImportFrom(module="sym_exec_lib.se_dict", names=[ast.alias(name="SeDict", asname=None)], level=0)
 		import_instrumentation = ast.ImportFrom(module="symbolic.instrumentation", names=[ast.alias(name="whichBranch", asname=None)], level=0)
 		import_extract = ast.ImportFrom(module="symbolic.symbolic_types", names=[ast.alias(name="getConcrete", asname=None)], level=0)
 
 		ord_function = ast.parse(ord_str).body
-		#if self.se_dict:
-		#	node.body = [import_se_dict,import_instrumentation,import_extract] + ord_function + node.body
-		#else:
-		node.body = [import_instrumentation,import_extract] + ord_function + node.body
+		if self.se_dict:
+			node.body = [import_se_dict,import_instrumentation,import_extract] + ord_function + node.body
+		else:
+			node.body = [import_instrumentation,import_extract] + ord_function + node.body
 		return node
 
+	# TODO: debug this
 	def visit_Dict(self, node):
 		return ast.Call(func=ast.Name(id='SeDict', ctx=ast.Load()), args=[node], keywords=[], starargs=None, kwargs=None)
+
+	def visit_Call(self,node):
+		# TODO: DEBUG
+		return node
 
 def instrumentModule(module_filename, out_dir, is_app=False, in_dir=""):
 
