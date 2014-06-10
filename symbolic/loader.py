@@ -71,7 +71,7 @@ class Loader:
 				print(which_test + ".py doesn't contain a function named " + which_test)
 				raise KeyError()
 			# TODO: check that we have a function
-		except Exception(arg):
+		except Exception, arg:
 			print("Couldn't import " + self.test_name)
 			print(arg)
 			raise KeyError()

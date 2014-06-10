@@ -1,8 +1,12 @@
+# vim: set expandtab ts=4 sw=4:
 #
 # Copyright (c) 2011, EPFL (Ecole Politechnique Federale de Lausanne)
 # All rights reserved.
 #
 # Created by Marco Canini, Daniele Venzano, Dejan Kostic, Jennifer Rexford
+# To this file contributed: Peter Peresini
+#
+# Updated by Thomas Ball (2014)
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,21 +31,16 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from symbolic.symbolic_types import getConcrete
-from symbolic.instrumentation import whichBranch
+# Test if engine explores all paths
 
-class SeDict(dict):
-	def __init__(self, *args, **kwargs):
-		dict.__init__(self)
-		self.update(*args, **kwargs)
+def dictionary(in1):
+    d = {}
+    d[3] = 10
 
-	def has_key(self, key):
-		for k in self.keys():
-			tmp = k == key
-			if getConcrete(tmp):
-				whichBranch(True,tmp)
-				return True
-			else:
-				whichBranch(False,tmp)
-		return False
+    if d.has_key(in1):
+        return 1
+    else:
+        return 2
 
+def expected_result():
+	return [1,2]
