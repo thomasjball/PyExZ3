@@ -51,6 +51,7 @@ parser.add_option("-l", "--log", dest="logfile", action="store", help="Save log 
 parser.add_option("-f", "--force", dest="force_normalize", action="store_true", help="Force the regeneration of normalized files")
 parser.add_option("-q", "--quiet", dest="quiet", action="store_true", help="Do not print statistics at the end of execution")
 parser.add_option("-s", "--single-step", dest="single_step", action="store", help="Run only one iteration and save the pickled inputs in the specified file")
+parser.add_option("-c", "--cutting", dest="cutting", action="store_true", help="Cut paths by checking for state subsumption")
 
 (options, args) = parser.parse_args()
 
@@ -87,7 +88,7 @@ preprocess.instrumentModule(app.test_name + ".py", se_instr_dir, is_app=True, in
 sys.path = [ se_instr_dir ] + sys.path
 
 stats.pushProfile("engine only")
-engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
+engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug,options.cutting)
 if options.single_step:
 	return_vals = engine.run(1)
 	inputs = engine.generateAllInputs()

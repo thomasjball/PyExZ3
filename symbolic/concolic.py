@@ -39,7 +39,7 @@ log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
-	def __init__(self, funcinv, reset, debug):
+	def __init__(self, funcinv, reset, debug, cutting):
 		self.invocation = funcinv
 		self.reset_func = reset
 		self.constraints_to_solve = deque([])
@@ -53,8 +53,10 @@ class ConcolicEngine:
 		# self.path.setTracer(self.tracer)
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
+		self.cutting = cutting
 		self.states = defaultdict(list) # used for state matching
-		stats.newCounter("paths cut")
+		if cutting:
+			stats.newCounter("paths cut")
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)

@@ -66,11 +66,12 @@ class PathToConstraint:
 		if not (isinstance(cond_expr,SymbolicType)):
 			return
 
-		stats.pushProfile("subsumption checking")
-		# Important: this call may jump out of this function (and the
-		# whole execution) by throwing an EndExecutionThrowable
-		self.tryCut()
-		stats.popProfile()
+		if self.engine.cutting:
+			stats.pushProfile("subsumption checking")
+			# Important: this call may jump out of this function (and the
+			# whole execution) by throwing an EndExecutionThrowable
+			self.tryCut()
+			stats.popProfile()
 
 		# add both possible predicate outcomes to constraint (tree)
 		p = Predicate(cond_expr, branch)
