@@ -29,9 +29,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from path_to_constraint import PathToConstraint
+from path_to_constraint import PathToConstraint, EndExecutionThrowable
 from symbolic import instrumentation
-from collections import deque
+from collections import deque, defaultdict
 import logging
 from stats import getStats
 
@@ -43,6 +43,7 @@ class ConcolicEngine:
 		self.invocation = funcinv
 		self.reset_func = reset
 		self.constraints_to_solve = deque([])
+		self.selected = None
 		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
 		instrumentation.SI = self.path
@@ -52,6 +53,8 @@ class ConcolicEngine:
 		# self.path.setTracer(self.tracer)
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
+		self.states = defaultdict(list) # used for state matching
+		stats.newCounter("paths cut")
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
@@ -92,7 +95,10 @@ class ConcolicEngine:
 	def one_execution(self):
 		self.record_inputs()
 		self.path.reset()
-		ret = self.execute(self.invocation)
+		try:
+			ret = self.execute(self.invocation)
+		except EndExecutionThrowable:
+			return
 		self.execution_return_values.append(ret)
 
 	def run(self, max_iterations=0):
@@ -104,13 +110,13 @@ class ConcolicEngine:
 			return self.execution_return_values
 
 		while not self.isExplorationComplete():
-			selected = self.constraints_to_solve.popleft()
-			if selected.processed:
+			self.selected = self.constraints_to_solve.popleft()
+			if self.selected.processed:
 				continue
 
-			log.info("Solving constraint %s" % selected)
+			log.info("Solving constraint %s" % self.selected)
 			stats.pushProfile("constraint solving")
-			ret = selected.processConstraint()
+			ret = self.selected.processConstraint()
 			stats.popProfile()
 
 			if not ret:
