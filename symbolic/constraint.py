@@ -52,15 +52,11 @@ class Constraint:
 		else:
 			return False
 
-	def processConstraint(self):
-		# We want to mark this as processed even in case of error
-		# so it is best to do it at the beginning
-		self.processed = True
+	def buildZ3Asserts(self):
 		res = False
 		sym_asserts = []
 		sym_vars = {}
-
-		tmp = self.parent
+		tmp = self
 		while tmp.predicate is not None:
 			p = tmp.predicate
 			(ret, expr) = p.buildZ3Expr()
@@ -70,6 +66,14 @@ class Constraint:
 				for v in p.sym_vars:
 					sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
+		return (res, sym_asserts, sym_vars)
+
+	def processConstraint(self):
+		# We want to mark this as processed even in case of error
+		# so it is best to do it at the beginning
+		self.processed = True
+
+		(res, sym_asserts, sym_vars) = self.parent.buildZ3Asserts()
 
 		(ret, expr) = self.predicate.buildZ3Expr()
 		if expr is None:
