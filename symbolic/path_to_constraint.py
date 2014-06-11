@@ -102,6 +102,14 @@ class PathToConstraint:
 		if not self.target_reached:
 			return
 
+		# Check that this whichBranch call was made from the top level function in the program
+		# under test.
+		# TODO: add recording of state from multiple function frames to remove this limitation
+		caller_of_instrumented = inspect.getouterframes(inspect.currentframe())[4][3] # function name
+		if not caller_of_instrumented == "execute":
+			log.debug("Skip subsumption checking due to not being in top level function")
+			return
+
 		(frame, filename, line_number, function_name, lines, line_index) = inspect.getouterframes(
 			inspect.currentframe())[3]
 		pc = filename + ":" + str(line_number)
