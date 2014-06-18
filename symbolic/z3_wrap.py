@@ -45,7 +45,7 @@ z3_vars = {}
 def int2BitVec(v, length):
 	return BitVecVal(v, length)
 
-def newIntegerVariable(name, bitlen):
+def newIntegerVariable(name,bitlen=32):
 	if name not in z3_vars:
 		z3_vars[name] = BitVec(name,bitlen)
 	else:
@@ -84,13 +84,10 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 def notExpr(expr):
 	return Not(expr)
 
-def extract(var, start, end):
-	return Extract(start, end, var)
-
 def eqExpr(e1, e2):
 	return e1 == e1
 
-def astToZ3Expr(expr, bitlen):
+def astToZ3Expr(expr, bitlen=32):
 	if isinstance(expr, ast.BinOp):
 		z3_l = astToZ3Expr(expr.left, bitlen)
 		z3_r = astToZ3Expr(expr.right, bitlen)

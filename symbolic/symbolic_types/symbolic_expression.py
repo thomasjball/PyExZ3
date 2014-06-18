@@ -43,26 +43,6 @@ class SymbolicExpression(SymbolicType):
 	def getExprConcr(self):
 		return (self.expr, self.concrete_value)
 
-	def getBitLength(self):
-		if self._bitlen == None:
-			self._bitlen = self._findBitLength(self.expr)
-		return self._bitlen
-
-	def _findBitLength(self, expr):
-		if isinstance(expr, ast.BinOp):
-			l = self._findBitLength(expr.left)
-			r = self._findBitLength(expr.right)
-			if l > r:
-				return l
-			else:
-				return r
-		elif isinstance(expr, SymbolicType):
-			return expr.getBitLength()
-		elif isinstance(expr, int) or isinstance(expr, long):
-			return 0
-		else:
-			utils.crash("Node type not supported: %s" % expr)
-
 	def getSymVariable(self):
 		return self._getSymVariables(self.expr)
 

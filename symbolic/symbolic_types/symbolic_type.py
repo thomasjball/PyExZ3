@@ -62,9 +62,6 @@ class SymbolicType:
 	def getSymVariable(self):
 		raise NotImplementedError
 
-	def getBitLength(self):
-		raise NotImplementedError
-
 	def getExprConcr(self):
 		return (self, self.getConcrValue())
 

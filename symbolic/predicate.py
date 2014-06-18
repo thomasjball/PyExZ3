@@ -78,7 +78,7 @@ class Predicate:
 
 		sym_expr = self._buildZ3Expr()		
 		if not is_bool(sym_expr):
-			sym_expr = sym_expr != z3_wrap.int2BitVec(0, self.expr.getBitLength())
+			sym_expr = sym_expr != z3_wrap.int2BitVec(0,32)
 		if not self.result:
 			sym_expr = Not(sym_expr)
 		return (True, sym_expr)
@@ -86,4 +86,4 @@ class Predicate:
 	def _buildZ3Expr(self):
 		if not (isinstance(self.expr,SymbolicType)):
 			utils.crash("Unexpected expression %s" % self.expr)
-		return z3_wrap.astToZ3Expr(self.expr, self.expr.getBitLength())
+		return z3_wrap.astToZ3Expr(self.expr)

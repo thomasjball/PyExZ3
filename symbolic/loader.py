@@ -40,7 +40,7 @@ symbolic_vars = {}
 	
 def newInteger(name):
 	if name not in symbolic_vars.keys():
-		symbolic_vars[name] = SymbolicInteger(name,32)
+		symbolic_vars[name] = SymbolicInteger(name)
 	return symbolic_vars[name]
 
 class Loader:

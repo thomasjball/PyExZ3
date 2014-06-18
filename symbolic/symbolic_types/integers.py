@@ -33,19 +33,11 @@ from symbolic_type import SymbolicType
 import symbolic.z3_wrap as wrap
 
 class SymbolicInteger(SymbolicType):
-	def __init__(self, name, bitlen, z3_var=None, start=0, end=0):
+	def __init__(self, name):
 		SymbolicType.__init__(self, name)
 		self.concrete_value = 0L
-		self.z3_start = start
-		self.z3_end = end
-		if z3_var != None:
-			self.z3_var = z3_var
-		else:
-			self.z3_var = wrap.newIntegerVariable(self.name, bitlen)
-		self._bitlen = bitlen
-
-	def getBitLength(self):
-		return self._bitlen
+		# TODO
+		self.z3_var = wrap.newIntegerVariable(self.name)
 
 	def __repr__(self):
 		return self.name + "#" + str(self.concrete_value)
@@ -57,7 +49,4 @@ class SymbolicInteger(SymbolicType):
 		return self is other
 
 	def getSymVariable(self):
-		if self.z3_start == self.z3_end == 0:
-			return [(self.name, self, self.z3_var)]
-		else:
-			return [(self.name, self, z3.extract(self.z3_var, self.z3_start, self.z3_end))]
+		return [(self.name, self, self.z3_var)]
