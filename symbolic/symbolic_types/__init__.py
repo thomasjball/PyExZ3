@@ -29,11 +29,9 @@
 
 import integers
 import symbolic_type
-import symbolic_expression
 
 SymbolicInteger = integers.SymbolicInteger
 SymbolicType = symbolic_type.SymbolicType
-SymbolicExpression = symbolic_expression.SymbolicExpression
 
 def getConcrete(v):
 	if isinstance(v,SymbolicType):

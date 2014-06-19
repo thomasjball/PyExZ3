@@ -33,53 +33,10 @@ from symbolic_type import SymbolicType
 import ast
 import utils
 
-class SymbolicExpression(SymbolicType):
-	def __init__(self, expr):
-		SymbolicType.__init__(self, "se")
-		self.expr = expr
-		self._bitlen = None
-		self.concrete_value = None
+#class SymbolicExpression(SymbolicType):
+#	def __init__(self, expr):
+#		SymbolicType.__init__(self, "se",expr)
 
-	def getExprConcr(self):
-		return (self.expr, self.concrete_value)
 
-	def getSymVariable(self):
-		return self._getSymVariables(self.expr)
-
-	def _getSymVariables(self, expr):
-		sym_vars = []
-		if isinstance(expr, ast.BinOp):
-			sym_vars += self._getSymVariables(expr.left)
-			sym_vars += self._getSymVariables(expr.right)
-		elif isinstance(expr, SymbolicType):
-			sym_vars += expr.getSymVariable()
-		elif isinstance(expr, int) or isinstance(expr, long):
-			pass
-		else:
-			utils.crash("Node type not supported: %s" % expr)
-
-		return sym_vars
-
-	def symbolicEq(self, other):
-		if not isinstance(other, SymbolicExpression):
-			return False
-		return self._do_symbolicEq(self.expr, other.expr)
-
-	def _do_symbolicEq(self, expr1, expr2):
-		if type(expr1) != type(expr2):
-			return False
-		if isinstance(expr1, ast.BinOp):
-			ret = self._do_symbolicEq(expr1.left, expr2.left)
-			ret |= self._do_symbolicEq(expr1.right, expr2.right)
-			return ret | (type(expr1.op) == type(expr2.op))
-		elif isinstance(expr1, SymbolicType):
-			return expr1 is expr2
-		elif isinstance(expr1, int) or isinstance(expr1, long):
-			return expr1 == expr2
-		else:
-			utils.crash("Node type not supported: %s" % expr1)
-
-	def __repr__(self):
-		return "SymExpr(" + ast.dump(self.expr) + ")"
 
 

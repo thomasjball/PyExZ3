@@ -33,7 +33,6 @@ import ast
 import logging
 import utils
 from symbolic_types.symbolic_type import SymbolicType
-from symbolic_types.symbolic_expression import SymbolicExpression
 from z3 import *
 
 _z3 = Solver()
@@ -121,10 +120,11 @@ def astToZ3Expr(expr, bitlen=32):
 			return z3_l >= z3_r
 		else:
 			utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
-	elif isinstance(expr, SymbolicExpression):
-		return astToZ3Expr(expr.expr,bitlen)
 	elif isinstance(expr, SymbolicType):
-		return expr.getSymVariable()[0][2]
+		if expr.isVariable():
+			return expr.getSymVariable()[0][2]
+		else:
+			return astToZ3Expr(expr.expr,bitlen)
 	elif isinstance(expr, int) or isinstance(expr, long):
 		return int2BitVec(expr, bitlen)
 	else:

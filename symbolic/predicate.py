@@ -30,7 +30,7 @@
 #
 
 import symbolic.z3_wrap as z3_wrap
-from symbolic_types import SymbolicType, SymbolicExpression
+from symbolic_types import SymbolicType
 import logging
 import utils
 from z3 import *

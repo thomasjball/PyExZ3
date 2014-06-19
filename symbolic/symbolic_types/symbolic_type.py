@@ -29,41 +29,64 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
+import utils
 import ast
-import sys
 
-def correct(value, bits, signed):
-    base = 1 << bits
-    value %= base
-    return value - base if signed and value.bit_length() == bits else value
+# In Python, Booleans are a subclass of Integers, so we ensure this by wrapping comparisons
+# in SymbolicInteger. This allows nonsense such as (x<y)+1, just as in C!
 
-char, word, dword, qword, byte, sword, sdword, sqword = (
-    lambda v: correct(v, 8, True), lambda v: correct(v, 16, True),
-    lambda v: correct(v, 32, True), lambda v: correct(v, 64, True),
-    lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
-    lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
+def wrap(o):
+	from integers import SymbolicInteger # dodge circular reference
+	return lambda l,r : SymbolicInteger("se",ast.BinOp(left=l, op=o(), right=r))
 
 # the base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
-#   MISSING: Mod | Pow  | FloorDiv, and much more...
-
 class SymbolicType:
-	def __init__(self, name):
+	def __init__(self, name, expr=None):
 		self.name = name
 		self.concrete_value = None
+		self.expr = expr
 
-	def isSymbolic(self):
-		return True
-
-	def symbolicEq(self, other):
-		raise NotImplementedError
-
-	def getSymVariable(self):
-		raise NotImplementedError
+	# START - must override when creating subclass
 
 	def getExprConcr(self):
-		return (self, self.getConcrValue())
+		return (self.expr, self.getConcrValue())
+
+	def isVariable(self):
+		return self.expr == None
+
+	# END - must override when creating subclass
+
+	def getConcrValue(self):
+		return self.concrete_value
+
+	def setConcrValue(self, value):
+		self.concrete_value = value
+
+	def symbolicEq(self, other):
+		if not isinstance(other,SymbolicType):
+			return False;
+		if self.isVariable() or other.isVariable():
+			return self is other
+		return self._do_symbolicEq(self.expr,other.expr)
+
+	def _do_symbolicEq(self, expr1, expr2):
+		if type(expr1) != type(expr2):
+			return False
+		if isinstance(expr1, ast.BinOp):
+			ret = self._do_symbolicEq(expr1.left, expr2.left)
+			ret |= self._do_symbolicEq(expr1.right, expr2.right)
+			return ret | (type(expr1.op) == type(expr2.op))
+		elif isinstance(expr1, SymbolicType):
+			return expr1 is expr2
+		elif isinstance(expr1, int) or isinstance(expr2, long):
+			return expr1 == expr2
+		else:
+			utils.crash("Node type not supported")
+
+	def getSymVariable(self):
+		return self._getSymVariables(self.expr)
 
 	def __nonzero__(self):
 		return bool(self.getConcrValue())
@@ -77,33 +100,35 @@ class SymbolicType:
 	def __cmp__(self, other):
 		return NotImplemented
 
+	def __repr__(self):
+		return "SymExpr(" + ast.dump(self.expr) + ")"
+
 	def __eq__(self, other):
 		if isinstance(other, type(None)):
 			return False
 		else:
-			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq)
+			return self._do_bin_op(other, lambda x, y: x == y, wrap(ast.Eq))
 
 	def __ne__(self, other):
 		if isinstance(other, type(None)):
 			return True
 		else:
-			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq)
+			return self._do_bin_op(other, lambda x, y: x != y, wrap(ast.NotEq))
 
 	def __lt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt)
+		return self._do_bin_op(other, lambda x, y: x < y, wrap(ast.Lt))
 
 	def __le__(self, other):
-		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE)
+		return self._do_bin_op(other, lambda x, y: x <= y, wrap(ast.LtE))
 
 	def __gt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt)
+		return self._do_bin_op(other, lambda x, y: x > y, wrap(ast.Gt))
 
 	def __ge__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
+		return self._do_bin_op(other, lambda x, y: x >= y, wrap(ast.GtE))
 
 	# compute both the symbolic and concrete image of operator
-	def _do_bin_op(self, other, fun, ast_op):
-		from symbolic_expression import SymbolicExpression # dodge circular reference
+	def _do_bin_op(self, other, fun, wrap):
 		left_expr, left_concr = self.getExprConcr()
 		if isinstance(other, int) or isinstance(other, long):
 			right_expr = other
@@ -112,65 +137,28 @@ class SymbolicType:
 			right_expr, right_concr = other.getExprConcr()
 		else:
 			return NotImplemented
-		aux = ast.BinOp(left=left_expr, op=ast_op(), right=right_expr)
-		ret = SymbolicExpression(aux)
+		ret = wrap(left_expr,right_expr)
 		ret.concrete_value = fun(left_concr, right_concr)
 		# DEBUG
-		#print ret
-		#print ret.concrete_value
+		print ret
+		print ret.concrete_value
 		return ret
-
-	def getConcrValue(self):
-		return self.concrete_value
-
-	def setConcrValue(self, value):
-		self.concrete_value = value
 
 	def __getstate__(self):
 		filtered_dict = {}
 		filtered_dict["concrete_value"] = self.concrete_value
 		return filtered_dict
 
-	# Integer results only from now on... :(
-	# also, non-standard interpretation of Python integers
-	
-	def __add__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x+y), ast.Add)
-	def __radd__(self,other):
-		return self.__add__(other)
-
-	def __sub__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x - y), ast.Sub)
-	def __rsub__(self,other):
-		return self.__sub__(other)
-
-	def __mul__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x*y), ast.Mult)
-	def __rmul__(self,other):
-		return self.__mul__(other)
-
-	def __and__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x & y), ast.BitAnd)
-	def __rand__(self,other):
-		return self.__and__(other)
-
-	def __or__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x | y), ast.BitOr)
-	def __ror__(self,other):
-		return self.__or__(other)
-
-	def __xor__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x ^ y), ast.BitXor)
-	def __rxor__(self,other):
-		return self.__xor__(other)
-
-	def __lshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x << y), ast.LShift)
-	def __rlshift__(self,other):
-		return self.__lshift__(other)
-
-	def __rshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x >> y), ast.RShift)
-	def __rrshift__(self,other):
-		return self.__rshift__(other)
+	def _getSymVariables(self, expr):
+		sym_vars = []
+		if isinstance(expr, ast.BinOp):
+			sym_vars += self._getSymVariables(expr.left)
+			sym_vars += self._getSymVariables(expr.right)
+		elif isinstance(expr, SymbolicType):
+			sym_vars += expr.getSymVariable()
+		elif isinstance(expr, int) or isinstance(expr, long):
+			pass
+		else:
+			utils.crash("Node type not supported: %s" % expr)
+		return sym_vars
 
