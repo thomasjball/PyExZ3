@@ -33,8 +33,10 @@
 
 # Test if engine explores all paths
 
+from sym_exec_lib.se_dict import SymbolicDictionary
+
 def dictionary(in1):
-    d = {}
+    d = SymbolicDictionary({})
     d[3] = 10
 
     if d.has_key(in1):

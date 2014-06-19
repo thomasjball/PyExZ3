@@ -27,21 +27,14 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from symbolic.symbolic_types import getConcrete
-from symbolic.instrumentation import whichBranch
-
-class SeDict(dict):
+class SymbolicDictionary(dict):
 	def __init__(self, *args, **kwargs):
 		dict.__init__(self)
 		self.update(*args, **kwargs)
 
 	def has_key(self, key):
 		for k in self.keys():
-			tmp = k == key
-			if getConcrete(tmp):
-				whichBranch(True,tmp)
+			if k == key:
 				return True
-			else:
-				whichBranch(False,tmp)
 		return False
 

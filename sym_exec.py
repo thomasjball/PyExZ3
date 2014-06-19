@@ -39,7 +39,6 @@ from optparse import OptionParser
 from stats import getStats
 from symbolic.loader import Loader
 from symbolic.concolic import ConcolicEngine
-from symbolic import preprocess
 
 print("PyExZ3 (Python Symbolic Execution via Z3)")
 
@@ -71,20 +70,7 @@ log = logging.getLogger()
 stats = getStats()
 stats.pushProfile("se total")
 
-se_instr_dir = os.path.abspath("se_normalized")
-if options.force_normalize and os.path.exists(se_instr_dir):
-	shutil.rmtree(se_instr_dir)
-if not os.path.exists(se_instr_dir):
-	os.mkdir(se_instr_dir)
-
 print ("Running PyExZ3 on " + app.test_name)
-
-os.chdir(se_instr_dir)
-
-# instrument the code to be analyzed
-preprocess.instrumentModule(app.test_name + ".py", se_instr_dir, is_app=True, in_dir=os.path.dirname(filename))
-
-sys.path = [ se_instr_dir ] + sys.path
 
 stats.pushProfile("engine only")
 engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
@@ -113,3 +99,16 @@ if result == None or result == True:
 else:
 	sys.exit(1);	
 
+# TBALL: no longer need instrumentation, but let's keep the code 
+#
+#from symbolic import preprocess
+#se_instr_dir = os.path.abspath("se_normalized")
+#if options.force_normalize and os.path.exists(se_instr_dir):
+#	shutil.rmtree(se_instr_dir)
+#if not os.path.exists(se_instr_dir):
+#	os.mkdir(se_instr_dir)
+# os.chdir(se_instr_dir)
+# instrument the code to be analyzed
+# os.chdir(se_instr_dir)
+# preprocess.instrumentModule(app.test_name + ".py", se_instr_dir, is_app=True, in_dir=os.path.dirname(filename))
+# sys.path = [ se_instr_dir ] + sys.path

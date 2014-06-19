@@ -33,8 +33,3 @@ import symbolic_type
 SymbolicInteger = integers.SymbolicInteger
 SymbolicType = symbolic_type.SymbolicType
 
-def getConcrete(v):
-	if isinstance(v,SymbolicType):
-		return v.concrete_value
-	else:
-		return v

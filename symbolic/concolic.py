@@ -31,6 +31,7 @@
 
 from path_to_constraint import PathToConstraint
 from symbolic import instrumentation
+from symbolic.symbolic_types import symbolic_type
 from collections import deque
 import logging
 from stats import getStats
@@ -45,7 +46,7 @@ class ConcolicEngine:
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
-		instrumentation.SI = self.path
+		symbolic_type.SI = self.path
 		self.execution_return_values = []
 		# self.tracer = PythonTracer(debug)
 		# self.tracer.setInterpreter(self.path)

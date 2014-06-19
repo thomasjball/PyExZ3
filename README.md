@@ -1,18 +1,23 @@
 PyExZ3
 ======
 
-###NICE Symbolic Execution for Python (Z3)
+###A Nicer Symbolic Execution for Python (Z3)
 
 This code is a port of the NICE project's (http://code.google.com/p/nice-of/) 
 symbolic execution engine for Python to use the Z3 theorem prover (http://z3.codeplex.com).
 The port removes all the NICE-specific dependences, platform-specific code, and
 makes various improvements so the code base can be used by students or anyone wanting to
-experiment with dynamic symbolic execution.
+experiment with dynamic symbolic execution. 
+
+A novel aspect of the rewrite is to rely on Python's operator overloading to accomplish all 
+the  interception needed for symbolic execution; no AST rewriting or bytecode instrumentation 
+is required, as was done in the NICE project. This significantly improves the robustness and 
+portability of the engine, as well as reducing the code size.
 
 ###Setup instructions:
 
 - Make sure that you use Python 32-bit (64-bit) if-and-only-if you use the Z3 32-bit (64-bit) binaries. Testing so far has been for 32-bit binaries only. 
-- Install Python version 2.7.6 (https://www.python.org/download/releases/2.7.6/)
+- Install Python (https://www.python.org/download/releases/)
 - Install Z3 to directory Z3HOME from http://z3.codeplex.com/releases (click on the "Planned" link on the right to get the latest binaries for all platforms)
 - Add Z3HOME\bin to PATH and PYTHONPATH
 - MacOS: see setup.sh for Homebrew default locations for Python and Z3

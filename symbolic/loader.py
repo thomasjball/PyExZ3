@@ -105,7 +105,6 @@ def loaderFactory(filename):
 		dir = os.path.dirname(filename)
 		sys.path = [ dir ] + sys.path
 		ret = Loader(filename)
-		sys.path = sys.path[1:]
 		return ret
 	except KeyError:
 		sys.path = sys.path[1:]

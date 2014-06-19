@@ -32,6 +32,12 @@
 import utils
 import ast
 
+SI = None
+
+def whichBranch(branch,cond_expr):
+	if SI != None:
+		SI.whichBranch(branch,cond_expr)
+
 # In Python, Booleans are a subclass of Integers, so we ensure this by wrapping comparisons
 # in SymbolicInteger. This allows nonsense such as (x<y)+1, just as in C!
 
@@ -88,11 +94,10 @@ class SymbolicType:
 	def getSymVariable(self):
 		return self._getSymVariables(self.expr)
 
-	# TODO: this is the a great place to hook for path exploration!
-	# TODO: removes need for instrumentation!
 	def __nonzero__(self):
-		# print self
-		return bool(self.getConcrValue())
+		ret = bool(self.getConcrValue())
+		whichBranch(ret,self)
+		return ret
 
 	def __ord__(self):
 		return self
