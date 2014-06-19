@@ -88,7 +88,10 @@ class SymbolicType:
 	def getSymVariable(self):
 		return self._getSymVariables(self.expr)
 
+	# TODO: this is the a great place to hook for path exploration!
+	# TODO: removes need for instrumentation!
 	def __nonzero__(self):
+		# print self
 		return bool(self.getConcrValue())
 
 	def __ord__(self):
@@ -140,8 +143,8 @@ class SymbolicType:
 		ret = wrap(left_expr,right_expr)
 		ret.concrete_value = fun(left_concr, right_concr)
 		# DEBUG
-		print ret
-		print ret.concrete_value
+		# print ret
+		# print ret.concrete_value
 		return ret
 
 	def __getstate__(self):

@@ -74,7 +74,7 @@ class SymbolicInteger(SymbolicType):
 		if self.isVariable():
 			return (self, self.getConcrValue())
 		else:
-			return (self.expr, self.getConcrValue())
+			return SymbolicType.getExprConcr(self)
 
 	# Integer results only from now on... :(
 	# also, non-standard interpretation of Python integers
