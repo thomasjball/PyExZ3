@@ -80,11 +80,10 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 	_z3.pop()
 	return res
 
-def notExpr(expr):
-	return Not(expr)
+# TODO: need to handle a predicate inside arithmetic
 
-def eqExpr(e1, e2):
-	return e1 == e1
+def wrapIf(e,bitlen):
+	return If(e,int2BitVec(1, bitlen),int2BitVec(0, bitlen))
 
 def astToZ3Expr(expr, bitlen=32):
 	if isinstance(expr, ast.BinOp):
@@ -106,20 +105,22 @@ def astToZ3Expr(expr, bitlen=32):
 			return z3_l | z3_r
 		elif isinstance(expr.op, ast.BitAnd):
 			return z3_l & z3_r
+
 		elif isinstance(expr.op, ast.Eq):
-			return z3_l == z3_r
+			return wrapIf(z3_l == z3_r,bitlen)
 		elif isinstance(expr.op, ast.NotEq):
-			return z3_l != z3_r
+			return wrapIf(z3_l != z3_r,bitlen)
 		elif isinstance(expr.op, ast.Lt):
-			return z3_l < z3_r
+			return wrapIf(z3_l < z3_r,bitlen)
 		elif isinstance(expr.op, ast.Gt):
-			return z3_l > z3_r
+			return wrapIf(z3_l > z3_r,bitlen)
 		elif isinstance(expr.op, ast.LtE):
-			return z3_l <= z3_r
+			return wrapIf(z3_l <= z3_r,bitlen)
 		elif isinstance(expr.op, ast.GtE):
-			return z3_l >= z3_r
+			return wrapIf(z3_l >= z3_r,bitlen)
 		else:
 			utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
+
 	elif isinstance(expr, SymbolicType):
 		if expr.isVariable():
 			return expr.getSymVariable()[0][2]
