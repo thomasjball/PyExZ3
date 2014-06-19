@@ -221,3 +221,7 @@ se_normalized/
 logfile
 stdout
 *.out
+*.py#
+#stdout#
+#stdout.old#
+#tmp#
