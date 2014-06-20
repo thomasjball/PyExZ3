@@ -46,19 +46,35 @@ char, word, dword, qword, byte, sword, sdword, sqword = (
     lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
     lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
 
-def wrap(o):
-	return lambda c,l,r : SymbolicInteger("se",c,ast.BinOp(left=l, op=o(), right=r))
 
-# TODO: implement all the other needed methods for integer
+def foo(o,c,l,r):
+	print(c)
+	print(c.bit_length())
+	return SymbolicInteger("se",c,ast.BinOp(left=l, op=o(), right=r))
+
+def wrap(o):
+	return lambda c,l,r: foo(o,c,l,r)
+
+z3_vars = {}
+
+# we use multiple inheritance to achieve concrete execution for any
+# operation for which we don't have a symbolic representation. As
+# we can see a SymbolicInteger is both symbolic (SymbolicType) and 
+# concrete (int)
 
 class SymbolicInteger(SymbolicType,int):
-	def __new__(cls, name, val, expr=None):
-		return int.__new__(cls, val)
+	def __new__(cls, name, v, expr=None):
+		return int.__new__(cls, v)
 
-	def __init__(self, name, val, expr=None):
+	def __init__(self, name, v, expr=None):
 		SymbolicType.__init__(self, name, expr)
+		self.val = v
 		if expr == None:
-			self.z3_var = z3.newIntegerVariable(self.name)
+			if name in z3_vars:
+				self.z3_var = z3_vars[name]
+			else:
+				self.z3_var = z3.newIntegerVariable(self.name)
+				z3_vars[name] = self.z3_var
 
 	def getSymVariables(self):
 		if self.isVariable():
@@ -66,8 +82,9 @@ class SymbolicInteger(SymbolicType,int):
 		else:
 			return SymbolicType._getSymVariables(self,self.expr)
 
+	# we must ensure that we are no longer inheriting from SymbolicType
 	def getConcrValue(self):
-		return int(str(self))
+		return self.val
 
 	def __add__(self, other):
 		return self._do_bin_op(other, lambda x, y: sdword(x+y), wrap(ast.Add))

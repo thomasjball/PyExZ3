@@ -41,8 +41,8 @@ SI = None
 # in SymbolicInteger. This allows nonsense such as (x<y)+1, just as in C!
 
 def wrap(o):
-	from integers import SymbolicInteger # dodge circular reference
-	return lambda c,l,r : SymbolicInteger("se",c,ast.BinOp(left=l, op=o(), right=r))
+	from integers import wrap as wrap_int
+	return wrap_int(o)
 
 # the ABSTRACT base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
@@ -102,10 +102,10 @@ class SymbolicType(object):
 		if isinstance(other, SymbolicType):
 			right_expr, right_concr = other.getExprConcr()
 		else:
-			right_expr = other
-			right_concr = other
-		concrete = fun(left_concr, right_concr)
-		ret = wrap(concrete,left_expr,right_expr)
+			right_expr, right_concr = other, other
+		result_concr= fun(left_concr, right_concr)
+		ret = wrap(result_concr,left_expr,right_expr)
+		print ret.toString()
 		return ret
 
 	def getSymVariables(self):
@@ -139,8 +139,10 @@ class SymbolicType(object):
 		else:
 			return expr1 == expr2
 
+	# TODO: regain printing of variable
 	def toString(self):
 		if self.isVariable():
 			return self.name + "#" + str(self.getConcValue())
 		else:
 			return "SymType(" + ast.dump(self.expr) + ")"
+
