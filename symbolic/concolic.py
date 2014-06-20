@@ -111,13 +111,16 @@ class ConcolicEngine:
 
 			log.info("Solving constraint %s" % selected)
 			stats.pushProfile("constraint solving")
-			ret = selected.processConstraint()
+			new_assignment = selected.processConstraint()
 			stats.popProfile()
 
-			if not ret:
+			if new_assignment == []:
 				log.warning("Unsolvable constraints, skipping iteration")
 				iterations += 1
 				continue
+			else:
+				for (name,val) in new_assignment:
+					self.invocation.updateSymbolicParameter(name,val)
 
 			self.one_execution()
 

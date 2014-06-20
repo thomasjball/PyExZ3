@@ -75,13 +75,12 @@ class Predicate:
 	def buildZ3Expr(self):
 		if self.result == None:
 			utils.crash("This predicate has an unknown result: %s" % self)
-
 		sym_expr = self._buildZ3Expr()		
 		if not is_bool(sym_expr):
 			sym_expr = sym_expr != z3_wrap.int2BitVec(0,32)
 		if not self.result:
 			sym_expr = Not(sym_expr)
-		return (True, sym_expr)
+		return sym_expr
 
 	def _buildZ3Expr(self):
 		if not (isinstance(self.expr,SymbolicType)):

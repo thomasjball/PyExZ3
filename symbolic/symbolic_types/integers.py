@@ -51,10 +51,12 @@ def wrap(o):
 
 # TODO: implement all the other needed methods for integer
 
-class SymbolicInteger(SymbolicType):
+class SymbolicInteger(SymbolicType,int):
+	def __new__(cls, name, val, expr=None):
+		return int.__new__(cls, val)
+
 	def __init__(self, name, val, expr=None):
 		SymbolicType.__init__(self, name, expr)
-		self.concrete_value = val
 		if expr == None:
 			self.z3_var = z3.newIntegerVariable(self.name)
 
@@ -65,10 +67,7 @@ class SymbolicInteger(SymbolicType):
 			return SymbolicType._getSymVariables(self,self.expr)
 
 	def getConcrValue(self):
-		return self.concrete_value
-
-	def setConcrValue(self, value):
-		self.concrete_value = value
+		return int(str(self))
 
 	def __add__(self, other):
 		return self._do_bin_op(other, lambda x, y: sdword(x+y), wrap(ast.Add))

@@ -31,15 +31,19 @@
 
 # symbolic tainting starts at FunctionInvocation by adding a symbolic parameter
 # via the method addSymbolicParameter with a subclass of SymbolicType
-# see test/se_descr.py for example of setting it up with SymbolicInteger
+# see loader.py for example of setting it up
 
 class FunctionInvocation:
 	def __init__(self, function):
 		self.function = function
 		self.symbolic_inputs = {}  # string -> SymbolicType
+		self.symbolic_constructor = {}
 
-	# type_ref : string -> SymbolicType
-	def addSymbolicParameter(self, name, symbolic_name, type_ref):
-		self.symbolic_inputs[name] = type_ref(symbolic_name)
+	def addSymbolicParameter(self, name, constructor, val):
+		self.symbolic_constructor[name] = constructor
+		self.symbolic_inputs[name] = constructor(name,val)
+
+	def updateSymbolicParameter(self, name, val):
+		self.symbolic_inputs[name] = self.symbolic_constructor[name](name,val)
 
 

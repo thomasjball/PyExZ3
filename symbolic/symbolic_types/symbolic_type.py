@@ -72,15 +72,6 @@ class SymbolicType(object):
 			SI.whichBranch(ret,self)
 		return ret
 
-	def __ord__(self):
-		return ord(self.getConcrValue())
-
-	def __hash__(self):
-		return hash(self.getConcrValue())
-
-	def __cmp__(self, other):
-		return NotImplemented
-
 	def __eq__(self, other):
 		if isinstance(other, type(None)):
 			return False
@@ -133,7 +124,7 @@ class SymbolicType(object):
 		if not isinstance(other,SymbolicType):
 			return False;
 		if self.isVariable() or other.isVariable():
-			return self is other
+			return self.name == other.name
 		return self._do_symbolicEq(self.expr,other.expr)
 
 	def _do_symbolicEq(self, expr1, expr2):
@@ -144,7 +135,7 @@ class SymbolicType(object):
 			ret |= self._do_symbolicEq(expr1.right, expr2.right)
 			return ret | (type(expr1.op) == type(expr2.op))
 		elif isinstance(expr1, SymbolicType):
-			return expr1 is expr2
+			return expr1.name == expr2.name
 		else:
 			return expr1 == expr2
 

@@ -56,36 +56,31 @@ class Constraint:
 		# We want to mark this as processed even in case of error
 		# so it is best to do it at the beginning
 		self.processed = True
-		res = False
+		res = []
 		sym_asserts = []
 		sym_vars = {}
 
 		tmp = self.parent
 		while tmp.predicate is not None:
 			p = tmp.predicate
-			(ret, expr) = p.buildZ3Expr()
-			res |= ret
-			if ret:
-				sym_asserts.append(expr)
-				for v in p.sym_vars:
-					sym_vars[v] = p.sym_vars[v]
+			expr = p.buildZ3Expr()
+			sym_asserts.append(expr)
+			for v in p.sym_vars:
+				sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
 
-		(ret, expr) = self.predicate.buildZ3Expr()
-		if expr is None:
-			# We are not able to fix the last branch
-			return False
-		if ret:
-			for v in self.predicate.sym_vars:
-				sym_vars[v] = self.predicate.sym_vars[v]
-		res |= ret
+		expr = self.predicate.buildZ3Expr()
+
+		for v in self.predicate.sym_vars:
+			sym_vars[v] = self.predicate.sym_vars[v]
+
 		new_values = z3_mod.findCounterexample(sym_asserts, expr, sym_vars)
+
 		if new_values != None:
 			for (var, instance, new_val) in new_values:
-				instance.setConcrValue(new_val)
-				log.info("Assigning concrete value %s to symbolic variable %s" % (str(instance.getConcrValue()), var))
-		else:
-			return False
+				res.append((var,new_val))
+				log.info("Assigning concrete value %s to symbolic variable %s" % (str(new_val), var))
+
 		return res
 
 	def getLength(self):

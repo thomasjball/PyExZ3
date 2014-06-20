@@ -36,12 +36,8 @@ import sys
 from symbolic.invocation import FunctionInvocation
 from symbolic.symbolic_types.integers import SymbolicInteger
 
-symbolic_vars = {}
-	
-def newInteger(name):
-	if name not in symbolic_vars.keys():
-		symbolic_vars[name] = SymbolicInteger(name,0)
-	return symbolic_vars[name]
+def newInteger(name,val):
+	return SymbolicInteger(name,val)
 
 class Loader:
 	def __init__(self, filename):
@@ -55,7 +51,7 @@ class Loader:
 		func = self.app.__dict__[self.test_name]
 		argspec = inspect.getargspec(func)
 		for a in argspec.args:
-			inv.addSymbolicParameter(a, a, newInteger)
+			inv.addSymbolicParameter(a, newInteger, 0)
 		return inv
 
 	def reset_callback(self,firstpass=False):
