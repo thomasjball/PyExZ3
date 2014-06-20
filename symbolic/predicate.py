@@ -44,7 +44,7 @@ class Predicate:
 		self.expr = condexpr
 		self.result = result
 		self.sym_vars = {}
-		svars = self.expr.getSymVariable()
+		svars = self.expr.getSymVariables()
 		for name, var, sv in svars:
 			self.sym_vars[name] = (var, sv)
 
@@ -64,8 +64,8 @@ class Predicate:
 	def __repr__(self):
 		return repr(self.expr) + " (was %s)" % (self.result)
 
-	def getSymVariable(self):
-		return self.expr.getSymVariable()
+	def getSymVariables(self):
+		return self.expr.getSymVariables()
 
 	def negate(self):
 		"""Negates the current predicate"""

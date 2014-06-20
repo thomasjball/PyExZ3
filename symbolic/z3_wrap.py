@@ -89,6 +89,7 @@ def astToZ3Expr(expr, bitlen=32):
 	if isinstance(expr, ast.BinOp):
 		z3_l = astToZ3Expr(expr.left, bitlen)
 		z3_r = astToZ3Expr(expr.right, bitlen)
+
 		if isinstance(expr.op, ast.Add):
 			return z3_l + z3_r
 		elif isinstance(expr.op, ast.Sub):
@@ -105,7 +106,12 @@ def astToZ3Expr(expr, bitlen=32):
 			return z3_l | z3_r
 		elif isinstance(expr.op, ast.BitAnd):
 			return z3_l & z3_r
+		elif isinstance(expr.op, ast.Mod):
+			return z3_l % z3_r
+		elif isinstance(expr.op, ast.Div):
+			return z3_l / z3_r
 
+		# equality gets coerced to integer
 		elif isinstance(expr.op, ast.Eq):
 			return wrapIf(z3_l == z3_r,bitlen)
 		elif isinstance(expr.op, ast.NotEq):
@@ -118,15 +124,18 @@ def astToZ3Expr(expr, bitlen=32):
 			return wrapIf(z3_l <= z3_r,bitlen)
 		elif isinstance(expr.op, ast.GtE):
 			return wrapIf(z3_l >= z3_r,bitlen)
+
 		else:
 			utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
 
 	elif isinstance(expr, SymbolicType):
 		if expr.isVariable():
-			return expr.getSymVariable()[0][2]
+			return expr.getSymVariables()[0][2]
 		else:
 			return astToZ3Expr(expr.expr,bitlen)
+
 	elif isinstance(expr, int) or isinstance(expr, long):
 		return int2BitVec(expr, bitlen)
+
 	else:
-		utils.crash("Unknown node during conversion from ast to stp (expressions): %s" % expr)
+		utils.crash("Unknown node during conversion from ast to Z3 (expressions): %s" % expr)

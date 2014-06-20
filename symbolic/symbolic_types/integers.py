@@ -46,39 +46,30 @@ char, word, dword, qword, byte, sword, sdword, sqword = (
     lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
     lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
 
-#   MISSING: Mod | Pow  | FloorDiv, and much more...
-
 def wrap(o):
-	return lambda l,r : SymbolicInteger("se",ast.BinOp(left=l, op=o(), right=r))
+	return lambda c,l,r : SymbolicInteger("se",c,ast.BinOp(left=l, op=o(), right=r))
+
+# TODO: implement all the other needed methods for integer
 
 class SymbolicInteger(SymbolicType):
-	def __init__(self, name, expr=None):
+	def __init__(self, name, val, expr=None):
 		SymbolicType.__init__(self, name, expr)
-		self.concrete_value = 0L
+		self.concrete_value = val
 		if expr == None:
 			self.z3_var = z3.newIntegerVariable(self.name)
 
-	def __repr__(self):
-		if self.isVariable():
-			return self.name + "#" + str(self.concrete_value)
-		else:
-			return SymbolicType.__repr__(self)
-
-	def getSymVariable(self):
+	def getSymVariables(self):
 		if self.isVariable():
 			return [(self.name, self, self.z3_var)]
 		else:
 			return SymbolicType._getSymVariables(self,self.expr)
 
-	def getExprConcr(self):
-		if self.isVariable():
-			return (self, self.getConcrValue())
-		else:
-			return SymbolicType.getExprConcr(self)
+	def getConcrValue(self):
+		return self.concrete_value
 
-	# Integer results only from now on... :(
-	# also, non-standard interpretation of Python integers
-	
+	def setConcrValue(self, value):
+		self.concrete_value = value
+
 	def __add__(self, other):
 		return self._do_bin_op(other, lambda x, y: sdword(x+y), wrap(ast.Add))
 	def __radd__(self,other):
@@ -118,4 +109,19 @@ class SymbolicInteger(SymbolicType):
 		return self._do_bin_op(other, lambda x, y: sdword(x >> y), wrap(ast.RShift))
 	def __rrshift__(self,other):
 		return self.__rshift__(other)
+
+	def __mod__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x % y), wrap(ast.Mod))
+	def __rmod__(self,other):
+		return self.__mod__(other)
+
+	def __div__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x / y), wrap(ast.Div))
+	def __rdiv__(self,other):
+		return self.__div__(other)
+
+#object.__floordiv__(self, other)
+#object.__mod__(self, other)
+#object.__divmod__(self, other)
+#object.__pow__(self, other[, modulo])
 
