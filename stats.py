@@ -52,7 +52,7 @@ class Statistics:
 		tdiff["total_cpu"] = tdiff["cpuc"]
 		tdiff["total_wall"] = tdiff["wallc"]
 
-		if self.profiles.has_key(t[0]):
+		if t[0] in self.profiles:
 			tavg = self.profiles[t[0]]
 			tavg["wallc"] = (tdiff["wallc"] + tavg["samples"]*tavg["wallc"]) / (tavg["samples"] + 1)
 			tavg["cpuc"] = (tdiff["cpuc"] + tavg["samples"]*tavg["cpuc"]) / (tavg["samples"] + 1)
@@ -73,7 +73,7 @@ class Statistics:
 
 	def getProfilingOutput(self):
 		keys = self.profiles.keys()
-		keys.sort()
+		#keys.sort()
 		s = "  measurement name  |   samples   |   wclock avg   |   wclock tot   |   wclock max   |    CPU tot\n"
 		for k in keys:
 			p = self.profiles[k]
@@ -103,7 +103,7 @@ class Statistics:
 
 	def getCounterOutput(self):
 		keys = self.counters.keys()
-		keys.sort()
+		#keys.sort()
 		s = ""
 		for k in keys:
 			s += "%s: %d\n" % (k, self.counters[k])

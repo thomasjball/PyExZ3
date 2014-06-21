@@ -32,8 +32,8 @@
 import ast
 import logging
 import utils
-from symbolic_types.symbolic_type import SymbolicType
 from z3 import *
+from .symbolic_types.symbolic_type import SymbolicType
 
 _z3 = Solver()
 log = logging.getLogger("se.z3")
@@ -70,7 +70,7 @@ def findCounterexample(z3_asserts, z3_query, z3_variables):
 		_z3.pop()
 		return None
 	res = []
-        model = _z3.model()
+	model = _z3.model()
 	#print("Model is ")
 	#print(model)
 	for var_name in z3_variables:

@@ -30,8 +30,7 @@
 #
 
 import ast
-from symbolic_type import SymbolicType
-import symbolic.z3_wrap as z3
+from .. z3_wrap import *
 
 import sys
 
@@ -46,14 +45,6 @@ char, word, dword, qword, byte, sword, sdword, sqword = (
     lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
     lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
 
-
-def foo(o,c,l,r):
-	print(c)
-	print(c.bit_length())
-	return SymbolicInteger("se",c,ast.BinOp(left=l, op=o(), right=r))
-
-def wrap(o):
-	return lambda c,l,r: foo(o,c,l,r)
 
 z3_vars = {}
 
@@ -73,9 +64,12 @@ class SymbolicInteger(SymbolicType,int):
 			if name in z3_vars:
 				self.z3_var = z3_vars[name]
 			else:
-				self.z3_var = z3.newIntegerVariable(self.name)
+				self.z3_var = newIntegerVariable(self.name)
 				z3_vars[name] = self.z3_var
 
+	def wrap(self,conc,sym):
+		return SymbolicInteger("se",conc,sym)
+	
 	def getSymVariables(self):
 		if self.isVariable():
 			return [(self.name, self, self.z3_var)]
@@ -87,52 +81,52 @@ class SymbolicInteger(SymbolicType,int):
 		return self.val
 
 	def __add__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x+y), wrap(ast.Add))
+		return self._do_bin_op(other, lambda x, y: sdword(x+y), ast.Add)
 	def __radd__(self,other):
 		return self.__add__(other)
 
 	def __sub__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x - y), wrap(ast.Sub))
+		return self._do_bin_op(other, lambda x, y: sdword(x - y), ast.Sub)
 	def __rsub__(self,other):
 		return self.__sub__(other)
 
 	def __mul__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x*y), wrap(ast.Mult))
+		return self._do_bin_op(other, lambda x, y: sdword(x*y), ast.Mult)
 	def __rmul__(self,other):
 		return self.__mul__(other)
 
 	def __and__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x & y), wrap(ast.BitAnd))
+		return self._do_bin_op(other, lambda x, y: sdword(x & y), ast.BitAnd)
 	def __rand__(self,other):
 		return self.__and__(other)
 
 	def __or__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x | y), wrap(ast.BitOr))
+		return self._do_bin_op(other, lambda x, y: sdword(x | y), ast.BitOr)
 	def __ror__(self,other):
 		return self.__or__(other)
 
 	def __xor__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x ^ y), wrap(ast.BitXor))
+		return self._do_bin_op(other, lambda x, y: sdword(x ^ y), ast.BitXor)
 	def __rxor__(self,other):
 		return self.__xor__(other)
 
 	def __lshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x << y), wrap(ast.LShift))
+		return self._do_bin_op(other, lambda x, y: sdword(x << y), ast.LShift)
 	def __rlshift__(self,other):
 		return self.__lshift__(other)
 
 	def __rshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x >> y), wrap(ast.RShift))
+		return self._do_bin_op(other, lambda x, y: sdword(x >> y), ast.RShift)
 	def __rrshift__(self,other):
 		return self.__rshift__(other)
 
 	def __mod__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x % y), wrap(ast.Mod))
+		return self._do_bin_op(other, lambda x, y: sdword(x % y), ast.Mod)
 	def __rmod__(self,other):
 		return self.__mod__(other)
 
 	def __div__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x / y), wrap(ast.Div))
+		return self._do_bin_op(other, lambda x, y: sdword(x / y), ast.Div)
 	def __rdiv__(self,other):
 		return self.__div__(other)
 

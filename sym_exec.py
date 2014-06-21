@@ -32,11 +32,11 @@ import os
 import sys
 import platform
 import shutil
-import cPickle
 import logging
-from symbolic.loader import loaderFactory
 from optparse import OptionParser
 from stats import getStats
+
+from symbolic.loader import loaderFactory
 from symbolic.loader import Loader
 from symbolic.concolic import ConcolicEngine
 
@@ -94,21 +94,8 @@ if not options.quiet:
 
 # check the result
 result = app.execution_complete(return_vals)
+	
 if result == None or result == True:
 	sys.exit(0);
 else:
 	sys.exit(1);	
-
-# TBALL: no longer need instrumentation, but let's keep the code 
-#
-#from symbolic import preprocess
-#se_instr_dir = os.path.abspath("se_normalized")
-#if options.force_normalize and os.path.exists(se_instr_dir):
-#	shutil.rmtree(se_instr_dir)
-#if not os.path.exists(se_instr_dir):
-#	os.mkdir(se_instr_dir)
-# os.chdir(se_instr_dir)
-# instrument the code to be analyzed
-# os.chdir(se_instr_dir)
-# preprocess.instrumentModule(app.test_name + ".py", se_instr_dir, is_app=True, in_dir=os.path.dirname(filename))
-# sys.path = [ se_instr_dir ] + sys.path

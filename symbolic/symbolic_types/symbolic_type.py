@@ -37,13 +37,6 @@ import ast
 
 SI = None
 
-# In Python, Booleans are a subclass of Integers, so we ensure this by wrapping comparisons
-# in SymbolicInteger. This allows nonsense such as (x<y)+1, just as in C!
-
-def wrap(o):
-	from integers import wrap as wrap_int
-	return wrap_int(o)
-
 # the ABSTRACT base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
@@ -61,12 +54,15 @@ class SymbolicType(object):
 		else:
 			return (self.expr, self.getConcrValue())
 
+	def wrap(self,conc,sym):
+		raise NotImplementedException
+
 	# this is a critical interception point: the __nonzero__
 	# method is called whenever a predicate is evaluated in
 	# Python execution (if, while, and, or). This allows us
 	# to capture the path condition precisely
 
-	def __nonzero__(self):
+	def __bool__(self):
 		ret = bool(self.getConcrValue())
 		if SI != None:
 			SI.whichBranch(ret,self)
@@ -76,37 +72,35 @@ class SymbolicType(object):
 		if isinstance(other, type(None)):
 			return False
 		else:
-			return self._do_bin_op(other, lambda x, y: x == y, wrap(ast.Eq))
+			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq)
 
 	def __ne__(self, other):
 		if isinstance(other, type(None)):
 			return True
 		else:
-			return self._do_bin_op(other, lambda x, y: x != y, wrap(ast.NotEq))
+			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq)
 
 	def __lt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x < y, wrap(ast.Lt))
+		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt)
 
 	def __le__(self, other):
-		return self._do_bin_op(other, lambda x, y: x <= y, wrap(ast.LtE))
+		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE)
 
 	def __gt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x > y, wrap(ast.Gt))
+		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt)
 
 	def __ge__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >= y, wrap(ast.GtE))
+		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
 
 	# compute both the symbolic and concrete image of operator
-	def _do_bin_op(self, other, fun, wrap):
+	def _do_bin_op(self, other, fun, op):
 		left_expr, left_concr = self.getExprConcr()
 		if isinstance(other, SymbolicType):
 			right_expr, right_concr = other.getExprConcr()
 		else:
 			right_expr, right_concr = other, other
 		result_concr= fun(left_concr, right_concr)
-		ret = wrap(result_concr,left_expr,right_expr)
-		print ret.toString()
-		return ret
+		return self.wrap(result_concr,ast.BinOp(left=left_expr,op=op(),right=right_expr))
 
 	def getSymVariables(self):
 		return self._getSymVariables(self.expr)

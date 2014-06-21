@@ -29,11 +29,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from symbolic_types import SymbolicType
-from predicate import Predicate
-from constraint import Constraint
 import logging
 import utils
+
+from .symbolic_types import SymbolicType
+from .predicate import Predicate
+from .constraint import Constraint
 
 log = logging.getLogger("se.pathconstraint")
 

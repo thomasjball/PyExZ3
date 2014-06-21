@@ -27,9 +27,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import integers
-import symbolic_type
+from .integers import SymbolicInteger as SymInt
+from .symbolic_type import SymbolicType as SymType
 
-SymbolicInteger = integers.SymbolicInteger
-SymbolicType = symbolic_type.SymbolicType
+SymbolicInteger = SymInt
+SymbolicType = SymType
 

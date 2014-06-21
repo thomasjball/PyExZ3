@@ -29,12 +29,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-from path_to_constraint import PathToConstraint
-from symbolic import instrumentation
-from symbolic.symbolic_types import symbolic_type
 from collections import deque
 import logging
 from stats import getStats
+
+from .path_to_constraint import PathToConstraint
+from .invocation import FunctionInvocation
+from .symbolic_types import symbolic_type
 
 log = logging.getLogger("se.conc")
 stats = getStats()

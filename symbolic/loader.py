@@ -33,8 +33,8 @@ import inspect
 import re
 import os
 import sys
-from symbolic.invocation import FunctionInvocation
-from symbolic.symbolic_types.integers import SymbolicInteger
+from .invocation import FunctionInvocation
+from .symbolic_types import SymbolicInteger
 
 def newInteger(name,val):
 	return SymbolicInteger(name,val)
@@ -67,7 +67,7 @@ class Loader:
 				print(which_test + ".py doesn't contain a function named " + which_test)
 				raise KeyError()
 			# TODO: check that we have a function
-		except Exception, arg:
+		except Exception as arg:
 			print("Couldn't import " + self.test_name)
 			print(arg)
 			raise KeyError()
@@ -86,7 +86,7 @@ class Loader:
 
 	def execution_complete(self, return_vals):
 		if "expected_result" in self.app.__dict__:
-			res = map(lambda x: x[0], return_vals)
+			res = [ x[0] for x in return_vals ]
 			res.sort()
 			return self.check(res, self.app.__dict__["expected_result"]())
 		else:

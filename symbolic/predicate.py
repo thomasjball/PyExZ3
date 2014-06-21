@@ -29,11 +29,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import symbolic.z3_wrap as z3_wrap
-from symbolic_types import SymbolicType
 import logging
 import utils
 from z3 import *
+
+from .z3_wrap import *
+from .symbolic_types import SymbolicType
 
 log = logging.getLogger("se.predicate")
 
@@ -77,7 +78,7 @@ class Predicate:
 			utils.crash("This predicate has an unknown result: %s" % self)
 		sym_expr = self._buildZ3Expr()		
 		if not is_bool(sym_expr):
-			sym_expr = sym_expr != z3_wrap.int2BitVec(0,32)
+			sym_expr = sym_expr != int2BitVec(0,32)
 		if not self.result:
 			sym_expr = Not(sym_expr)
 		return sym_expr
@@ -85,4 +86,4 @@ class Predicate:
 	def _buildZ3Expr(self):
 		if not (isinstance(self.expr,SymbolicType)):
 			utils.crash("Unexpected expression %s" % self.expr)
-		return z3_wrap.astToZ3Expr(self.expr)
+		return astToZ3Expr(self.expr)
