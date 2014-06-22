@@ -77,7 +77,7 @@ engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug
 if options.single_step:
 	return_vals = engine.run(1)
 	inputs = engine.generateAllInputs()
-	cPickle.dump(inputs, file(options.single_step, "w"), -1)
+	# cPickle.dump(inputs, file(options.single_step, "w"), -1)
 else:
 	return_vals = engine.run()
 stats.popProfile()

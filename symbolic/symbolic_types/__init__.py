@@ -27,7 +27,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-from .integers import SymbolicInteger as SymInt
+from .symbolic_int import SymbolicInteger as SymInt
 from .symbolic_type import SymbolicType as SymType
 
 SymbolicInteger = SymInt
