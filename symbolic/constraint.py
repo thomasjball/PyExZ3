@@ -61,18 +61,18 @@ class Constraint:
 		tmp = self.parent
 		while tmp.predicate is not None:
 			p = tmp.predicate
-			sym_asserts.append(p.buildZ3Expr())
+			sym_asserts.append(p.buildBooleanExpr())
 			for v in p.sym_vars:
 				sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
 
 		# get the final expression (which will be negated)
-		expr = self.predicate.buildZ3Expr()
+		expr = self.predicate.buildBooleanExpr()
 		for v in self.predicate.sym_vars:
 			sym_vars[v] = self.predicate.sym_vars[v]
 
 		# ask the constraint solver for new input
-		new_values = z3_mod.findCounterexample(sym_asserts, expr, sym_vars)
+		new_values = self.predicate.solver.findCounterexample(sym_asserts, expr, sym_vars)
 
 		res = []
 		if new_values != None:

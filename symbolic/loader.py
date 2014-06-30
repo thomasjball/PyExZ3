@@ -36,8 +36,8 @@ import sys
 from .invocation import FunctionInvocation
 from .symbolic_types import SymbolicInteger
 
-def newInteger(name,val):
-	return SymbolicInteger(name,val)
+def newInteger(solver,name,val):
+	return SymbolicInteger(solver,name,val)
 
 class Loader:
 	def __init__(self, filename):
@@ -45,8 +45,8 @@ class Loader:
 		self.test_name = self.test_name[:-3]
 		self.reset_callback(True)
 
-	def create_invocation(self):
-		inv = FunctionInvocation(self.execute)
+	def create_invocation(self,solver):
+		inv = FunctionInvocation(solver,self.execute)
 		# associate a SymbolicInteger with each formal parameter of function
 		func = self.app.__dict__[self.test_name]
 		argspec = inspect.getargspec(func)

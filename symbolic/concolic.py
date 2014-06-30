@@ -46,7 +46,7 @@ class ConcolicEngine:
 		self.reset_func = reset
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
-		self.path = PathToConstraint(self)
+		self.path = PathToConstraint(funcinv.solver,self)
 		symbolic_type.SI = self.path
 		self.execution_return_values = []
 		# self.tracer = PythonTracer(debug)

@@ -34,16 +34,17 @@
 # see loader.py for example of setting it up
 
 class FunctionInvocation:
-	def __init__(self, function):
+	def __init__(self, solver, function):
+		self.solver = solver
 		self.function = function
 		self.symbolic_inputs = {}  # string -> SymbolicType
 		self.symbolic_constructor = {}
 
 	def addSymbolicParameter(self, name, constructor, val):
 		self.symbolic_constructor[name] = constructor
-		self.symbolic_inputs[name] = constructor(name,val)
+		self.symbolic_inputs[name] = constructor(self.solver,name,val)
 
 	def updateSymbolicParameter(self, name, val):
-		self.symbolic_inputs[name] = self.symbolic_constructor[name](name,val)
+		self.symbolic_inputs[name] = self.symbolic_constructor[name](self.solver,name,val)
 
 

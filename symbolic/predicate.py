@@ -31,9 +31,6 @@
 
 import logging
 import utils
-from z3 import *
-
-from .z3_wrap import *
 from .symbolic_types import SymbolicType
 
 log = logging.getLogger("se.predicate")
@@ -41,7 +38,8 @@ log = logging.getLogger("se.predicate")
 class Predicate:
 	"""Predicate is one specific ``if'' encountered during the program execution.
 	   """
-	def __init__(self, condexpr, result):
+	def __init__(self, solver, condexpr, result):
+		self.solver = solver
 		self.expr = condexpr
 		self.result = result
 		self.sym_vars = {}
@@ -73,17 +71,6 @@ class Predicate:
 		assert(self.result is not None)
 		self.result = not self.result
 
-	def buildZ3Expr(self):
-		if self.result == None:
-			utils.crash("This predicate has an unknown result: %s" % self)
-		sym_expr = self._buildZ3Expr()		
-		if not is_bool(sym_expr):
-			sym_expr = sym_expr != int2BitVec(0,32)
-		if not self.result:
-			sym_expr = Not(sym_expr)
-		return sym_expr
+	def buildBooleanExpr(self):
+		return self.solver.buildBooleanExpr(self.expr,self.result)
 
-	def _buildZ3Expr(self):
-		if not (isinstance(self.expr,SymbolicType)):
-			utils.crash("Unexpected expression %s" % self.expr)
-		return astToZ3Expr(self.expr)

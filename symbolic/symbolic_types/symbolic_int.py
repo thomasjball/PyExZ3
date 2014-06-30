@@ -31,8 +31,7 @@
 
 import ast
 import sys
-
-from .. z3_wrap import *
+from . symbolic_type import SymbolicType
 
 def correct(value, bits, signed):
     base = 1 << bits
@@ -53,21 +52,22 @@ z3_vars = {}
 # concrete (int)
 
 class SymbolicInteger(SymbolicType,int):
-	def __new__(cls, name, v, expr=None):
+	def __new__(cls, solver, name, v, expr=None):
 		return int.__new__(cls, v)
 
-	def __init__(self, name, v, expr=None):
+	def __init__(self, solver, name, v, expr=None):
 		SymbolicType.__init__(self, name, expr)
+		self.solver = solver
 		self.val = v
 		if expr == None:
 			if name in z3_vars:
 				self.z3_var = z3_vars[name]
 			else:
-				self.z3_var = newIntegerVariable(self.name)
+				self.z3_var = solver.newIntegerVariable(self.name)
 				z3_vars[name] = self.z3_var
 
 	def wrap(self,conc,sym):
-		return SymbolicInteger("se",conc,sym)
+		return SymbolicInteger(self.solver,"se",conc,sym)
 	
 	def getSymVariables(self):
 		if self.isVariable():
