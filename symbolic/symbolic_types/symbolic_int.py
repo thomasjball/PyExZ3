@@ -30,9 +30,9 @@
 #
 
 import ast
-from .. z3_wrap import *
-
 import sys
+
+from .. z3_wrap import *
 
 def correct(value, bits, signed):
     base = 1 << bits
@@ -44,7 +44,6 @@ char, word, dword, qword, byte, sword, sdword, sqword = (
     lambda v: correct(v, 32, True), lambda v: correct(v, 64, True),
     lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
     lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
-
 
 z3_vars = {}
 
@@ -95,6 +94,18 @@ class SymbolicInteger(SymbolicType,int):
 	def __rmul__(self,other):
 		return self.__mul__(other)
 
+	def __mod__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x % y), ast.Mod)
+	def __rmod__(self,other):
+		return self.__mod__(other)
+
+	def __div__(self, other):
+		return self._do_bin_op(other, lambda x, y: sdword(x / y), ast.Div)
+	def __rdiv__(self,other):
+		return self.__div__(other)
+
+	# bit level operatins
+
 	def __and__(self, other):
 		return self._do_bin_op(other, lambda x, y: sdword(x & y), ast.BitAnd)
 	def __rand__(self,other):
@@ -120,18 +131,10 @@ class SymbolicInteger(SymbolicType,int):
 	def __rrshift__(self,other):
 		return self.__rshift__(other)
 
-	def __mod__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x % y), ast.Mod)
-	def __rmod__(self,other):
-		return self.__mod__(other)
-
-	def __div__(self, other):
-		return self._do_bin_op(other, lambda x, y: sdword(x / y), ast.Div)
-	def __rdiv__(self,other):
-		return self.__div__(other)
-
-#object.__floordiv__(self, other)
-#object.__mod__(self, other)
-#object.__divmod__(self, other)
-#object.__pow__(self, other[, modulo])
+	# no symbolic implementation for
+	#
+	# __floordiv__
+	# __divmod__
+	# __pow__
+	# __bit_length__
 

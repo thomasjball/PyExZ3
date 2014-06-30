@@ -53,34 +53,31 @@ class Constraint:
 			return False
 
 	def processConstraint(self):
-		# We want to mark this as processed even in case of error
-		# so it is best to do it at the beginning
 		self.processed = True
-		res = []
 		sym_asserts = []
 		sym_vars = {}
 
+		# collect the assertions
 		tmp = self.parent
 		while tmp.predicate is not None:
 			p = tmp.predicate
-			expr = p.buildZ3Expr()
-			sym_asserts.append(expr)
+			sym_asserts.append(p.buildZ3Expr())
 			for v in p.sym_vars:
 				sym_vars[v] = p.sym_vars[v]
 			tmp = tmp.parent
 
+		# get the final expression (which will be negated)
 		expr = self.predicate.buildZ3Expr()
-
 		for v in self.predicate.sym_vars:
 			sym_vars[v] = self.predicate.sym_vars[v]
 
+		# ask the constraint solver for new input
 		new_values = z3_mod.findCounterexample(sym_asserts, expr, sym_vars)
 
+		res = []
 		if new_values != None:
-			for (var, instance, new_val) in new_values:
-				res.append((var,new_val))
-				log.info("Assigning concrete value %s to symbolic variable %s" % (str(new_val), var))
-
+			res = [ (var,new_val) for (var, instance, new_val) in new_values ]
+		
 		return res
 
 	def getLength(self):
@@ -104,7 +101,6 @@ class Constraint:
 		return None
 
 	def addChild(self, predicate):
-		"""returns constraint by addition of predicate to this constraint"""
 		assert(self.findChild(predicate) is None)
 		c = Constraint(self, predicate)
 		self.children.append(c)
