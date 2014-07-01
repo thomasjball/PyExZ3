@@ -44,34 +44,25 @@ char, word, dword, qword, byte, sword, sdword, sqword = (
     lambda v: correct(v, 8, False), lambda v: correct(v, 16, False),
     lambda v: correct(v, 32, False), lambda v: correct(v, 64, False))
 
-z3_vars = {}
-
 # we use multiple inheritance to achieve concrete execution for any
 # operation for which we don't have a symbolic representation. As
 # we can see a SymbolicInteger is both symbolic (SymbolicType) and 
 # concrete (int)
 
 class SymbolicInteger(SymbolicType,int):
-	def __new__(cls, solver, name, v, expr=None):
+	def __new__(cls, name, v, expr=None):
 		return int.__new__(cls, v)
 
-	def __init__(self, solver, name, v, expr=None):
+	def __init__(self, name, v, expr=None):
 		SymbolicType.__init__(self, name, expr)
-		self.solver = solver
 		self.val = v
-		if expr == None:
-			if name in z3_vars:
-				self.z3_var = z3_vars[name]
-			else:
-				self.z3_var = solver.newIntegerVariable(self.name)
-				z3_vars[name] = self.z3_var
 
 	def wrap(self,conc,sym):
-		return SymbolicInteger(self.solver,"se",conc,sym)
+		return SymbolicInteger("se",conc,sym)
 	
 	def getSymVariables(self):
 		if self.isVariable():
-			return [(self.name, self, self.z3_var)]
+			return [(self.name, self)]
 		else:
 			return SymbolicType._getSymVariables(self,self.expr)
 
@@ -104,7 +95,7 @@ class SymbolicInteger(SymbolicType,int):
 	def __rdiv__(self,other):
 		return self.__div__(other)
 
-	# bit level operatins
+	# bit level operations
 
 	def __and__(self, other):
 		return self._do_bin_op(other, lambda x, y: sdword(x & y), ast.BitAnd)

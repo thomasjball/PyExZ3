@@ -42,10 +42,6 @@ class Predicate:
 		self.solver = solver
 		self.expr = condexpr
 		self.result = result
-		self.sym_vars = {}
-		svars = self.expr.getSymVariables()
-		for name, var, sv in svars:
-			self.sym_vars[name] = (var, sv)
 
 	def __eq__(self, other):
 		if isinstance(other, Predicate):

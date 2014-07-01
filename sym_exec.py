@@ -39,7 +39,6 @@ from stats import getStats
 from symbolic.loader import loaderFactory
 from symbolic.loader import Loader
 from symbolic.concolic import ConcolicEngine
-from symbolic.z3_wrap import Z3Wrapper
 
 print("PyExZ3 (Python Symbolic Execution via Z3)")
 
@@ -74,7 +73,7 @@ stats.pushProfile("se total")
 print ("Running PyExZ3 on " + app.test_name)
 
 stats.pushProfile("engine only")
-engine = ConcolicEngine(app.create_invocation(Z3Wrapper()),app.reset_callback,options.debug)
+engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options.debug)
 if options.single_step:
 	return_vals = engine.run(1)
 	inputs = engine.generateAllInputs()

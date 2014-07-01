@@ -39,8 +39,7 @@ from .constraint import Constraint
 log = logging.getLogger("se.pathconstraint")
 
 class PathToConstraint:
-	def __init__(self, solver,engine):
-		self.solver = solver
+	def __init__(self, engine):
 		self.symbolic_variables = {}
 		self.constraints = {}
 		self.engine = engine
@@ -59,7 +58,7 @@ class PathToConstraint:
 			return
 
 		# add both possible predicate outcomes to constraint (tree)
-		p = Predicate(self.solver, cond_expr, branch)
+		p = Predicate(self.engine.solver, cond_expr, branch)
 		p.negate()
 		cneg = self.current_constraint.findChild(p)
 		p.negate()

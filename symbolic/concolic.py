@@ -36,22 +36,21 @@ from stats import getStats
 from .path_to_constraint import PathToConstraint
 from .invocation import FunctionInvocation
 from .symbolic_types import symbolic_type
+from symbolic.z3_wrap import Z3Wrapper
 
 log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
 	def __init__(self, funcinv, reset, debug):
+		self.solver = Z3Wrapper()
 		self.invocation = funcinv
 		self.reset_func = reset
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
-		self.path = PathToConstraint(funcinv.solver,self)
+		self.path = PathToConstraint(self)
 		symbolic_type.SI = self.path
 		self.execution_return_values = []
-		# self.tracer = PythonTracer(debug)
-		# self.tracer.setInterpreter(self.path)
-		# self.path.setTracer(self.tracer)
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
 
@@ -70,18 +69,12 @@ class ConcolicEngine:
 	def execute(self, invocation):
 		return_values = []
 		stats.incCounter("explored paths")
-		log.info("Iteration start")
-		stats.pushProfile("single iteration")
 		self.reset_func()
-		# invocation.setupTracer(self.tracer)
 		stats.pushProfile("single invocation")
-		# res = self.tracer.execute()
 		res = invocation.function(**invocation.symbolic_inputs)
 		stats.popProfile()
 		return_values.append(res)
 		log.info("Invocation end")
-		stats.popProfile()
-		log.info("Iteration end")
 		return return_values
 
 	def record_inputs(self):

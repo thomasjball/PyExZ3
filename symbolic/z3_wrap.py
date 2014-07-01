@@ -33,6 +33,7 @@ import ast
 import logging
 import utils
 from z3 import *
+from .symbolic_types.symbolic_int import SymbolicInteger
 from .symbolic_types.symbolic_type import SymbolicType
 
 class Z3Wrapper(object):
@@ -41,17 +42,15 @@ class Z3Wrapper(object):
 		self.solver = Solver()
 		self.z3_vars = {}
 
-	def int2BitVec(self,v,length):
-		return BitVecVal(v, length, self.solver.ctx)
+	def buildBooleanExpr(self,expr,result):
+		sym_expr = self._astToZ3Expr(expr)
+		if not is_bool(sym_expr):
+			sym_expr = sym_expr != self._int2BitVec(0,32)
+		if not result:
+			sym_expr = Not(sym_expr)
+		return sym_expr
 
-	def newIntegerVariable(self,name,bitlen=32):
-		if name not in self.z3_vars:
-			self.z3_vars[name] = BitVec(name,bitlen, self.solver.ctx)
-		else:
-			self.log.error("Trying to create a duplicate variable")
-		return self.z3_vars[name]
-
-	def findCounterexample(self,z3_asserts, z3_query, z3_variables):
+	def findCounterexample(self, z3_asserts, z3_query):
 		"""Tries to find a counterexample to the query while
 	  	 asserts remains valid."""
 		self.solver.push()
@@ -73,30 +72,35 @@ class Z3Wrapper(object):
 		model = self.solver.model()
 		#print("Model is ")
 		#print(model)
-		for var_name in z3_variables:
-			(instance, z3_var) = z3_variables[var_name]
-			ce = model.eval(z3_var)
-			res.append((var_name, instance, ce.as_signed_long()))
+		for name in self.z3_vars.keys():
+			try:
+				ce = model.eval(self.z3_vars[name])
+				res.append((name, ce.as_signed_long()))
+			except:
+				pass
 		self.solver.pop()
 		return res
 
-	# TODO: need to handle a predicate inside arithmetic
+	# private
 
-	def wrapIf(self,e,bitlen):
-		return If(e,self.int2BitVec(1, bitlen),self.int2BitVec(0, bitlen))
+	def _getIntegerVariable(self,name,bitlen=32):
+		if name not in self.z3_vars:
+			self.z3_vars[name] = BitVec(name,bitlen, self.solver.ctx)
+		else:
+			self.log.error("Trying to create a duplicate variable")
+		return self.z3_vars[name]
 
-	def buildBooleanExpr(self,expr,result):
-		sym_expr = self.astToZ3Expr(expr)
-		if not is_bool(sym_expr):
-			sym_expr = sym_expr != self.int2BitVec(0,32)
-		if not result:
-			sym_expr = Not(sym_expr)
-		return sym_expr
+	def _int2BitVec(self,v,length):
+		return BitVecVal(v, length, self.solver.ctx)
 
-	def astToZ3Expr(self,expr, bitlen=32):
+	def _wrapIf(self,e,bitlen):
+		return If(e,self._int2BitVec(1, bitlen),self._int2BitVec(0, bitlen))
+
+
+	def _astToZ3Expr(self,expr, bitlen=32):
 		if isinstance(expr, ast.BinOp):
-			z3_l = self.astToZ3Expr(expr.left, bitlen)
-			z3_r = self.astToZ3Expr(expr.right, bitlen)
+			z3_l = self._astToZ3Expr(expr.left, bitlen)
+			z3_r = self._astToZ3Expr(expr.right, bitlen)
 
 			if isinstance(expr.op, ast.Add):
 				return z3_l + z3_r
@@ -121,29 +125,32 @@ class Z3Wrapper(object):
 
 			# equality gets coerced to integer
 			elif isinstance(expr.op, ast.Eq):
-				return self.wrapIf(z3_l == z3_r,bitlen)
+				return self._wrapIf(z3_l == z3_r,bitlen)
 			elif isinstance(expr.op, ast.NotEq):
-				return self.wrapIf(z3_l != z3_r,bitlen)
+				return self._wrapIf(z3_l != z3_r,bitlen)
 			elif isinstance(expr.op, ast.Lt):
-				return self.wrapIf(z3_l < z3_r,bitlen)
+				return self._wrapIf(z3_l < z3_r,bitlen)
 			elif isinstance(expr.op, ast.Gt):
-				return self.wrapIf(z3_l > z3_r,bitlen)
+				return self._wrapIf(z3_l > z3_r,bitlen)
 			elif isinstance(expr.op, ast.LtE):
-				return self.wrapIf(z3_l <= z3_r,bitlen)
+				return self._wrapIf(z3_l <= z3_r,bitlen)
 			elif isinstance(expr.op, ast.GtE):
-				return self.wrapIf(z3_l >= z3_r,bitlen)
+				return self._wrapIf(z3_l >= z3_r,bitlen)
 
 			else:
 				utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
 
-		elif isinstance(expr, SymbolicType):
+		elif isinstance(expr, SymbolicInteger):
 			if expr.isVariable():
-				return expr.getSymVariables()[0][2]
+				return self._getIntegerVariable(expr.name,bitlen)
 			else:
-				return self.astToZ3Expr(expr.expr,bitlen)
+				return self._astToZ3Expr(expr.expr,bitlen)
+
+		elif isinstance(expr, SymbolicType):
+			return self._astToZ3Expr(expr.expr,bitlen)
 
 		elif isinstance(expr, int) or isinstance(expr, long):
-			return self.int2BitVec(expr, bitlen)
+			return self._int2BitVec(expr, bitlen)
 
 		else:
 			utils.crash("Unknown node during conversion from ast to Z3 (expressions): %s" % expr)
