@@ -36,8 +36,7 @@ import logging
 from optparse import OptionParser
 from stats import getStats
 
-from symbolic.loader import loaderFactory
-from symbolic.loader import Loader
+from symbolic.loader import *
 from symbolic.concolic import ConcolicEngine
 
 print("PyExZ3 (Python Symbolic Execution via Z3)")

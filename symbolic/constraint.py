@@ -29,7 +29,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-import symbolic.z3_wrap as z3_mod
 import logging
 
 log = logging.getLogger("se.constraint")
@@ -54,13 +53,12 @@ class Constraint:
 
 	def processConstraint(self):
 		self.processed = True
-		sym_asserts = []
 
 		# collect the assertions
+		sym_asserts = []
 		tmp = self.parent
 		while tmp.predicate is not None:
-			p = tmp.predicate
-			sym_asserts.append(p.buildBooleanExpr())
+			sym_asserts.append(tmp.predicate.buildBooleanExpr())
 			tmp = tmp.parent
 
 		# get the final expression (which will be negated)

@@ -36,14 +36,12 @@ from stats import getStats
 from .path_to_constraint import PathToConstraint
 from .invocation import FunctionInvocation
 from .symbolic_types import symbolic_type
-from symbolic.z3_wrap import Z3Wrapper
 
 log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
 	def __init__(self, funcinv, reset, debug):
-		self.solver = Z3Wrapper()
 		self.invocation = funcinv
 		self.reset_func = reset
 		self.constraints_to_solve = deque([])
