@@ -32,7 +32,6 @@
 import logging
 import utils
 
-from .symbolic_types import SymbolicType
 from .predicate import Predicate
 from .constraint import Constraint
 from .z3_wrap import Z3Wrapper
@@ -42,7 +41,6 @@ log = logging.getLogger("se.pathconstraint")
 class PathToConstraint:
 	def __init__(self, engine):
 		self.solver = Z3Wrapper()
-		self.symbolic_variables = {}
 		self.constraints = {}
 		self.engine = engine
 		self.root_constraint = Constraint(None, None)
@@ -55,9 +53,6 @@ class PathToConstraint:
 		""" To be called from the process being executed, this function acts as instrumentation.
 		branch can be either True or False, according to the branch taken after the last conditional
 		jump. """
-
-		if not (isinstance(cond_expr,SymbolicType)):
-			return
 
 		# add both possible predicate outcomes to constraint (tree)
 		p = Predicate(self.solver, cond_expr, branch)

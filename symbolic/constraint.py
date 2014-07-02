@@ -67,11 +67,10 @@ class Constraint:
 		# ask the constraint solver for new input
 		new_values = self.predicate.solver.findCounterexample(sym_asserts, expr)
 
-		res = []
 		if new_values != None:
-			res = new_values
-		
-		return res
+			return new_values
+		else:
+			return []
 
 	def getLength(self):
 		if self.parent == None:
