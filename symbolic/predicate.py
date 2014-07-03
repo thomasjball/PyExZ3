@@ -54,10 +54,10 @@ class Predicate:
 		return hash(self.expr)
 
 	def __str__(self):
-		return str(self.expr) + " (was %s)" % (self.result)
+		return self.expr.toString() + " (was %s)" % (self.result)
 
 	def __repr__(self):
-		return repr(self.expr) + " (was %s)" % (self.result)
+		return self.__str__()
 
 	def getSymVariables(self):
 		return self.expr.getSymVariables()

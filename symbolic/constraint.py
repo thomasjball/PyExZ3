@@ -34,6 +34,7 @@ import logging
 log = logging.getLogger("se.constraint")
 
 class Constraint:
+	cnt = 0
 	"""A constraint is a list of predicates leading to some specific
 	   position in the code."""
 	def __init__(self, parent, last_predicate):
@@ -41,6 +42,8 @@ class Constraint:
 		self.processed = False
 		self.parent = parent
 		self.children = []
+		self.id = self.__class__.cnt
+		self.__class__.cnt += 1
 
 	def __eq__(self, other):
 		"""Two Constraints are equal iff they have the same chain of predicates"""
@@ -97,3 +100,4 @@ class Constraint:
 		c = Constraint(self, predicate)
 		self.children.append(c)
 		return c
+

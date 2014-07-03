@@ -37,6 +37,53 @@ import ast
 
 SI = None
 
+def op2str(o):
+	if isinstance(o,ast.Add):
+		return "+"
+	if isinstance(o,ast.Sub):
+		return "-"
+	if isinstance(o,ast.Mult):
+		return "*"
+	if isinstance(o,ast.Div):
+		return "/"
+	if isinstance(o,ast.Mod):
+		return "%"
+	if isinstance(o,ast.Pow):
+		return "**"
+	if isinstance(o,ast.LShift):
+		return "<<"
+	if isinstance(o,ast.RShift):
+		return ">>"
+	if isinstance(o,ast.BitOr):
+		return "|"
+	if isinstance(o,ast.BitXor):
+		return "^"
+	if isinstance(o,ast.BitAnd):
+		return "&"
+	if isinstance(o,ast.FloorDiv):
+		return "//"
+	if isinstance(o,ast.Eq):
+		return "=="
+	if isinstance(o,ast.NotEq):
+		return "!="
+	if isinstance(o,ast.Lt):
+		return "<"
+	if isinstance(o,ast.Gt):
+		return ">"
+	if isinstance(o,ast.LtE):
+		return "<="
+	if isinstance(o,ast.GtE):
+		return ">="
+	if isinstance(o,ast.Is):
+		return "is"
+	if isinstance(o,ast.IsNot):
+		return "is not"
+	if isinstance(o,ast.In):
+		return "in"
+	if isinstance(o,ast.NotIn):
+		return "not in"
+	raise KeyError()
+
 # the ABSTRACT base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
@@ -133,10 +180,18 @@ class SymbolicType(object):
 		else:
 			return expr1 == expr2
 
-	# TODO: regain printing of variable
 	def toString(self):
 		if self.isVariable():
-			return self.name + "#" + str(self.getConcValue())
+			return self.name # + "#" + str(self.getConcrValue())
 		else:
-			return "SymType(" + ast.dump(self.expr) + ")"
+			return self._toString(self.expr)
+
+	def _toString(self,expr):
+		if isinstance(expr,ast.BinOp):
+			return "(" + self._toString(expr.left) + " " + op2str(expr.op) + " " + self._toString(expr.right) + ")"
+		elif isinstance(expr,SymbolicType):
+			return expr.toString()
+		else:
+			return str(expr)
+
 
