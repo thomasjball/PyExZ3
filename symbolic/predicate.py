@@ -59,9 +59,6 @@ class Predicate:
 	def __repr__(self):
 		return self.__str__()
 
-	def getSymVariables(self):
-		return self.expr.getSymVariables()
-
 	def negate(self):
 		"""Negates the current predicate"""
 		assert(self.result is not None)

@@ -60,12 +60,6 @@ class SymbolicInteger(SymbolicType,int):
 	def wrap(self,conc,sym):
 		return SymbolicInteger("se",conc,sym)
 	
-	def getSymVariables(self):
-		if self.isVariable():
-			return [(self.name, self)]
-		else:
-			return SymbolicType._getSymVariables(self,self.expr)
-
 	# we must ensure that we are no longer inheriting from SymbolicType
 	def getConcrValue(self):
 		return self.val
