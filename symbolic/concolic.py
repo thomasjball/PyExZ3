@@ -31,8 +31,10 @@
 
 from collections import deque
 import logging
+import os
 from stats import getStats
 
+from .z3_wrap import Z3Wrapper
 from .path_to_constraint import PathToConstraint
 from .invocation import FunctionInvocation
 from .symbolic_types import symbolic_type
@@ -41,9 +43,10 @@ log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
-	def __init__(self, funcinv, reset, debug):
+	def __init__(self, funcinv, reset, options):
 		self.invocation = funcinv
 		self.reset_func = reset
+		self.options = options
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
@@ -51,6 +54,7 @@ class ConcolicEngine:
 		self.execution_return_values = []
 		stats.newCounter("explored paths")
 		self.generated_inputs = []
+		self.solver = Z3Wrapper()
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
@@ -103,16 +107,16 @@ class ConcolicEngine:
 
 			log.info("Solving constraint %s" % selected)
 			stats.pushProfile("constraint solving")
-			new_assignment = selected.processConstraint()
+			model = selected.processConstraint(self.solver)
 			stats.popProfile()
 
-			if new_assignment == []:
+			if model == None:
 				log.warning("Unsolvable constraints, skipping iteration")
 				iterations += 1
 				continue
 			else:
-				for (name,val) in new_assignment:
-					self.invocation.updateSymbolicParameter(name,val)
+				for name in model.keys():
+					self.invocation.updateSymbolicParameter(name,model[name])
 
 			self.one_execution()
 
@@ -122,5 +126,10 @@ class ConcolicEngine:
 			if max_iterations != 0 and iterations >= max_iterations:
 				log.debug("Maximum number of iterations reached, terminating")
 				break
+
+		if (self.options.dot_graph):
+			file = open(self.options.filename+".dot","w")
+			file.write(self.path.toDot())
+			file.close()
 
 		return self.execution_return_values

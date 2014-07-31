@@ -31,15 +31,13 @@
 
 import logging
 import utils
-from .symbolic_types import SymbolicType
 
 log = logging.getLogger("se.predicate")
 
 class Predicate:
 	"""Predicate is one specific ``if'' encountered during the program execution.
 	   """
-	def __init__(self, solver, condexpr, result):
-		self.solver = solver
+	def __init__(self, condexpr, result):
 		self.expr = condexpr
 		self.result = result
 
@@ -63,7 +61,4 @@ class Predicate:
 		"""Negates the current predicate"""
 		assert(self.result is not None)
 		self.result = not self.result
-
-	def buildBooleanExpr(self):
-		return self.solver.buildBooleanExpr(self.expr,self.result)
 

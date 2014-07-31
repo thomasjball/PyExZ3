@@ -54,26 +54,18 @@ class Constraint:
 		else:
 			return False
 
-	def processConstraint(self):
+	def processConstraint(self,solver):
 		self.processed = True
 
 		# collect the assertions
-		sym_asserts = []
+		asserts = []
 		tmp = self.parent
 		while tmp.predicate is not None:
-			sym_asserts.append(tmp.predicate.buildBooleanExpr())
+			asserts.append(tmp.predicate)
 			tmp = tmp.parent
 
-		# get the final expression (which will be negated)
-		expr = self.predicate.buildBooleanExpr()
-
 		# ask the constraint solver for new input
-		new_values = self.predicate.solver.findCounterexample(sym_asserts, expr)
-
-		if new_values != None:
-			return new_values
-		else:
-			return []
+		return solver.findCounterexample(asserts, self.predicate)
 
 	def getLength(self):
 		if self.parent == None:

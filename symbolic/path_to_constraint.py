@@ -34,13 +34,11 @@ import utils
 
 from .predicate import Predicate
 from .constraint import Constraint
-from .z3_wrap import Z3Wrapper
 
 log = logging.getLogger("se.pathconstraint")
 
 class PathToConstraint:
 	def __init__(self, engine):
-		self.solver = Z3Wrapper()
 		self.constraints = {}
 		self.engine = engine
 		self.root_constraint = Constraint(None, None)
@@ -55,7 +53,7 @@ class PathToConstraint:
 		jump. """
 
 		# add both possible predicate outcomes to constraint (tree)
-		p = Predicate(self.solver, cond_expr, branch)
+		p = Predicate(cond_expr, branch)
 		p.negate()
 		cneg = self.current_constraint.findChild(p)
 		p.negate()
