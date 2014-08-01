@@ -90,6 +90,7 @@ class ConcolicEngine:
 		self.record_inputs()
 		self.path.reset()
 		ret = self.execute(self.invocation)
+		print(ret)
 		self.execution_return_values.append(ret)
 
 	def run(self, max_iterations=0):

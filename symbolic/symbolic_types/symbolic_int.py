@@ -33,17 +33,6 @@ import ast
 import sys
 from . symbolic_type import SymbolicType
 
-def correct(value, bits, signed):
-    base = 1 << bits 
-    value %= base
-    return value - base if signed and value.bit_length() == bits else value
-
-# this models 32-bit word semantics (as in C)
-# truncate = lambda v: correct(v, 32, True)
-
-# this models Python integer semantics
-truncate = lambda v : v
-
 # we use multiple inheritance to achieve concrete execution for any
 # operation for which we don't have a symbolic representation. As
 # we can see a SymbolicInteger is both symbolic (SymbolicType) and 
@@ -65,54 +54,54 @@ class SymbolicInteger(SymbolicType,int):
 		return self.val
 
 	def __add__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x+y), ast.Add)
+		return self._do_bin_op(other, lambda x, y: x+y, ast.Add)
 	def __radd__(self,other):
 		return self.__add__(other)
 
 	def __sub__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x - y), ast.Sub)
+		return self._do_bin_op(other, lambda x, y: x - y, ast.Sub)
 	def __rsub__(self,other):
 		return self.__sub__(other)
 
 	def __mul__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x*y), ast.Mult)
+		return self._do_bin_op(other, lambda x, y: x*y, ast.Mult)
 	def __rmul__(self,other):
 		return self.__mul__(other)
 
 	def __mod__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x % y), ast.Mod)
+		return self._do_bin_op(other, lambda x, y: x % y, ast.Mod)
 	def __rmod__(self,other):
 		return self.__mod__(other)
 
 	def __div__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x / y), ast.Div)
+		return self._do_bin_op(other, lambda x, y: x / y, ast.Div)
 	def __rdiv__(self,other):
 		return self.__div__(other)
 
 	# bit level operations
 
 	def __and__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x & y), ast.BitAnd)
+		return self._do_bin_op(other, lambda x, y: x & y, ast.BitAnd)
 	def __rand__(self,other):
 		return self.__and__(other)
 
 	def __or__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x | y), ast.BitOr)
+		return self._do_bin_op(other, lambda x, y: x | y, ast.BitOr)
 	def __ror__(self,other):
 		return self.__or__(other)
 
 	def __xor__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x ^ y), ast.BitXor)
+		return self._do_bin_op(other, lambda x, y: x ^ y, ast.BitXor)
 	def __rxor__(self,other):
 		return self.__xor__(other)
 
 	def __lshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x << y), ast.LShift)
+		return self._do_bin_op(other, lambda x, y: x << y, ast.LShift)
 	def __rlshift__(self,other):
 		return self.__lshift__(other)
 
 	def __rshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: truncate(x >> y), ast.RShift)
+		return self._do_bin_op(other, lambda x, y: x >> y, ast.RShift)
 	def __rrshift__(self,other):
 		return self.__rshift__(other)
 

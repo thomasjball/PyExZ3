@@ -142,6 +142,7 @@ class SymbolicType(object):
 	# compute both the symbolic and concrete image of operator
 	# TODO: we should generalize this to s-expressions in order to 
 	# to accommodate unary and function calls
+
 	def _do_bin_op(self, other, fun, op):
 		left_expr, left_concr = self.getExprConcr()
 		if isinstance(other, SymbolicType):
@@ -149,7 +150,8 @@ class SymbolicType(object):
 		else:
 			right_expr, right_concr = other, other
 		result_concr= fun(left_concr, right_concr)
-		return self.wrap(result_concr,ast.BinOp(left=left_expr,op=op(),right=right_expr))
+		return self.wrap(result_concr,
+                                 ast.BinOp(left=left_expr,op=op(),right=right_expr))
 
 	def symbolicEq(self, other):
 		if not isinstance(other,SymbolicType):

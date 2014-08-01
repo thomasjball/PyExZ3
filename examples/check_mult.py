@@ -1,8 +1,8 @@
-from adder import *
-
-N = 128
+from mult import *
 
 # now prove that adder is equal to bitvector add 
+
+N = 8
 
 xN = BoolVector("x",N)
 yN = BoolVector("y",N)
@@ -20,18 +20,14 @@ def eq_bitvec_boolvec(bitvec,boolvec):
 
 inputs_equal = eq_bitvec_boolvec(x_bv,xN) + eq_bitvec_boolvec(y_bv,yN)
 
-res,cout = addN(xN,yN,BoolVal(False))
+res,cout = multN(xN,yN)
 
-res_bv = x_bv + y_bv
+res_bv = x_bv * y_bv
 
 outputs_equal = eq_bitvec_boolvec(res_bv,res)
 
 s = Solver()
 s.add(And(inputs_equal))
 s.add(Not(And(outputs_equal)))
-#print(s.assertions())
 result = s.check()
-if result == sat:
-	print(s.model())
-else:
-	print(result)
+print(result)

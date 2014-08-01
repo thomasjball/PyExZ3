@@ -75,10 +75,23 @@ class Loader:
 	def execute(self, **args):
 		return self.app.__dict__[self.test_name](**args)
 
+	def to_bag(self,l):
+		bag = {}
+		for i in l:
+			if i in bag:
+				bag[i] += 1
+			else:
+				bag[i] = 1
+		return bag
+
 	def check(self, computed, expected):
-		if len(computed) != len(expected) or computed != expected:
+		b_c = self.to_bag(computed)
+		b_e = self.to_bag(expected)
+		print(b_c)
+		print(b_e)
+		if len(computed) != len(expected) or b_c != b_e:
 			print("-------------------> %s test failed <---------------------" % self.test_name)
-			print("Expected: %s, found: %s" % (expected, computed))
+			print("Expected: %s, found: %s" % (b_e, b_c))
 			return False
 		else:
 			print("%s test passed <---" % self.test_name)
@@ -87,7 +100,6 @@ class Loader:
 	def execution_complete(self, return_vals):
 		if "expected_result" in self.app.__dict__:
 			res = [ x[0] for x in return_vals ]
-			res.sort()
 			return self.check(res, self.app.__dict__["expected_result"]())
 		else:
 			print(self.test_name + ".py contains no expected_result function")

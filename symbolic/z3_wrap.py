@@ -71,10 +71,10 @@ class Z3Wrapper(object):
 	# turn the validity query (assertions => query) into satisfiability in Z3
 	def _generateZ3(self):
 		self.z3_vars = {}
-		self.solver.assert_exprs([self._pred_to_Z3(p) for p in self.asserts])
-		self.solver.assert_exprs(Not(self._pred_to_Z3(self.query)))
+		self.solver.assert_exprs([self._to_Z3(p) for p in self.asserts])
+		self.solver.assert_exprs(Not(self._to_Z3(self.query)))
 
-	def _pred_to_Z3(self,pred,env=None):
+	def _to_Z3(self,pred,env=None):
 		sym_expr = self._astToZ3Expr(pred.expr,env)
 		if env == None:
 			if not is_bool(sym_expr):
@@ -100,7 +100,6 @@ class Z3Wrapper(object):
 		#print(self.solver.assertions())
 		if ret == unsat:
 			self.log.warning("Z3: UNSAT")
-			print("UNSAT")
 			self.solver.pop()
 			return None
 		elif ret == unknown:
@@ -114,15 +113,13 @@ class Z3Wrapper(object):
 	def _findModel2(self):
 		self._generateZ3()
 		int_vars = self._getIntVars()
-		cnt = 1
 		res = unsat
-		bound = (1 << 16) - 1
+		bound = (1 << 4) - 1
 		while res == unsat and bound < (1 << self.N):
 			self.solver.push()
 			constraints = self._boundIntegers(int_vars,bound)
 			self.solver.assert_exprs(constraints)
 			res = self.solver.check()
-			cnt = cnt + 1
 			if res == unsat:
 				bound = (bound << 1)+1
 				self.solver.pop()
@@ -132,12 +129,12 @@ class Z3Wrapper(object):
 			self.solver.pop()
 			mismatch = False
 			for a in self.asserts:
-				eval = self._pred_to_Z3(a,model)
+				eval = self._to_Z3(a,model)
 				if (not eval):
 					mismatch = true
 					break
 			if (not mismatch):
-				mismatch = not (not self._pred_to_Z3(self.query,model))
+				mismatch = not (not self._to_Z3(self.query,model))
 			return (res,mismatch)
 		return (res,False)
 
