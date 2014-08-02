@@ -4,13 +4,13 @@ import sys
 def filesys(x):
 	# if file doesn't exist, create it and 
 	g = 1
-	if (os.path.exists("global.tmp")):
-		file = open("global.tmp","r")
+	if (os.path.exists("tmp.txt")):
+		file = open("tmp.txt","r")
 		g = int(file.readline())
 		g = g + 3
 		file.close()
 
-	file = open("global.tmp","w")
+	file = open("tmp.txt","w")
 	file.write(str(g))
 	file.close()
 
