@@ -2,7 +2,7 @@ from mult import *
 
 # now prove that adder is equal to bitvector add 
 
-N = 8
+N = 16
 
 xN = BoolVector("x",N)
 yN = BoolVector("y",N)

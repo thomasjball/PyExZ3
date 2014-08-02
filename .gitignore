@@ -226,4 +226,3 @@ stdout
 #stdout.old#
 #tmp#
 *.dot
-*.pdf

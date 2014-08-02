@@ -12,12 +12,10 @@ def max4(x,y,x2,y2):
 
 def maxtest(a,b,c,d):
 	m = max4(a,b,c,d)
-	return m
+	if (m < a or m < b or m < c or m < d):
+		return "ERROR"
+	else:
+		return "OK"
 
-#	if (m < a or m < b or m < c or m < d):
-#		return "ERROR"
-#	else:
-#		return "OK"
-
-#def expected_result():
-#	return [ "OK" for i in range(8) ]
+def expected_result():
+	return [ "OK" for i in range(8) ]
