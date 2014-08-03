@@ -1,8 +1,8 @@
-ARRAY = [0, 1]
+A = [0, 1]
 
-def array(a):
-  if ARRAY[a]:
-    return ARRAY[a]
+def arrayindex(a):
+  if A[a]:
+    return A[a]
   else:
     return "OTHER"
 
