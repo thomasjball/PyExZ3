@@ -10,6 +10,8 @@ from . symbolic_type import SymbolicType
 # concrete (int)
 
 class SymbolicInteger(SymbolicType,int):
+	# since we are inheriting from int, we need to use new
+	# to perform construction correctly
 	def __new__(cls, name, v, expr=None):
 		return int.__new__(cls, v)
 
@@ -17,9 +19,6 @@ class SymbolicInteger(SymbolicType,int):
 		SymbolicType.__init__(self, name, expr)
 		self.val = v
 
-	def wrap(self,conc,sym):
-		return SymbolicInteger("se",conc,sym)
-	
 	# we must ensure that we are no longer inheriting from SymbolicType
 	def getConcrValue(self):
 		return self.val

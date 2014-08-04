@@ -21,7 +21,7 @@ class ConcolicEngine:
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
 		self.path = PathToConstraint(self)
-		symbolic_type.SI = self.path
+		symbolic_type.SymbolicType.SI = self.path
 		self.execution_return_values = []
 		stats.newCounter("explored paths")
 		self.generated_inputs = []

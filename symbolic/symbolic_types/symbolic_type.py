@@ -6,7 +6,6 @@ import ast
 # this is set by ConcolicEngine to link up predicate evaluation (via __bool__) to 
 # PathConstraint
 
-SI = None
 
 def op2str(o):
 	if isinstance(o,ast.Add):
@@ -59,6 +58,9 @@ def op2str(o):
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
 class SymbolicType(object):
+	SI = None    # this is set up by ConcolicEngine to link __bool__ to PathConstraint
+	wrap = None  # this is set up in the module __init__
+
 	def __init__(self, name, expr=None):
 		self.name = name
 		self.expr = expr
@@ -72,8 +74,9 @@ class SymbolicType(object):
 		else:
 			return (self.expr, self.getConcrValue())
 
-	def wrap(self,conc,sym):
-		raise NotImplementedException
+	def __hash(self):
+		pass
+		# raise UnimplementedMethod
 
 	# this is a critical interception point: the __nonzero__
 	# method is called whenever a predicate is evaluated in
@@ -82,8 +85,8 @@ class SymbolicType(object):
 
 	def __bool__(self):
 		ret = bool(self.getConcrValue())
-		if SI != None:
-			SI.whichBranch(ret,self)
+		if SymbolicType.SI != None:
+			SymbolicType.SI.whichBranch(ret,self)
 		return ret
 
 	def __eq__(self, other):
@@ -121,8 +124,10 @@ class SymbolicType(object):
 		else:
 			right_expr, right_concr = other, other
 		result_concr= fun(left_concr, right_concr)
-		return self.wrap(result_concr,
-                                 ast.BinOp(left=left_expr,op=op(),right=right_expr))
+		return SymbolicType.wrap(result_concr,
+                            ast.BinOp(left=left_expr,op=op(),right=right_expr))
+
+	# BELOW HERE is only for our use
 
 	def symbolicEq(self, other):
 		if not isinstance(other,SymbolicType):
