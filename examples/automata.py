@@ -66,7 +66,7 @@ def lengthGE(x,k):
 def test():
   solver.add(q0axiom(),q1axiom(),q2axiom(),q3axiom(),q4axiom())
   y = Const('y',List)
-  #solver.add(lengthGE(y,4))
+  solver.add(lengthGE(y,4))
   solver.add(q0(y))
   print(solver.assertions())
   ok = solver.check()

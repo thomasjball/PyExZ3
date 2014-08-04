@@ -40,15 +40,13 @@ class ConcolicEngine:
 			return False
 
 	def execute(self, invocation):
-		return_values = []
 		stats.incCounter("explored paths")
 		self.reset_func()
 		stats.pushProfile("single invocation")
 		res = invocation.function(**invocation.symbolic_inputs)
 		stats.popProfile()
-		return_values.append(res)
 		log.info("Invocation end")
-		return return_values
+		return res
 
 	def record_inputs(self):
 		concr_inputs = {}

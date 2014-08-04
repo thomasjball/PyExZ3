@@ -58,8 +58,6 @@ class Loader:
 	def check(self, computed, expected):
 		b_c = self.to_bag(computed)
 		b_e = self.to_bag(expected)
-		print(b_c)
-		print(b_e)
 		if len(computed) != len(expected) or b_c != b_e:
 			print("-------------------> %s test failed <---------------------" % self.test_name)
 			print("Expected: %s, found: %s" % (b_e, b_c))
@@ -70,8 +68,8 @@ class Loader:
 
 	def execution_complete(self, return_vals):
 		if "expected_result" in self.app.__dict__:
-			res = [ x[0] for x in return_vals ]
-			return self.check(res, self.app.__dict__["expected_result"]())
+			print(return_vals)
+			return self.check(return_vals, self.app.__dict__["expected_result"]())
 		else:
 			print(self.test_name + ".py contains no expected_result function")
 			return None

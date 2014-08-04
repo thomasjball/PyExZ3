@@ -67,19 +67,18 @@ class Z3Wrapper(object):
 				break
 			self.solver.pop()
 			self.N = self.N+8
-			print("expanded bit width to "+str(self.N))
+			if self.N <= 64: print("expanded bit width to "+str(self.N)) 
 		#print("Assertions")
 		#print(self.solver.assertions())
 		if ret == unsat:
 			self.log.warning("Z3: UNSAT")
-			self.solver.pop()
-			return None
+			res = None
 		elif ret == unknown:
 			self.log.error("Z3: UNKNOWN")
-			self.solver.pop()
-			return None
-		res = self._getModel()
-		self.solver.pop()
+			res = None
+		else:
+			res = self._getModel()
+		if self.N<=64: self.solver.pop()
 		return res
 
 	def _findModel2(self):
@@ -192,7 +191,7 @@ class Z3Wrapper(object):
 		elif isinstance(expr, SymbolicType):
 			return self._astToZ3Expr(expr.expr,env)
 
-		elif isinstance(expr, int) or isinstance(expr, long):
+		elif isinstance(expr, int):
 			if env == None:
 				return self._int2BitVec(expr)
 			else:
