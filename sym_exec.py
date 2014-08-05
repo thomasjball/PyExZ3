@@ -14,6 +14,7 @@ from symbolic.concolic import ConcolicEngine
 print("PyExZ3 (Python Symbolic Execution via Z3)")
 
 sys.path = [os.path.abspath(os.path.join(os.path.dirname(__file__)))] + sys.path
+
 usage = "usage: %prog [options] <se_descr.py path>"
 parser = OptionParser(usage=usage)
 parser.add_option("-d", "--debug", dest="debug", action="store_true", help="Disassemble only")

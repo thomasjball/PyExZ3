@@ -35,7 +35,7 @@ class Loader:
 				del(sys.modules[self.test_name])
 			self.app =__import__(self.test_name)
 			if not self.test_name in self.app.__dict__:
-				print(which_test + ".py doesn't contain a function named " + which_test)
+				print("File " +  self.test_name + ".py doesn't contain a function named " + self.test_name)
 				raise KeyError()
 			# TODO: check that we have a function
 		except Exception as arg:
