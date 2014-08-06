@@ -18,14 +18,20 @@ class ConcolicEngine:
 		self.invocation = funcinv
 		self.reset_func = reset
 		self.options = options
+
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
+
 		self.path = PathToConstraint(self)
+		# link up SymbolicType to PathToConstraint in order to intercept control-flow
 		symbolic_type.SymbolicType.SI = self.path
+
+		self.solver = Z3Wrapper()
+
+		# outputs
+		self.generated_inputs = []
 		self.execution_return_values = []
 		stats.newCounter("explored paths")
-		self.generated_inputs = []
-		self.solver = Z3Wrapper()
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
@@ -45,15 +51,13 @@ class ConcolicEngine:
 		stats.pushProfile("single invocation")
 		res = invocation.function(**invocation.symbolic_inputs)
 		stats.popProfile()
-		log.info("Invocation end")
 		return res
 
 	def record_inputs(self):
-		concr_inputs = {}
-		for k in self.invocation.symbolic_inputs:
-			concr_inputs[k] = self.invocation.symbolic_inputs[k].getConcrValue()
-		self.generated_inputs.append(concr_inputs)
-		print(concr_inputs)
+		args = self.invocation.symbolic_inputs
+		inputs = [ args[k].getConcrValue() for k in args ]
+		self.generated_inputs.append(inputs)
+		print(inputs)
 		
 	def one_execution(self,expected_path=None):
 		self.record_inputs()
