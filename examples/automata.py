@@ -25,35 +25,27 @@ q2 = Function('q2',List,Bool)
 q3 = Function('q3',List,Bool)
 q4 = Function('q4',List,Bool)
 
+y = Const('y',List)
+
 def q0axiom():
-	y = Const('y',List)
 	body = q0(y) == Or(q1(y),q3(y))
-	axiom = ForAll(y, body, patterns = [q0(y)])
-	return axiom
+	return ForAll(y, body, patterns = [q0(y)])
 
 def q1axiom():
-	y = Const('y',List)
 	body = q1(y) == And(y!=nil,ULE(ord('0'),head(y)),ULE(head(y),ord('9')),q2(tail(y)))
-	axiom = ForAll(y, body, patterns = [q1(y)])
-	return axiom
+	return ForAll(y, body, patterns = [q1(y)])
 
 def q2axiom():
-	y = Const('y',List)
 	body = q2(y) == Or(y==nil,And(y!=nil,ULE(ord('0'),head(y)),ULE(head(y),ord('9')),q2(tail(y))))
-	axiom = ForAll(y, body, patterns = [q2(y)])
-	return axiom
+	return ForAll(y, body, patterns = [q2(y)])
 
 def q3axiom():
-	y = Const('y',List)
 	body = q3(y) == And(y!=nil,ULE(ord('a'),head(y)),ULE(head(y),ord('z')),q4(tail(y)))
-	axiom = ForAll(y, body, patterns = [q3(y)])
-	return axiom
+	return ForAll(y, body, patterns = [q3(y)])
 
 def q4axiom():
-	y = Const('y',List)
 	body = q4(y) == (y==nil)
-	axiom = ForAll(y, body, patterns = [q4(y)])
-	return axiom
+	return ForAll(y, body, patterns = [q4(y)])
 
 #to generate longer results
 def lengthGE(x,k):
@@ -66,7 +58,7 @@ def lengthGE(x,k):
 def test():
   solver.add(q0axiom(),q1axiom(),q2axiom(),q3axiom(),q4axiom())
   y = Const('y',List)
-  solver.add(lengthGE(y,4))
+  #solver.add(lengthGE(y,4))
   solver.add(q0(y))
   print(solver.assertions())
   ok = solver.check()

@@ -3,57 +3,6 @@
 import utils
 import ast
 
-# this is set by ConcolicEngine to link up predicate evaluation (via __bool__) to 
-# PathConstraint
-
-
-def op2str(o):
-	if isinstance(o,ast.Add):
-		return "+"
-	if isinstance(o,ast.Sub):
-		return "-"
-	if isinstance(o,ast.Mult):
-		return "*"
-	if isinstance(o,ast.Div):
-		return "/"
-	if isinstance(o,ast.Mod):
-		return "%"
-	if isinstance(o,ast.Pow):
-		return "**"
-	if isinstance(o,ast.LShift):
-		return "<<"
-	if isinstance(o,ast.RShift):
-		return ">>"
-	if isinstance(o,ast.BitOr):
-		return "|"
-	if isinstance(o,ast.BitXor):
-		return "^"
-	if isinstance(o,ast.BitAnd):
-		return "&"
-	if isinstance(o,ast.FloorDiv):
-		return "//"
-	if isinstance(o,ast.Eq):
-		return "=="
-	if isinstance(o,ast.NotEq):
-		return "!="
-	if isinstance(o,ast.Lt):
-		return "<"
-	if isinstance(o,ast.Gt):
-		return ">"
-	if isinstance(o,ast.LtE):
-		return "<="
-	if isinstance(o,ast.GtE):
-		return ">="
-	if isinstance(o,ast.Is):
-		return "is"
-	if isinstance(o,ast.IsNot):
-		return "is not"
-	if isinstance(o,ast.In):
-		return "in"
-	if isinstance(o,ast.NotIn):
-		return "not in"
-	raise KeyError()
-
 # the ABSTRACT base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
@@ -75,13 +24,12 @@ class SymbolicType(object):
 			return (self.expr, self.getConcrValue())
 
 	def __hash(self):
-		pass
-		# raise UnimplementedMethod
+		raise NotImplemented()
 
-	# this is a critical interception point: the __nonzero__
+	# this is a critical interception point: the __bool__
 	# method is called whenever a predicate is evaluated in
 	# Python execution (if, while, and, or). This allows us
-	# to capture the path condition precisely
+	# to capture the path condition
 
 	def __bool__(self):
 		ret = bool(self.getConcrValue())
@@ -163,4 +111,50 @@ class SymbolicType(object):
 		else:
 			return str(expr)
 
+def op2str(o):
+	if isinstance(o,ast.Add):
+		return "+"
+	if isinstance(o,ast.Sub):
+		return "-"
+	if isinstance(o,ast.Mult):
+		return "*"
+	if isinstance(o,ast.Div):
+		return "/"
+	if isinstance(o,ast.Mod):
+		return "%"
+	if isinstance(o,ast.Pow):
+		return "**"
+	if isinstance(o,ast.LShift):
+		return "<<"
+	if isinstance(o,ast.RShift):
+		return ">>"
+	if isinstance(o,ast.BitOr):
+		return "|"
+	if isinstance(o,ast.BitXor):
+		return "^"
+	if isinstance(o,ast.BitAnd):
+		return "&"
+	if isinstance(o,ast.FloorDiv):
+		return "//"
+	if isinstance(o,ast.Eq):
+		return "=="
+	if isinstance(o,ast.NotEq):
+		return "!="
+	if isinstance(o,ast.Lt):
+		return "<"
+	if isinstance(o,ast.Gt):
+		return ">"
+	if isinstance(o,ast.LtE):
+		return "<="
+	if isinstance(o,ast.GtE):
+		return ">="
+	if isinstance(o,ast.Is):
+		return "is"
+	if isinstance(o,ast.IsNot):
+		return "is not"
+	if isinstance(o,ast.In):
+		return "in"
+	if isinstance(o,ast.NotIn):
+		return "not in"
+	raise KeyError()
 

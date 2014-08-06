@@ -29,19 +29,18 @@ class Loader:
 		self.app = None
 		if firstpass and self.test_name in sys.modules:
 			print("There already is a module loaded named " + self.test_name)
-			raise KeyError()
+			raise ImportError()
 		try:
 			if (not firstpass and self.test_name in sys.modules):
 				del(sys.modules[self.test_name])
 			self.app =__import__(self.test_name)
-			if not self.test_name in self.app.__dict__:
+			if not self.test_name in self.app.__dict__ or not callable(self.app.__dict__[self.test_name]):
 				print("File " +  self.test_name + ".py doesn't contain a function named " + self.test_name)
-				raise KeyError()
-			# TODO: check that we have a function
+				raise ImportError()
 		except Exception as arg:
 			print("Couldn't import " + self.test_name)
 			print(arg)
-			raise KeyError()
+			raise ImportError()
 
 	def execute(self, **args):
 		return self.app.__dict__[self.test_name](**args)
@@ -83,7 +82,7 @@ def loaderFactory(filename):
 		sys.path = [ dir ] + sys.path
 		ret = Loader(filename)
 		return ret
-	except KeyError:
+	except ImportError:
 		sys.path = sys.path[1:]
 		return None
 

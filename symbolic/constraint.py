@@ -43,7 +43,6 @@ class Constraint:
 			return 0
 		return 1 + self.parent.getLength()
 
-
 	def __str__(self):
 		return str(self.predicate) + "  (processed: %s, path_len: %d)" % (self.processed,self.getLength())
 

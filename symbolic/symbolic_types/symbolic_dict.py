@@ -1,4 +1,3 @@
-
 import ast
 import sys
 from . symbolic_type import SymbolicType
@@ -9,34 +8,37 @@ class SymbolicDict(SymbolicType,dict):
 
 	def __init__(self, name, v, expr=None):
 		SymbolicType.__init__(self, name, expr)
-		self.val = v
+		self.log = []
 
-	def wrap(self,conc,sym):
-		return SymbolicInteger("se",conc,sym)
-	
 	def getConcrValue(self):
 		return self
 
-	#def __length__(self):
-	#	pass
+	def __length__(self):
+		return dict.__length__(self)
 
 	# wrap the lvalue so that we maintain a pointer
 	# to the SymbolicDict log, which will allow us
 	# generate a load around the proper sequence of 
-	# stores/deleles
+	# stores/deletes
 
 	def __getitem__(self,key):
 		pass
 
 	def __setitem__(self,key,value):
-		# the expression grows
+		# the log grows
 		# update the super
-		pass
+		log.append(("STORE",key,value))
+		dict.__setitem__(self,key,value)
 
 	def __contains__(self,key):
-		pass
+		for k in self.keys():
+			if k == key:
+				return True
+		return False
 
 	def __delitem__(self,key)
-		# the expression grows
+		# the log grows
 		# update the super
-		pass
+		if dict.__contains(self,key):
+			log.append(("DELETE",key))
+		dict.__delitem__(self,key)

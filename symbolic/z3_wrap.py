@@ -14,14 +14,14 @@ class Z3Wrapper(object):
 		self.solver = Solver()
 		self.z3_vars = {}
 		self.N = 32
-		self.asserts = None
-		self.query = None
+		self.pred_asserts = None
+		self.pred_query = None
 
 	def findCounterexample(self, asserts, query):
 		"""Tries to find a counterexample to the query while
 	  	 asserts remains valid."""
-		self.asserts = asserts
-		self.query = query
+		self.pred_asserts = asserts
+		self.pred_query = query
 		return self._findModel()
 
 	# private
@@ -42,11 +42,11 @@ class Z3Wrapper(object):
 	# turn the validity query (assertions => query) into satisfiability in Z3
 	def _generateZ3(self):
 		self.z3_vars = {}
-		self.solver.assert_exprs([self._to_Z3(p) for p in self.asserts])
-		self.solver.assert_exprs(Not(self._to_Z3(self.query)))
+		self.solver.assert_exprs([self._to_Z3(p) for p in self.pred_asserts])
+		self.solver.assert_exprs(Not(self._to_Z3(self.pred_query)))
 
 	def _to_Z3(self,pred,env=None):
-		sym_expr = self._astToZ3Expr(pred.expr,env)
+		sym_expr = self._astToZ3Expr(pred.symtype,env)
 		if env == None:
 			if not is_bool(sym_expr):
 				sym_expr = sym_expr != self._int2BitVec(0)
@@ -98,13 +98,13 @@ class Z3Wrapper(object):
 			model = self._getModel()
 			self.solver.pop()
 			mismatch = False
-			for a in self.asserts:
+			for a in self.pred_asserts:
 				eval = self._to_Z3(a,model)
 				if (not eval):
 					mismatch = True
 					break
 			if (not mismatch):
-				mismatch = not (not self._to_Z3(self.query,model))
+				mismatch = not (not self._to_Z3(self.pred_query,model))
 			return (res,mismatch)
 		return (res,False)
 

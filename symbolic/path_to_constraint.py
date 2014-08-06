@@ -27,13 +27,13 @@ class PathToConstraint:
 				self.expected_path.append(tmp.predicate)
 				tmp = tmp.parent
 
-	def whichBranch(self, branch, cond_expr):
+	def whichBranch(self, branch, symbolic_type):
 		""" To be called from the process being executed, this function acts as instrumentation.
 		branch can be either True or False, according to the branch taken after the last conditional
 		jump. """
 
 		# add both possible predicate outcomes to constraint (tree)
-		p = Predicate(cond_expr, branch)
+		p = Predicate(symbolic_type, branch)
 		p.negate()
 		cneg = self.current_constraint.findChild(p)
 		p.negate()
@@ -41,14 +41,15 @@ class PathToConstraint:
 
 		if c is None:
 			c = self.current_constraint.addChild(p)
-			# Important: we are adding the new constraint
-			# to the queue of the engine for later processing
+
+			# we add the new constraint to the queue of the engine for later processing
 			log.debug("New constraint: %s" % c)
 			self.engine.addConstraint(c)
+			
 			# check for path mismatch
 			if self.expected_path != None and self.expected_path != []:
 				expected = self.expected_path.pop()
-				if (not expected.expr.symbolicEq(c.predicate.expr) or expected.result == c.predicate.result):
+				if (not expected.symtype.symbolicEq(c.predicate.symtype) or expected.result == c.predicate.result):
 					print("Replay mismatch")
 					print(expected)
 					print(c.predicate)
@@ -79,7 +80,7 @@ class PathToConstraint:
 		if (c.parent == None):
 			label = "root"
 		else:
-			label = c.predicate.expr.toString()
+			label = c.predicate.symtype.toString()
 			if not c.predicate.result:
 				label = "Not("+label+")"
 		node = "C" + str(c.id) + " [ label=\"" + label + "\" ];\n"
