@@ -99,7 +99,7 @@ class SymbolicType(object):
 
 	def toString(self):
 		if self.isVariable():
-			return self.name # + "#" + str(self.getConcrValue())
+			return self.name + "#" + str(self.getConcrValue())
 		else:
 			return self._toString(self.expr)
 

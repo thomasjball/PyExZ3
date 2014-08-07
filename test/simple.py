@@ -1,5 +1,5 @@
 def simple(x):
-	if (x):
+	if (x+1 > 10):
 		return 42
 	else:
 		return 43

@@ -55,7 +55,7 @@ class ConcolicEngine:
 
 	def record_inputs(self):
 		args = self.invocation.symbolic_inputs
-		inputs = [ args[k].getConcrValue() for k in args ]
+		inputs = [ (k,args[k].getConcrValue()) for k in args ]
 		self.generated_inputs.append(inputs)
 		print(inputs)
 		
