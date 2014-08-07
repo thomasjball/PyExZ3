@@ -2,9 +2,7 @@ import ast
 import sys
 from . symbolic_type import SymbolicType
 
-# SymbolicDict: key, values - does it make sense for them to be non-symbolic?
-# (some) keys should be symbolic - otherwise, we don't have aliasing issues
-# values need not be symbolic
+# SymbolicDict: the key and values will both be SymbolicType for full generality
 
 # keys of dictionary must be immutable
 # values in dictionary may be mutable
@@ -29,7 +27,11 @@ class SymbolicDict(SymbolicType,dict):
 	# stores/deletes
 
 	def __getitem__(self,key):
-		# what is it? a SymbolicType (yes, of an lvalue)
+		return self._do_bin_op(key, lambda d, k: d[k], ast.Index)
+
+		# create a new SymbolicType for
+		# value at d[key], the expression of this 
+		# SymbolicType will be Select(SymbolicDict,key)
 		log.append(("SELECT",key))
 		raise NotImplemented()
 

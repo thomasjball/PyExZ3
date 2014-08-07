@@ -17,7 +17,7 @@ class SymbolicType(object):
 	def isVariable(self):
 		return self.expr == None
 
-	def getExprConcr(self):
+	def unwrap(self):
 		if self.isVariable():
 			return (self, self.getConcrValue())
 		else:
@@ -41,39 +41,38 @@ class SymbolicType(object):
 		if isinstance(other, type(None)):
 			return False
 		else:
-			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq)
+			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq, SymbolicType.wrap)
 
 	def __ne__(self, other):
 		if isinstance(other, type(None)):
 			return True
 		else:
-			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq)
+			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq, SymbolicType.wrap)
 
 	def __lt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt)
+		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt, SymbolicType.wrap)
 
 	def __le__(self, other):
-		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE)
+		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE, SymbolicType.wrap)
 
 	def __gt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt)
+		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt, SymbolicType.wrap)
 
 	def __ge__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE)
+		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicType.wrap)
 
 	# compute both the symbolic and concrete image of operator
 	# TODO: we should generalize this to s-expressions in order to 
 	# to accommodate unary and function calls
 
-	def _do_bin_op(self, other, fun, op):
-		left_expr, left_concr = self.getExprConcr()
+	def _do_bin_op(self, other, fun, op, wrap):
+		left_expr, left_concr = self.unwrap()
 		if isinstance(other, SymbolicType):
-			right_expr, right_concr = other.getExprConcr()
+			right_expr, right_concr = other.unwrap()
 		else:
 			right_expr, right_concr = other, other
 		result_concr= fun(left_concr, right_concr)
-		return SymbolicType.wrap(result_concr,
-                            ast.BinOp(left=left_expr,op=op(),right=right_expr))
+		return wrap(result_concr,ast.BinOp(left=left_expr,op=op(),right=right_expr))
 
 	# BELOW HERE is only for our use
 
