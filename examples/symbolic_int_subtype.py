@@ -19,6 +19,9 @@ for fname in dir(int):
   except:
     pass
 
+# NOTE Uncomment this to have a restricted set of (correctly modelled) functions
+# INT_FUNCS = [ ('__add__', 2), ('__sub__', 2), ('__and__', 2), ('__or__', 2) ]
+
 def symbolic_int_subtype(func_index, a, b, c):
   # make concolic execution branch on elements of INT_FUNCS
   if func_index in [ i for i, fname in enumerate(INT_FUNCS) if INT_FUNCS[i] ]:
