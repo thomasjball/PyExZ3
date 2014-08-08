@@ -8,7 +8,6 @@ import ast
 
 class SymbolicType(object):
 	SI = None    # this is set up by ConcolicEngine to link __bool__ to PathConstraint
-	wrap = None  # this is set up in the module __init__
 
 	def __init__(self, name, expr=None):
 		self.name = name
@@ -19,11 +18,14 @@ class SymbolicType(object):
 
 	def unwrap(self):
 		if self.isVariable():
-			return (self, self.getConcrValue())
+			return (self.getConcrValue(),self)
 		else:
-			return (self.expr, self.getConcrValue())
+			return (self.getConcrValue(),self.expr)
 
-	def __hash(self):
+	def getConcrValue():
+		raise NotImplemented()
+
+	def wrap(conc,sym):
 		raise NotImplemented()
 
 	# this is a critical interception point: the __bool__
@@ -66,13 +68,14 @@ class SymbolicType(object):
 	# to accommodate unary and function calls
 
 	def _do_bin_op(self, other, fun, op, wrap):
-		left_expr, left_concr = self.unwrap()
+		left_concr, left_expr = self.unwrap()
 		if isinstance(other, SymbolicType):
-			right_expr, right_concr = other.unwrap()
+			right_concr, right_expr = other.unwrap()
 		else:
-			right_expr, right_concr = other, other
-		result_concr= fun(left_concr, right_concr)
-		return wrap(result_concr,ast.BinOp(left=left_expr,op=op(),right=right_expr))
+			right_concr, right_expr = other, other
+		result_concr = fun(left_concr, right_concr)
+		result_expr  = ast.BinOp(left=left_expr,op=op(),right=right_expr)
+		return wrap(result_concr,result_expr)
 
 	# BELOW HERE is only for our use
 

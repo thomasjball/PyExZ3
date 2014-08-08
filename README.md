@@ -3,13 +3,14 @@ PyExZ3
 
 ###A Nicer Symbolic Execution for Python (Z3)
 
-This code is a port of the NICE project's (http://code.google.com/p/nice-of/) 
-symbolic execution engine for Python to use the Z3 theorem prover (http://z3.codeplex.com).
-The port removes all the NICE-specific dependences, platform-specific code, and
+This code is a port/rewrite of the NICE project's (http://code.google.com/p/nice-of/) 
+symbolic execution engine for Python to use the Z3 theorem prover (http://z3.codeplex.com). We have removed 
+the NICE-specific dependences, platform-specific code, and
 makes various improvements so the code base can be used by students or anyone wanting to
 experiment with dynamic symbolic execution. 
 
-A novel aspect of the rewrite is to rely on Python's operator overloading to accomplish all 
+A novel aspect of the rewrite is to rely solely
+on Python's operator overloading to accomplish all 
 the  interception needed for symbolic execution; no AST rewriting or bytecode instrumentation 
 is required, as was done in the NICE project. This significantly improves the robustness and 
 portability of the engine, as well as reducing the code size.

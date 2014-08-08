@@ -21,25 +21,22 @@ class SymbolicDict(SymbolicType,dict):
 	def __length__(self):
 		return dict.__length__(self)
 
-	# wrap the lvalue so that we maintain a pointer
-	# to the SymbolicDict log, which will allow us
-	# generate a load around the proper sequence of 
-	# stores/deletes
-
 	def __getitem__(self,key):
-		return self._do_bin_op(key, lambda d, k: d[k], ast.Index)
-
-		# create a new SymbolicType for
-		# value at d[key], the expression of this 
-		# SymbolicType will be Select(SymbolicDict,key)
-		log.append(("SELECT",key))
-		raise NotImplemented()
+		# we need to capture the current expression in self
+		# we could do this by creating a new SymbolicDict
+		val = super.__getitem__(key)
+		if isinstance(val,SymbolicType):
+			wrap = val.wrap
+		else
+			wrap = lambda c,s : c
+		return self._do_bin_op(key, lambda d, k: d.super.__getitem__(k), ast.Index, wrap)
 
 	def __setitem__(self,key,value):
+		dict.__setitem__(self,key,value)
+
 		# the log grows
 		# update the super
 		log.append(("STORE",key,value))
-		dict.__setitem__(self,key,value)
 
 	def __contains__(self,key):
 		for k in self.keys():
