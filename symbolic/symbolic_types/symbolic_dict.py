@@ -13,7 +13,8 @@ class SymbolicDict(SymbolicType,dict):
 
 	def __init__(self, name, v, expr=None):
 		SymbolicType.__init__(self, name, expr)
-		self.log = []
+		# we need to remember the initialization
+		self._init_val = v
 
 	def getConcrValue(self):
 		return self
@@ -22,8 +23,6 @@ class SymbolicDict(SymbolicType,dict):
 		return dict.__length__(self)
 
 	def __getitem__(self,key):
-		# we need to capture the current expression in self
-		# we could do this by creating a new SymbolicDict
 		val = super.__getitem__(key)
 		if isinstance(val,SymbolicType):
 			wrap = val.wrap
@@ -33,10 +32,8 @@ class SymbolicDict(SymbolicType,dict):
 
 	def __setitem__(self,key,value):
 		dict.__setitem__(self,key,value)
-
-		# the log grows
-		# update the super
-		log.append(("STORE",key,value))
+		# update the expression (this is a triple - not binary)
+		# self.expr = Store(self.expr,key,value)
 
 	def __contains__(self,key):
 		for k in self.keys():
@@ -45,8 +42,8 @@ class SymbolicDict(SymbolicType,dict):
 		return False
 
 	def __delitem__(self,key)
-		# the log grows
-		# update the super
 		if dict.__contains(self,key):
-			log.append(("DELETE",key))
+			pass
+			# self.expr = Delete(self.expr,key)
 		dict.__delitem__(self,key)
+

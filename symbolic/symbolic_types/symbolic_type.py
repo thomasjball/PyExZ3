@@ -2,6 +2,7 @@
 
 import utils
 import ast
+import inspect
 
 # the ABSTRACT base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
@@ -63,37 +64,36 @@ class SymbolicType(object):
 	def __ge__(self, other):
 		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicType.wrap)
 
-	# compute both the symbolic and concrete image of operator
 	# TODO: we should generalize this to s-expressions in order to 
 	# to accommodate unary and function calls
 
+	def _do_sexpr(self,args,fun,op,wrap):
+		unwrapped = [ (a.unwrap() if isinstance(a,SymbolicType) else (a,a)) for a in args ]
+		args = zip(inspect.getargspec(fun).args, [ c for (c,s) in unwrapped ])
+		result_concrete = fun(**dict([a for a in args]))
+		result_symbolic = [ op() ] + [ s for c,s in unwrapped ]
+		return wrap(result_concrete,result_symbolic)
+
+	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, op, wrap):
-		left_concr, left_expr = self.unwrap()
-		if isinstance(other, SymbolicType):
-			right_concr, right_expr = other.unwrap()
-		else:
-			right_concr, right_expr = other, other
-		result_concr = fun(left_concr, right_concr)
-		result_expr  = ast.BinOp(left=left_expr,op=op(),right=right_expr)
-		return wrap(result_concr,result_expr)
+		return self._do_sexpr([self,other], fun, op, wrap)
 
 	# BELOW HERE is only for our use
 
 	def symbolicEq(self, other):
 		if not isinstance(other,SymbolicType):
-			return False;
+			return False
 		if self.isVariable() or other.isVariable():
 			return self.name == other.name
-		return self._do_symbolicEq_expr(self.expr,other.expr)
+		return self._eq_worker(self.expr,other.expr)
 
-	def _do_symbolicEq_expr(self, expr1, expr2):
+	def _eq_worker(self, expr1, expr2):
 		if type(expr1) != type(expr2):
 			return False
-		if isinstance(expr1, ast.BinOp):
-			res = type(expr1.op) == type(expr2.op) and\
-				self._do_symbolicEq_expr(expr1.left, expr2.left) and\
-		               	self._do_symbolicEq_expr(expr1.right, expr2.right)
-			return res
+		if isinstance(expr1, list):
+			return len(expr1) == len(expr2) and\
+			       type(expr1[0]) == type(expr2[0]) and\
+                               all([ self._eq_worker(x,y) for x,y in zip(expr1[1:],expr2[1:]) ])
 		elif isinstance(expr1, SymbolicType):
 			return expr1.name == expr2.name
 		else:
@@ -106,8 +106,8 @@ class SymbolicType(object):
 			return self._toString(self.expr)
 
 	def _toString(self,expr):
-		if isinstance(expr,ast.BinOp):
-			return "(" + self._toString(expr.left) + " " + op2str(expr.op) + " " + self._toString(expr.right) + ")"
+		if isinstance(expr,list):
+			return "(" + op2str(expr[0]) + " " + str([ self._toString(a) for a in expr[1:] ]) + ")"
 		elif isinstance(expr,SymbolicType):
 			return expr.toString()
 		else:

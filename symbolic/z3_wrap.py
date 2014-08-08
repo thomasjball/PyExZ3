@@ -134,50 +134,51 @@ class Z3Wrapper(object):
 
 	# add concrete evaluation to this, to check
 	def _astToZ3Expr(self,expr,env=None):
-		if isinstance(expr, ast.BinOp):
-			z3_l = self._astToZ3Expr(expr.left,env)
-			z3_r = self._astToZ3Expr(expr.right,env)
+		if isinstance(expr,list):
+			op = expr[0]
+			args = [ self._astToZ3Expr(a,env) for a in expr[1:] ]
+			z3_l,z3_r = args[0],args[1]
 
 			# arithmetical operations
-			if isinstance(expr.op, ast.Add):
+			if isinstance(op, ast.Add):
 				return z3_l + z3_r
-			elif isinstance(expr.op, ast.Sub):
+			elif isinstance(op, ast.Sub):
 				return z3_l - z3_r
-			elif isinstance(expr.op, ast.Mult):
+			elif isinstance(op, ast.Mult):
 				return z3_l * z3_r
-			elif isinstance(expr.op, ast.Div):
+			elif isinstance(op, ast.Div):
 				return z3_l / z3_r
-			elif isinstance(expr.op, ast.Mod):
+			elif isinstance(op, ast.Mod):
 				return z3_l % z3_r
 
 			# bitwise
-			elif isinstance(expr.op, ast.LShift):
+			elif isinstance(op, ast.LShift):
 				return z3_l << z3_r
-			elif isinstance(expr.op, ast.RShift):
+			elif isinstance(op, ast.RShift):
 				return z3_l >> z3_r
-			elif isinstance(expr.op, ast.BitXor):
+			elif isinstance(op, ast.BitXor):
 				return z3_l ^ z3_r
-			elif isinstance(expr.op, ast.BitOr):
+			elif isinstance(op, ast.BitOr):
 				return z3_l | z3_r
-			elif isinstance(expr.op, ast.BitAnd):
+			elif isinstance(op, ast.BitAnd):
 				return z3_l & z3_r
 
 			# equality gets coerced to integer
-			elif isinstance(expr.op, ast.Eq):
+			elif isinstance(op, ast.Eq):
 				return self._wrapIf(z3_l == z3_r,env)
-			elif isinstance(expr.op, ast.NotEq):
+			elif isinstance(op, ast.NotEq):
 				return self._wrapIf(z3_l != z3_r,env)
-			elif isinstance(expr.op, ast.Lt):
+			elif isinstance(op, ast.Lt):
 				return self._wrapIf(z3_l < z3_r,env)
-			elif isinstance(expr.op, ast.Gt):
+			elif isinstance(op, ast.Gt):
 				return self._wrapIf(z3_l > z3_r,env)
-			elif isinstance(expr.op, ast.LtE):
+			elif isinstance(op, ast.LtE):
 				return self._wrapIf(z3_l <= z3_r,env)
-			elif isinstance(expr.op, ast.GtE):
+			elif isinstance(op, ast.GtE):
 				return self._wrapIf(z3_l >= z3_r,env)
 
 			else:
-				utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % expr.op)
+				utils.crash("Unknown operator during conversion from ast to Z3 (expressions): %s" % op)
 
 		elif isinstance(expr, SymbolicInteger):
 			if expr.isVariable():
