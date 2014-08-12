@@ -107,7 +107,7 @@ class SymbolicType(object):
 
 	def _toString(self,expr):
 		if isinstance(expr,list):
-			return "(" + op2str(expr[0]) + " " + str([ self._toString(a) for a in expr[1:] ]) + ")"
+			return "(" + op2str(expr[0]) + " " + ", ".join([ self._toString(a) for a in expr[1:] ]) + ")"
 		elif isinstance(expr,SymbolicType):
 			return expr.toString()
 		else:

@@ -106,6 +106,8 @@ class Z3Wrapper(object):
 			if (not mismatch):
 				mismatch = not (not self._to_Z3(self.pred_query,model))
 			return (res,mismatch)
+		elif res == unknown:
+			self.solver.pop()
 		return (res,False)
 
 	def _getIntVars(self):

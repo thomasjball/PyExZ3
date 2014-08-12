@@ -28,12 +28,15 @@ class SymbolicDict(SymbolicType,dict):
 			wrap = val.wrap
 		else
 			wrap = lambda c,s : c
-		return self._do_bin_op(key, lambda d, k: d.super.__getitem__(k), ast.Index, wrap)
+		return self._do_bin_op(key, lambda d, k: val, ast.Index, wrap)
 
 	def __setitem__(self,key,value):
-		dict.__setitem__(self,key,value)
 		# update the expression (this is a triple - not binary)
-		# self.expr = Store(self.expr,key,value)
+		concrete, symbolic =\
+			self._do_sexpr([self,key,value], lambda d, k, v : d.super.__setitem__(k,v), ast.Store,\
+					lambda c, s: c, s)
+		# note that we do an in place update of 
+                self.expr = symbolic
 
 	def __contains__(self,key):
 		for k in self.keys():
