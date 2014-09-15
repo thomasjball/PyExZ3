@@ -11,13 +11,10 @@ class Z3Expression(object):
 
 	def toZ3(self,solver,asserts,query):
 		self.z3_vars = {}
-		solver.assert_exprs([self._toZ3(p,solver) for p in asserts])
-		solver.assert_exprs(Not(self._toZ3(query,solver)))
+		solver.assert_exprs([self.predToZ3(p,solver) for p in asserts])
+		solver.assert_exprs(Not(self.predToZ3(query,solver)))
 
-	def getIntVars(self):
-		return [ v[1] for v in self.z3_vars.items() if self._isIntVar(v[1]) ]
-
-	def _toZ3(self,pred,solver,env=None):
+	def predToZ3(self,pred,solver,env=None):
 		sym_expr = self._astToZ3Expr(pred.symtype,solver,env)
 		if env == None:
 			if not is_bool(sym_expr):
@@ -28,6 +25,11 @@ class Z3Expression(object):
 			if not pred.result:
 				sym_expr = not sym_expr
 		return sym_expr
+
+	def getIntVars(self):
+		return [ v[1] for v in self.z3_vars.items() if self._isIntVar(v[1]) ]
+
+	# ----------- private ---------------
 
 	def _isIntVar(self, v):
 		raise NotImplementedException

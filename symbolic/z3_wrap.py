@@ -15,7 +15,7 @@ class Z3Wrapper(object):
 		self.N = 32
 		self.asserts = None
 		self.query = None
-		self.use_lia = False
+		self.use_lia = True
 		self.z3_expr = None
 
 	def findCounterexample(self, asserts, query):
@@ -98,12 +98,12 @@ class Z3Wrapper(object):
 			self.solver.pop()
 			mismatch = False
 			for a in self.asserts:
-				eval = self.z3_expr._toZ3(a,self.solver,model)
+				eval = self.z3_expr.predToZ3(a,self.solver,model)
 				if (not eval):
 					mismatch = True
 					break
 			if (not mismatch):
-				mismatch = not (not self.z3_expr._toZ3(self.query,self.solver,model))
+				mismatch = not (not self.z3_expr.predToZ3(self.query,self.solver,model))
 			return (res,mismatch)
 		elif res == unknown:
 			self.solver.pop()
