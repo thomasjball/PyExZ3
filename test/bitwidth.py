@@ -5,4 +5,4 @@ def bitwidth(a):
 		return 1
 
 def expected_result():
-	return [1,1]
+	return [1]

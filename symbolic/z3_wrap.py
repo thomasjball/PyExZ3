@@ -5,23 +5,24 @@ import ast
 import logging
 import utils
 from z3 import *
-from .symbolic_types.symbolic_int import SymbolicInteger
-from .symbolic_types.symbolic_type import SymbolicType
+from .z3_expr.integer import Z3IntegerExpression
+from .z3_expr.bitvector import Z3BitVectorExpression
 
 class Z3Wrapper(object):
 	def __init__(self):
 		self.log = logging.getLogger("se.z3")
 		self.solver = Solver()
-		self.z3_vars = {}
 		self.N = 32
-		self.pred_asserts = None
-		self.pred_query = None
+		self.asserts = None
+		self.query = None
+		self.use_lia = False
+		self.z3_expr = None
 
 	def findCounterexample(self, asserts, query):
 		"""Tries to find a counterexample to the query while
 	  	 asserts remains valid."""
-		self.pred_asserts = asserts
-		self.pred_query = query
+		self.asserts = asserts
+		self.query = query
 		return self._findModel()
 
 	# private
@@ -31,32 +32,14 @@ class Z3Wrapper(object):
 		model = self.solver.model()
 		#print("Model is ")
 		#print(model)
-		for name in self.z3_vars.keys():
+		for name in self.z3_expr.z3_vars.keys():
 			try:
-				ce = model.eval(self.z3_vars[name])
+				ce = model.eval(self.z3_expr.z3_vars[name])
 				res[name] = ce.as_signed_long()
 			except:
 				pass
 		return res
 	
-	# turn the validity query (assertions => query) into satisfiability in Z3
-	def _generateZ3(self):
-		self.z3_vars = {}
-		self.solver.assert_exprs([self._to_Z3(p) for p in self.pred_asserts])
-		self.solver.assert_exprs(Not(self._to_Z3(self.pred_query)))
-
-	def _to_Z3(self,pred,env=None):
-		sym_expr = self._astToZ3Expr(pred.symtype,env)
-		if env == None:
-			if not is_bool(sym_expr):
-				sym_expr = sym_expr != self._int2BitVec(0)
-			if not pred.result:
-				sym_expr = Not(sym_expr)
-		else:
-			if not pred.result:
-				sym_expr = not sym_expr
-		return sym_expr
-
 	def _findModel(self):
 		self.N = 32
 		self.bound = (1 << 4) - 1
@@ -76,14 +59,29 @@ class Z3Wrapper(object):
 		elif ret == unknown:
 			self.log.error("Z3: UNKNOWN")
 			res = None
-		else:
+		elif not mismatch:
 			res = self._getModel()
+		else:
+			res = None
 		if self.N<=64: self.solver.pop()
 		return res
 
 	def _findModel2(self):
-		self._generateZ3()
-		int_vars = self._getIntVars()
+		# Try QF_LIA first (as it may fairly easily recognize unsat instances)
+		if self.use_lia:
+			self.solver.push()
+			self.z3_expr = Z3IntegerExpression()
+			int_vars = self.z3_expr.getIntVars()
+			self.z3_expr.toZ3(self.solver,self.asserts,self.query)
+			res = self.solver.check()
+			#print(self.solver.assertions)
+			self.solver.pop()
+			if res == unsat:
+				return (res,False)
+
+		self.z3_expr = Z3BitVectorExpression(self.N)
+		self.z3_expr.toZ3(self.solver,self.asserts,self.query)
+		int_vars = self.z3_expr.getIntVars()
 		res = unsat
 		while res == unsat and self.bound < (1 << self.N):
 			self.solver.push()
@@ -96,109 +94,23 @@ class Z3Wrapper(object):
 		if res == sat:
 			# Does concolic agree with Z3? If not, it may be due to overflow
 			model = self._getModel()
+			# print(self.solver.assertions)
 			self.solver.pop()
 			mismatch = False
-			for a in self.pred_asserts:
-				eval = self._to_Z3(a,model)
+			for a in self.asserts:
+				eval = self.z3_expr._toZ3(a,self.solver,model)
 				if (not eval):
 					mismatch = True
 					break
 			if (not mismatch):
-				mismatch = not (not self._to_Z3(self.pred_query,model))
+				mismatch = not (not self.z3_expr._toZ3(self.query,self.solver,model))
 			return (res,mismatch)
 		elif res == unknown:
 			self.solver.pop()
 		return (res,False)
 
-	def _getIntVars(self):
-	 	return [ v[1] for v in self.z3_vars.items() if isinstance(v[1],BitVecRef) ]
-
 	def _boundIntegers(self,vars,val):
 		bval = BitVecVal(val,self.N,self.solver.ctx)
 		bval_neg = BitVecVal(-val+1,self.N,self.solver.ctx)
 		return And([ v <= bval for v in vars]+[ bval_neg < v for v in vars])
-
-	def _getIntegerVariable(self,name):
-		if name not in self.z3_vars:
-			self.z3_vars[name] = BitVec(name,self.N, self.solver.ctx)
-		else:
-			self.log.error("Trying to create a duplicate variable")
-		return self.z3_vars[name]
-
-	def _int2BitVec(self,v):
-		return BitVecVal(v, self.N, self.solver.ctx)
-
-	def _wrapIf(self,e,env):
-		if env == None:
-			return If(e,self._int2BitVec(1),self._int2BitVec(0))
-		else:
-			return e
-
-	# add concrete evaluation to this, to check
-	def _astToZ3Expr(self,expr,env=None):
-		if isinstance(expr,list):
-			op = expr[0]
-			args = [ self._astToZ3Expr(a,env) for a in expr[1:] ]
-			z3_l,z3_r = args[0],args[1]
-
-			# arithmetical operations
-			if isinstance(op, ast.Add):
-				return z3_l + z3_r
-			elif isinstance(op, ast.Sub):
-				return z3_l - z3_r
-			elif isinstance(op, ast.Mult):
-				return z3_l * z3_r
-			elif isinstance(op, ast.Div):
-				return z3_l / z3_r
-			elif isinstance(op, ast.Mod):
-				return z3_l % z3_r
-
-			# bitwise
-			elif isinstance(op, ast.LShift):
-				return z3_l << z3_r
-			elif isinstance(op, ast.RShift):
-				return z3_l >> z3_r
-			elif isinstance(op, ast.BitXor):
-				return z3_l ^ z3_r
-			elif isinstance(op, ast.BitOr):
-				return z3_l | z3_r
-			elif isinstance(op, ast.BitAnd):
-				return z3_l & z3_r
-
-			# equality gets coerced to integer
-			elif isinstance(op, ast.Eq):
-				return self._wrapIf(z3_l == z3_r,env)
-			elif isinstance(op, ast.NotEq):
-				return self._wrapIf(z3_l != z3_r,env)
-			elif isinstance(op, ast.Lt):
-				return self._wrapIf(z3_l < z3_r,env)
-			elif isinstance(op, ast.Gt):
-				return self._wrapIf(z3_l > z3_r,env)
-			elif isinstance(op, ast.LtE):
-				return self._wrapIf(z3_l <= z3_r,env)
-			elif isinstance(op, ast.GtE):
-				return self._wrapIf(z3_l >= z3_r,env)
-
-			else:
-				utils.crash("Unknown operator during conversion from ast to Z3 (expressions): %s" % op)
-
-		elif isinstance(expr, SymbolicInteger):
-			if expr.isVariable():
-				if env == None:
-					return self._getIntegerVariable(expr.name)
-				else:
-					return env[expr.name]
-			else:
-				return self._astToZ3Expr(expr.expr,env)
-
-		elif isinstance(expr, SymbolicType):
-			return self._astToZ3Expr(expr.expr,env)
-
-		elif isinstance(expr, int):
-			if env == None:
-				return self._int2BitVec(expr)
-			else:
-				return expr
-		else:
-			utils.crash("Unknown node during conversion from ast to Z3 (expressions): %s" % expr)
 
