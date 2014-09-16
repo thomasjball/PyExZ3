@@ -24,7 +24,7 @@ class Z3Wrapper(object):
 		self.asserts = asserts
 		self.query = query
 		res = self._findModel()
-		if (True):
+		if (False):
 			print("-- Asserts")
 			print(asserts)
 			print("-- Query")

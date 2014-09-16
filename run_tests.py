@@ -45,3 +45,6 @@ for f in files:
 
 if not passed:
 	print("RUN FAILED")
+	sys.exit(1)
+else:
+	sys.exit(0)
