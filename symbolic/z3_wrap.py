@@ -15,7 +15,7 @@ class Z3Wrapper(object):
 		self.N = 32
 		self.asserts = None
 		self.query = None
-		self.use_lia = False
+		self.use_lia = True
 		self.z3_expr = None
 
 	def findCounterexample(self, asserts, query):
@@ -23,13 +23,14 @@ class Z3Wrapper(object):
 	  	 asserts remains valid."""
 		self.asserts = asserts
 		self.query = query
-		#print("-- Asserts")
-		#print(asserts)
-		#print("-- Query")
-		#print(query)
 		res = self._findModel()
-		#print("-- Result")
-		#print(res)
+		if (True):
+			print("-- Asserts")
+			print(asserts)
+			print("-- Query")
+			print(query)
+			print("-- Result")
+			print(res)
 		return res
 
 	# private
@@ -37,8 +38,6 @@ class Z3Wrapper(object):
 	def _getModel(self):
 		res = {}
 		model = self.solver.model()
-		#print("Model is ")
-		#print(model)
 		for name in self.z3_expr.z3_vars.keys():
 			try:
 				ce = model.eval(self.z3_expr.z3_vars[name])
@@ -88,7 +87,7 @@ class Z3Wrapper(object):
 		self.z3_expr.toZ3(self.solver,self.asserts,self.query)
 		int_vars = self.z3_expr.getIntVars()
 		res = unsat
-		while res == unsat and self.bound < (1 << self.N):
+		while res == unsat and self.bound <= (1 << (self.N-1))-1:
 			self.solver.push()
 			constraints = self._boundIntegers(int_vars,self.bound)
 			self.solver.assert_exprs(constraints)
@@ -99,7 +98,8 @@ class Z3Wrapper(object):
 		if res == sat:
 			# Does concolic agree with Z3? If not, it may be due to overflow
 			model = self._getModel()
-			# print(self.solver.assertions)
+			#print("Match?")
+			#print(self.solver.assertions)
 			self.solver.pop()
 			mismatch = False
 			for a in self.asserts:
@@ -109,6 +109,7 @@ class Z3Wrapper(object):
 					break
 			if (not mismatch):
 				mismatch = not (not self.z3_expr.predToZ3(self.query,self.solver,model))
+			#print(mismatch)
 			return (res,mismatch)
 		elif res == unknown:
 			self.solver.pop()
@@ -116,6 +117,6 @@ class Z3Wrapper(object):
 
 	def _boundIntegers(self,vars,val):
 		bval = BitVecVal(val,self.N,self.solver.ctx)
-		bval_neg = BitVecVal(-val+1,self.N,self.solver.ctx)
-		return And([ v <= bval for v in vars]+[ bval_neg < v for v in vars])
+		bval_neg = BitVecVal(-val-1,self.N,self.solver.ctx)
+		return And([ v <= bval for v in vars]+[ bval_neg <= v for v in vars])
 

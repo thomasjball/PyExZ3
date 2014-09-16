@@ -31,6 +31,7 @@ if not os.path.isdir(test_dir):
 
 files = [ f for f in os.listdir(test_dir) if re.search(".py$",f) ]
 
+passed = 1
 for f in files:
 	# execute the python runner for this test
         full = test_dir + os.sep + f
@@ -39,4 +40,8 @@ for f in files:
         if (ret == 0):
             myprint(bcolors.SUCCESS, "✓", "Test " + f + " passed.")
         else:
+            passed = 0
             myprint(bcolors.FAIL, "✗", "Test " + f + " failed.")
+
+if not passed:
+	print("RUN FAILED")
