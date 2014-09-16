@@ -5,6 +5,7 @@ import utils
 
 log = logging.getLogger("se.predicate")
 
+# TODO: walk the call stack and get the program counter
 class Predicate:
 	"""Predicate is one specific ``if'' encountered during the program execution.
 	   """

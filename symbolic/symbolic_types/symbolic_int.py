@@ -48,10 +48,10 @@ class SymbolicInteger(SymbolicType,int):
 	def __rmod__(self,other):
 		return self.__mod__(other)
 
-	def __div__(self, other):
-		return self._do_bin_op(other, lambda x, y: x / y, ast.Div, SymbolicInteger.wrap)
-	def __rdiv__(self,other):
-		return self.__div__(other)
+	def __floordiv__(self, other):
+		return self._do_bin_op(other, lambda x, y: x // y, ast.Div, SymbolicInteger.wrap)
+	def __rfloordiv__(self,other):
+		return self.__floordiv__(other)
 
 	# bit level operations
 

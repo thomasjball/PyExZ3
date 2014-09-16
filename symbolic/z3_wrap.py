@@ -15,7 +15,7 @@ class Z3Wrapper(object):
 		self.N = 32
 		self.asserts = None
 		self.query = None
-		self.use_lia = True
+		self.use_lia = False
 		self.z3_expr = None
 
 	def findCounterexample(self, asserts, query):
@@ -23,7 +23,14 @@ class Z3Wrapper(object):
 	  	 asserts remains valid."""
 		self.asserts = asserts
 		self.query = query
-		return self._findModel()
+		#print("-- Asserts")
+		#print(asserts)
+		#print("-- Query")
+		#print(query)
+		res = self._findModel()
+		#print("-- Result")
+		#print(res)
+		return res
 
 	# private
 
@@ -41,6 +48,16 @@ class Z3Wrapper(object):
 		return res
 	
 	def _findModel(self):
+		# Try QF_LIA first (as it may fairly easily recognize unsat instances)
+		if self.use_lia:
+			self.solver.push()
+			self.z3_expr = Z3IntegerExpression()
+			self.z3_expr.toZ3(self.solver,self.asserts,self.query)
+			res = self.solver.check()
+			#print(self.solver.assertions)
+			self.solver.pop()
+			if res == unsat:
+				return None
 		self.N = 32
 		self.bound = (1 << 4) - 1
 		while self.N <= 64:
@@ -67,18 +84,6 @@ class Z3Wrapper(object):
 		return res
 
 	def _findModel2(self):
-		# Try QF_LIA first (as it may fairly easily recognize unsat instances)
-		if self.use_lia:
-			self.solver.push()
-			self.z3_expr = Z3IntegerExpression()
-			int_vars = self.z3_expr.getIntVars()
-			self.z3_expr.toZ3(self.solver,self.asserts,self.query)
-			res = self.solver.check()
-			#print(self.solver.assertions)
-			self.solver.pop()
-			if res == unsat:
-				return (res,False)
-
 		self.z3_expr = Z3BitVectorExpression(self.N)
 		self.z3_expr.toZ3(self.solver,self.asserts,self.query)
 		int_vars = self.z3_expr.getIntVars()

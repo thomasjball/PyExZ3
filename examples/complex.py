@@ -10,7 +10,7 @@ def complex(x,y):
     else:
       return 2
 
-def expected_results():
-	return [0,1,2]
+def expected_result():
+	return [0,1,2,None]
 
 

@@ -1,5 +1,6 @@
 import ast
 import logging
+import utils
 from symbolic.symbolic_types.symbolic_int import SymbolicInteger
 from symbolic.symbolic_types.symbolic_type import SymbolicType
 from z3 import *

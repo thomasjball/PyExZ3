@@ -49,16 +49,17 @@ class PathToConstraint:
 			# check for path mismatch
 			if self.expected_path != None and self.expected_path != []:
 				expected = self.expected_path.pop()
-				if (not expected.symtype.symbolicEq(c.predicate.symtype) or expected.result == c.predicate.result):
-					print("Replay mismatch")
+				#if (not expected.symtype.symbolicEq(c.predicate.symtype) or 
+				if (expected.result == c.predicate.result):
+					print("Replay mismatch [end]")
 					print(expected)
 					print(c.predicate)
 		else:
 			# check for path mismatch
 			if self.expected_path != None and self.expected_path != []:
 				expected = self.expected_path.pop()
-				if (c.predicate != expected):
-					print("Replay mismatch")
+				if (c.predicate.result != expected.result):
+					print("Replay mismatch [interior]")
 					print(expected)
 					print(c.predicate)
 
