@@ -54,10 +54,10 @@ class Loader:
 				bag[i] = 1
 		return bag
 
-	def check(self, computed, expected):
+	def check(self, computed, expected, as_bag=True):
 		b_c = self.to_bag(computed)
 		b_e = self.to_bag(expected)
-		if len(computed) != len(expected) or b_c != b_e:
+		if as_bag and b_c != b_e or not as_bag and set(computed) != set(expected):
 			print("-------------------> %s test failed <---------------------" % self.test_name)
 			print("Expected: %s, found: %s" % (b_e, b_c))
 			return False
@@ -69,6 +69,9 @@ class Loader:
 		if "expected_result" in self.app.__dict__:
 			print(return_vals)
 			return self.check(return_vals, self.app.__dict__["expected_result"]())
+		if "expected_result_set" in self.app.__dict__:
+			print(return_vals)
+			return self.check(return_vals, self.app.__dict__["expected_result_set"](),False)
 		else:
 			print(self.test_name + ".py contains no expected_result function")
 			return None

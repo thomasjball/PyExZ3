@@ -3,6 +3,7 @@
 import utils
 import ast
 import inspect
+import functools
 
 # the ABSTRACT base class for representing any expression that depends on a symbolic input
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
@@ -23,11 +24,27 @@ class SymbolicType(object):
 		else:
 			return (self.getConcrValue(),self.expr)
 
-	def getConcrValue():
+	def getConcrValue(self):
 		raise NotImplemented()
 
 	def wrap(conc,sym):
 		raise NotImplemented()
+
+	def getVars(self):
+		if self.isVariable():
+			return [self.name]
+		elif isinstance(self.expr,list):
+			return self._getVarsLeaves(self.expr)
+		else:
+			return []
+
+	def _getVarsLeaves(self,l):
+		if isinstance(l,list):
+			return functools.reduce(lambda a, x: self._getVarsLeaves(x) + a,l,[])
+		elif isinstance(l,SymbolicType):
+			return [l.name]
+		else:
+			return []
 
 	# this is a critical interception point: the __bool__
 	# method is called whenever a predicate is evaluated in

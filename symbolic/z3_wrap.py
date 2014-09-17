@@ -21,31 +21,32 @@ class Z3Wrapper(object):
 	def findCounterexample(self, asserts, query):
 		"""Tries to find a counterexample to the query while
 	  	 asserts remains valid."""
-		self.asserts = asserts
 		self.query = query
+		self.asserts = self._coneOfInfluence(asserts,query)
 		res = self._findModel()
 		if (False):
+			print("-- Query")
+			print(self.query)
 			print("-- Asserts")
 			print(asserts)
-			print("-- Query")
-			print(query)
+			print("-- Cone")
+			print(self.asserts)
 			print("-- Result")
 			print(res)
 		return res
 
 	# private
 
-	def _getModel(self):
-		res = {}
-		model = self.solver.model()
-		for name in self.z3_expr.z3_vars.keys():
-			try:
-				ce = model.eval(self.z3_expr.z3_vars[name])
-				res[name] = ce.as_signed_long()
-			except:
-				pass
-		return res
-	
+	def _coneOfInfluence(self,asserts,query):
+		cone = []
+		cone_vars = set(query.getVars())
+		for a in asserts:
+			a_vars = set(a.getVars())
+			if len(a_vars & cone_vars) > 0:
+				cone_vars = cone_vars.union(a_vars)
+				cone.append(a)
+		return cone
+
 	def _findModel(self):
 		# Try QF_LIA first (as it may fairly easily recognize unsat instances)
 		if self.use_lia:
@@ -115,6 +116,17 @@ class Z3Wrapper(object):
 			self.solver.pop()
 		return (res,False)
 
+	def _getModel(self):
+		res = {}
+		model = self.solver.model()
+		for name in self.z3_expr.z3_vars.keys():
+			try:
+				ce = model.eval(self.z3_expr.z3_vars[name])
+				res[name] = ce.as_signed_long()
+			except:
+				pass
+		return res
+	
 	def _boundIntegers(self,vars,val):
 		bval = BitVecVal(val,self.N,self.solver.ctx)
 		bval_neg = BitVecVal(-val-1,self.N,self.solver.ctx)

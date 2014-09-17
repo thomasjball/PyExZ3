@@ -35,6 +35,8 @@ class ConcolicEngine:
 
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
+		# make sure to remember the input that led to this constraint
+		constraint.inputs = self.invocation.getInputs()
 
 	def isExplorationComplete(self):
 		num_constr = len(self.constraints_to_solve)
@@ -78,8 +80,9 @@ class ConcolicEngine:
 			selected = self.constraints_to_solve.popleft()
 			if selected.processed:
 				continue
+			self.invocation.setInputs(selected.inputs)			
 
-			log.info("Solving constraint %s" % selected)
+			log.info("Selected constraint %s" % selected)
 			stats.pushProfile("constraint solving")
 			model = selected.processConstraint(self.solver)
 			stats.popProfile()

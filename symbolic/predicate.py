@@ -13,6 +13,9 @@ class Predicate:
 		self.symtype = st
 		self.result = result
 
+	def getVars(self):
+		return self.symtype.getVars()
+
 	def __eq__(self, other):
 		if isinstance(other, Predicate):
 			res = self.result == other.result and self.symtype.symbolicEq(other.symtype)

@@ -17,4 +17,10 @@ class FunctionInvocation:
 	def updateSymbolicParameter(self, name, val):
 		self.symbolic_inputs[name] = self.symbolic_constructor[name](name,val)
 
+	def getInputs(self):
+		return self.symbolic_inputs.copy()
+
+	def setInputs(self,d):
+		self.symbolic_inputs = d
+
 

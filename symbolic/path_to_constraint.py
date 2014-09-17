@@ -46,22 +46,19 @@ class PathToConstraint:
 			log.debug("New constraint: %s" % c)
 			self.engine.addConstraint(c)
 			
-			# check for path mismatch
-			if self.expected_path != None and self.expected_path != []:
-				expected = self.expected_path.pop()
-				#if (not expected.symtype.symbolicEq(c.predicate.symtype) or 
-				if (expected.result == c.predicate.result):
-					print("Replay mismatch [end]")
-					print(expected)
-					print(c.predicate)
-		else:
-			# check for path mismatch
-			if self.expected_path != None and self.expected_path != []:
-				expected = self.expected_path.pop()
-				if (c.predicate.result != expected.result):
-					print("Replay mismatch [interior]")
-					print(expected)
-					print(c.predicate)
+		# check for path mismatch
+		# IMPORTANT: note that we don't actually check the predicate is the
+		# same one, just that the direction taken is the same
+		if self.expected_path != None and self.expected_path != []:
+			expected = self.expected_path.pop()
+			# while not at the end of the path, we expect the same predicate result
+			# at the end of the path, we expect a different predicate result
+			done = self.expected_path == []
+			if ( not done and expected.result != c.predicate.result or \
+				done and expected.result == c.predicate.result ):
+				print("Replay mismatch (done=",done,")")
+				print(expected)
+				print(c.predicate)
 
 		if cneg is not None:
 			# We've already processed both

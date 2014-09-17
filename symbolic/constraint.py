@@ -9,6 +9,7 @@ class Constraint:
 	"""A constraint is a list of predicates leading to some specific
 	   position in the code."""
 	def __init__(self, parent, last_predicate):
+		self.inputs = None
 		self.predicate = last_predicate
 		self.processed = False
 		self.parent = parent
