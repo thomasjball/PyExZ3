@@ -2,7 +2,7 @@
 
 # Test if engine explores all paths
 
-from sym_exec_lib.se_dict import SymbolicDictionary
+from lib.se_dict import SymbolicDictionary
 
 def dictionary(in1):
     d = SymbolicDictionary({})
