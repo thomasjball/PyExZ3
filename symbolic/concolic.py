@@ -89,7 +89,7 @@ class ConcolicEngine:
 
 			if model == None:
 				log.warning("Unsolvable constraints, skipping iteration")
-				iterations += 1
+				#iterations += 1
 				continue
 			else:
 				for name in model.keys():

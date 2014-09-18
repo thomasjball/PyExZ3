@@ -37,14 +37,20 @@ class Z3Wrapper(object):
 
 	# private
 
+	# this is very inefficient
 	def _coneOfInfluence(self,asserts,query):
 		cone = []
 		cone_vars = set(query.getVars())
-		for a in asserts:
+		ws = [ a for a in asserts if len(set(a.getVars()) & cone_vars) > 0 ]
+		remaining = [ a for a in asserts if a not in ws ]
+		while len(ws) > 0:
+			a = ws.pop()
 			a_vars = set(a.getVars())
-			if len(a_vars & cone_vars) > 0:
-				cone_vars = cone_vars.union(a_vars)
-				cone.append(a)
+			cone_vars = cone_vars.union(a_vars)
+			cone.append(a)
+			new_ws = [ a for a in remaining if len(set(a.getVars()) & cone_vars) > 0 ]
+			remaining = [ a for a in remaining if a not in new_ws ]
+			ws = ws + new_ws
 		return cone
 
 	def _findModel(self):
