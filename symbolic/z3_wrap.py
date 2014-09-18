@@ -11,7 +11,6 @@ from .z3_expr.bitvector import Z3BitVectorExpression
 class Z3Wrapper(object):
 	def __init__(self):
 		self.log = logging.getLogger("se.z3")
-		self.solver = Solver()
 		self.N = 32
 		self.asserts = None
 		self.query = None
@@ -21,6 +20,7 @@ class Z3Wrapper(object):
 	def findCounterexample(self, asserts, query):
 		"""Tries to find a counterexample to the query while
 	  	 asserts remains valid."""
+		self.solver = Solver()
 		self.query = query
 		self.asserts = self._coneOfInfluence(asserts,query)
 		res = self._findModel()
@@ -64,7 +64,31 @@ class Z3Wrapper(object):
 			self.solver.pop()
 			if res == unsat:
 				return None
+
+		# unsound check for unsat at 32 bits
+
 		self.N = 32
+		self.solver.push()
+		self._setAssertsQuery()
+		ret = self.solver.check()
+		self.solver.pop()
+		if ret == unsat:
+			return None
+
+		# If we were interested in really proving UNSAT,
+		# we would need to generate an overapproximation
+		# of the formula from the proof of UNSAT, as in
+		# @incollection{
+		# year={2007},
+		# booktitle={Tools and Algorithms for the Construction and Analysis of Systems},
+		# volume={4424},
+		# series={Lecture Notes in Computer Science},
+		# title={Deciding Bit-Vector Arithmetic with Abstraction},
+		# author={Bryant, RandalE. and Kroening, Daniel and Ouaknine, Joël and Seshia, SanjitA. and Strichman, Ofer and Brady, Bryan},
+		# pages={358-372},
+		# }
+
+		# now, go for SAT with bounds
 		self.bound = (1 << 4) - 1
 		while self.N <= 64:
 			self.solver.push()
@@ -89,9 +113,12 @@ class Z3Wrapper(object):
 		if self.N<=64: self.solver.pop()
 		return res
 
-	def _findModel2(self):
+	def _setAssertsQuery(self):
 		self.z3_expr = Z3BitVectorExpression(self.N)
 		self.z3_expr.toZ3(self.solver,self.asserts,self.query)
+
+	def _findModel2(self):
+		self._setAssertsQuery()
 		int_vars = self.z3_expr.getIntVars()
 		res = unsat
 		while res == unsat and self.bound <= (1 << (self.N-1))-1:

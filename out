@@ -1,0 +1,36 @@
+PyExZ3 (Python Symbolic Execution via Z3)
+Running PyExZ3 on whileloop
+[('x', 0)]
+None
+[('x', -16)]
+None
+[('x', 10)]
+None
+[('x', 4)]
+None
+[('x', 1)]
+None
+[('x', 2)]
+None
+[('x', 3)]
+None
+[('x', 8)]
+None
+[('x', 5)]
+None
+[('x', 6)]
+None
+[('x', 7)]
+None
+[('x', 9)]
+None
+---- Execution summary ----
+  measurement name  |   samples   |   wclock avg   |   wclock tot   |   wclock max   |    CPU tot
+    engine only     |      1      |     0.945      |     0.945      |     0.945      |     0.945      
+ constraint solving |      31     |     0.029      |     0.902      |     0.095      |     0.898      
+      se total      |      1      |     0.945      |     0.945      |     0.945      |     0.945      
+ single invocation  |      12     |     0.002      |     0.023      |     0.005      |     0.025      
+
+explored paths: 12
+
+whileloop.py contains no expected_result function

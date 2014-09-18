@@ -7,20 +7,16 @@
 class FunctionInvocation:
 	def __init__(self, function):
 		self.function = function
-		self.symbolic_inputs = {}  # string -> SymbolicType
 		self.symbolic_constructor = {}
 
-	def addSymbolicParameter(self, name, constructor, val):
+	def addSymbolicParameter(self, name, constructor):
 		self.symbolic_constructor[name] = constructor
-		self.symbolic_inputs[name] = constructor(name,val)
 
-	def updateSymbolicParameter(self, name, val):
-		self.symbolic_inputs[name] = self.symbolic_constructor[name](name,val)
+	def getNames(self):
+		return self.symbolic_constructor.keys()
 
-	def getInputs(self):
-		return self.symbolic_inputs.copy()
+	def createParameterValue(self,name,val):
+		return self.symbolic_constructor[name](name,val)
 
-	def setInputs(self,d):
-		self.symbolic_inputs = d
-
+	
 

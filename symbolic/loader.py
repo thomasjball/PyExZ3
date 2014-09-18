@@ -7,8 +7,7 @@ import sys
 from .invocation import FunctionInvocation
 from .symbolic_types import SymbolicInteger
 
-def newInteger(name,val):
-	return SymbolicInteger(name,val)
+# TODO: we will need to generalize to allow user specification of symbolic types
 
 class Loader:
 	def __init__(self, filename):
@@ -22,7 +21,7 @@ class Loader:
 		func = self.app.__dict__[self.test_name]
 		argspec = inspect.getargspec(func)
 		for a in argspec.args:
-			inv.addSymbolicParameter(a, newInteger, 0)
+			inv.addSymbolicParameter(a, lambda n,v : SymbolicInteger(n,v))
 		return inv
 
 	def reset_callback(self,firstpass=False):

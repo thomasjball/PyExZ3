@@ -35,7 +35,7 @@ failed = []
 for f in files:
 	# execute the python runner for this test
         full = test_dir + os.sep + f
-        ret = os.system(sys.executable + " sym_exec.py --m=50 " + full +" > out")
+        ret = os.system(sys.executable + " sym_exec.py --m=25 " + full +" > out")
         if (ret == 0):
             myprint(bcolors.SUCCESS, "✓", "Test " + f + " passed.")
         else:

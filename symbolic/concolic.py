@@ -16,6 +16,11 @@ stats = getStats()
 class ConcolicEngine:
 	def __init__(self, funcinv, reset, options):
 		self.invocation = funcinv
+		# the input to the function
+		self.symbolic_inputs = {}  # string -> SymbolicType
+		# TODO: we need to get default values from the type instead
+		for n in funcinv.getNames():
+			self.symbolic_inputs[n] = funcinv.createParameterValue(n,0)
 		self.reset_func = reset
 		self.options = options
 
@@ -33,10 +38,20 @@ class ConcolicEngine:
 		self.execution_return_values = []
 		stats.newCounter("explored paths")
 
+	def updateSymbolicParameter(self, name, val):
+		self.symbolic_inputs[name] = self.invocation.createParameterValue(name,val)
+
+	def getInputs(self):
+		# TODOthis could be optimized
+		return self.symbolic_inputs.copy()
+
+	def setInputs(self,d):
+		self.symbolic_inputs = d
+
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
 		# make sure to remember the input that led to this constraint
-		constraint.inputs = self.invocation.getInputs()
+		constraint.inputs = self.getInputs()
 
 	def isExplorationComplete(self):
 		num_constr = len(self.constraints_to_solve)
@@ -51,12 +66,12 @@ class ConcolicEngine:
 		stats.incCounter("explored paths")
 		self.reset_func()
 		stats.pushProfile("single invocation")
-		res = invocation.function(**invocation.symbolic_inputs)
+		res = invocation.function(**self.symbolic_inputs)
 		stats.popProfile()
 		return res
 
 	def record_inputs(self):
-		args = self.invocation.symbolic_inputs
+		args = self.symbolic_inputs
 		inputs = [ (k,args[k].getConcrValue()) for k in args ]
 		self.generated_inputs.append(inputs)
 		print(inputs)
@@ -80,7 +95,7 @@ class ConcolicEngine:
 			selected = self.constraints_to_solve.popleft()
 			if selected.processed:
 				continue
-			self.invocation.setInputs(selected.inputs)			
+			self.setInputs(selected.inputs)			
 
 			log.info("Selected constraint %s" % selected)
 			stats.pushProfile("constraint solving")
@@ -93,7 +108,7 @@ class ConcolicEngine:
 				continue
 			else:
 				for name in model.keys():
-					self.invocation.updateSymbolicParameter(name,model[name])
+					self.updateSymbolicParameter(name,model[name])
 
 			self.one_execution(selected)
 
