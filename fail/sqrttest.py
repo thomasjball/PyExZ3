@@ -1,7 +1,6 @@
 from math import sqrt
 
-# Test if engine explores all paths
-
+# sqrt is handled concretely, just as with pow (**)
 
 def sqrttest(in1):
     if sqrt(in1) == 0:

@@ -1,3 +1,6 @@
+# this one fails because we always start with zero for SymbolicIntegers
+# we should have a few seed values to avoid this.
+
 def divzero(in1,in2):
   try:
     if in1 / in2 >= 0:

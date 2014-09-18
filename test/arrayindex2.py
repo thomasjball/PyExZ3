@@ -1,9 +1,9 @@
 A = [0, 1, 0, 0, 1, 0, 1]
 
-def arrayindex2(a):
+def arrayindex2(i):
 
- if a in [ i for i in range(len(A)) if A[i] ]:
-   return a
+ if i in [ j for j in range(len(A)) if A[j] ]:
+   return i
  else:
    return "OTHER"
 
