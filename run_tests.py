@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import subprocess
 from optparse import OptionParser
 from sys import platform as _platform
 
@@ -34,8 +35,9 @@ files = [ f for f in os.listdir(test_dir) if re.search(".py$",f) ]
 failed = []
 for f in files:
 	# execute the python runner for this test
-        full = test_dir + os.sep + f
-        ret = os.system(sys.executable + " sym_exec.py --m=25 " + full +" > out")
+        full = os.path.join(test_dir, f)
+        with open(os.devnull, 'w') as devnull:
+            ret = subprocess.call([sys.executable, "sym_exec.py", "--m=25", full], stdout=devnull)
         if (ret == 0):
             myprint(bcolors.SUCCESS, "✓", "Test " + f + " passed.")
         else:
