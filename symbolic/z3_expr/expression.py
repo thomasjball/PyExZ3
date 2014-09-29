@@ -1,6 +1,7 @@
 import ast
 import logging
 import utils
+
 from symbolic.symbolic_types.symbolic_int import SymbolicInteger
 from symbolic.symbolic_types.symbolic_type import SymbolicType
 from z3 import *
@@ -98,7 +99,6 @@ class Z3Expression(object):
 				return self._wrapIf(z3_l <= z3_r,solver,env)
 			elif isinstance(op, ast.GtE):
 				return self._wrapIf(z3_l >= z3_r,solver,env)
-
 			else:
 				utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % op)
 

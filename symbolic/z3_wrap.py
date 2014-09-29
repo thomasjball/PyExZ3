@@ -3,7 +3,7 @@
 import sys
 import ast
 import logging
-import utils
+
 from z3 import *
 from .z3_expr.integer import Z3IntegerExpression
 from .z3_expr.bitvector import Z3BitVectorExpression

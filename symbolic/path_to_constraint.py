@@ -1,7 +1,6 @@
 # Copyright: see copyright.txt
 
 import logging
-import utils
 
 from .predicate import Predicate
 from .constraint import Constraint

@@ -3,7 +3,6 @@
 from collections import deque
 import logging
 import os
-from stats import getStats
 
 from .z3_wrap import Z3Wrapper
 from .path_to_constraint import PathToConstraint
@@ -11,7 +10,6 @@ from .invocation import FunctionInvocation
 from .symbolic_types import symbolic_type
 
 log = logging.getLogger("se.conc")
-stats = getStats()
 
 class ConcolicEngine:
 	def __init__(self, funcinv, options):
@@ -35,7 +33,6 @@ class ConcolicEngine:
 		# outputs
 		self.generated_inputs = []
 		self.execution_return_values = []
-		stats.newCounter("explored paths")
 
 	def updateSymbolicParameter(self, name, val):
 		self.symbolic_inputs[name] = self.invocation.createParameterValue(name,val)
@@ -62,10 +59,7 @@ class ConcolicEngine:
 			return False
 
 	def execute(self, invocation):
-		stats.incCounter("explored paths")
-		stats.pushProfile("single invocation")
 		res = invocation.callFunction(self.symbolic_inputs)
-		stats.popProfile()
 		return res
 
 	def record_inputs(self):
@@ -96,9 +90,7 @@ class ConcolicEngine:
 			self.setInputs(selected.inputs)			
 
 			log.info("Selected constraint %s" % selected)
-			stats.pushProfile("constraint solving")
 			model = selected.processConstraint(self.solver)
-			stats.popProfile()
 
 			if model == None:
 				log.warning("Unsolvable constraints, skipping iteration")

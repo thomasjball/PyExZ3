@@ -1,4 +1,3 @@
-import logging
 from z3 import *
 from .expression import Z3Expression
 
