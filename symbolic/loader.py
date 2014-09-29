@@ -13,10 +13,10 @@ class Loader:
 	def __init__(self, filename):
 		self.test_name = os.path.basename(filename)
 		self.test_name = self.test_name[:-3]
-		self.reset_callback(True)
+		self._reset_callback(True)
 
 	def create_invocation(self):
-		inv = FunctionInvocation(self.execute)
+		inv = FunctionInvocation(self._execute,self._reset_callback)
 		# associate a SymbolicInteger with each formal parameter of function
 		func = self.app.__dict__[self.test_name]
 		argspec = inspect.getargspec(func)
@@ -24,7 +24,9 @@ class Loader:
 			inv.addSymbolicParameter(a, lambda n,v : SymbolicInteger(n,v))
 		return inv
 
-	def reset_callback(self,firstpass=False):
+	# -- private
+
+	def _reset_callback(self,firstpass=False):
 		self.app = None
 		if firstpass and self.test_name in sys.modules:
 			print("There already is a module loaded named " + self.test_name)
@@ -41,7 +43,7 @@ class Loader:
 			print(arg)
 			raise ImportError()
 
-	def execute(self, **args):
+	def _execute(self, **args):
 		return self.app.__dict__[self.test_name](**args)
 
 	def to_bag(self,l):

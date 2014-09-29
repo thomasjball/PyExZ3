@@ -14,14 +14,13 @@ log = logging.getLogger("se.conc")
 stats = getStats()
 
 class ConcolicEngine:
-	def __init__(self, funcinv, reset, options):
+	def __init__(self, funcinv, options):
 		self.invocation = funcinv
 		# the input to the function
 		self.symbolic_inputs = {}  # string -> SymbolicType
 		# TODO: we need to get default values from the type instead
 		for n in funcinv.getNames():
 			self.symbolic_inputs[n] = funcinv.createParameterValue(n,0)
-		self.reset_func = reset
 		self.options = options
 
 		self.constraints_to_solve = deque([])
@@ -64,9 +63,8 @@ class ConcolicEngine:
 
 	def execute(self, invocation):
 		stats.incCounter("explored paths")
-		self.reset_func()
 		stats.pushProfile("single invocation")
-		res = invocation.function(**self.symbolic_inputs)
+		res = invocation.callFunction(self.symbolic_inputs)
 		stats.popProfile()
 		return res
 

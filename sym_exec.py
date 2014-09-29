@@ -47,7 +47,7 @@ stats.pushProfile("se total")
 print ("Running PyExZ3 on " + app.test_name)
 
 stats.pushProfile("engine only")
-engine = ConcolicEngine(app.create_invocation(),app.reset_callback,options)
+engine = ConcolicEngine(app.create_invocation(),options)
 return_vals = engine.run(options.max_iters)
 stats.popProfile()
 

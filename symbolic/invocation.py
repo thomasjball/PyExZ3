@@ -5,9 +5,14 @@
 # see loader.py for example of setting it up
 
 class FunctionInvocation:
-	def __init__(self, function):
+	def __init__(self, function, reset):
 		self.function = function
+		self.reset = reset
 		self.symbolic_constructor = {}
+
+	def callFunction(self,args):
+		self.reset()
+		return self.function(**args)
 
 	def addSymbolicParameter(self, name, constructor):
 		self.symbolic_constructor[name] = constructor
