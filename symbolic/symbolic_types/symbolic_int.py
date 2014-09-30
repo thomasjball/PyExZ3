@@ -1,7 +1,6 @@
 # Copyright: copyright.txt
 
 import ast
-import sys
 from . symbolic_type import SymbolicType
 
 # we use multiple inheritance to achieve concrete execution for any

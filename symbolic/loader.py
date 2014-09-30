@@ -11,42 +11,56 @@ from .symbolic_types import SymbolicInteger
 
 class Loader:
 	def __init__(self, filename):
-		self.test_name = os.path.basename(filename)
-		self.test_name = self.test_name[:-3]
-		self._reset_callback(True)
+		self._testName = os.path.basename(filename)
+		self._testName = self._testName[:-3]
+		self._resetCallback(True)
 
-	def create_invocation(self):
-		inv = FunctionInvocation(self._execute,self._reset_callback)
+	def getName(self):
+		return self._testName
+	
+	def createInvocation(self):
+		inv = FunctionInvocation(self._execute,self._resetCallback)
 		# associate a SymbolicInteger with each formal parameter of function
-		func = self.app.__dict__[self.test_name]
+		func = self.app.__dict__[self._testName]
 		argspec = inspect.getargspec(func)
 		for a in argspec.args:
 			inv.addSymbolicParameter(a, lambda n,v : SymbolicInteger(n,v))
 		return inv
 
+	def executionComplete(self, return_vals):
+		if "expected_result" in self.app.__dict__:
+			print(return_vals)
+			return self._check(return_vals, self.app.__dict__["expected_result"]())
+		if "expected_result_set" in self.app.__dict__:
+			print(return_vals)
+			return self._check(return_vals, self.app.__dict__["expected_result_set"](),False)
+		else:
+			print(self._testName + ".py contains no expected_result function")
+			return None
+
 	# -- private
 
-	def _reset_callback(self,firstpass=False):
+	def _resetCallback(self,firstpass=False):
 		self.app = None
-		if firstpass and self.test_name in sys.modules:
-			print("There already is a module loaded named " + self.test_name)
+		if firstpass and self._testName in sys.modules:
+			print("There already is a module loaded named " + self._testName)
 			raise ImportError()
 		try:
-			if (not firstpass and self.test_name in sys.modules):
-				del(sys.modules[self.test_name])
-			self.app =__import__(self.test_name)
-			if not self.test_name in self.app.__dict__ or not callable(self.app.__dict__[self.test_name]):
-				print("File " +  self.test_name + ".py doesn't contain a function named " + self.test_name)
+			if (not firstpass and self._testName in sys.modules):
+				del(sys.modules[self._testName])
+			self.app =__import__(self._testName)
+			if not self._testName in self.app.__dict__ or not callable(self.app.__dict__[self._testName]):
+				print("File " +  self._testName + ".py doesn't contain a function named " + self._testName)
 				raise ImportError()
 		except Exception as arg:
-			print("Couldn't import " + self.test_name)
+			print("Couldn't import " + self._testName)
 			print(arg)
 			raise ImportError()
 
 	def _execute(self, **args):
-		return self.app.__dict__[self.test_name](**args)
+		return self.app.__dict__[self._testName](**args)
 
-	def to_bag(self,l):
+	def _toBag(self,l):
 		bag = {}
 		for i in l:
 			if i in bag:
@@ -55,27 +69,16 @@ class Loader:
 				bag[i] = 1
 		return bag
 
-	def check(self, computed, expected, as_bag=True):
-		b_c = self.to_bag(computed)
-		b_e = self.to_bag(expected)
+	def _check(self, computed, expected, as_bag=True):
+		b_c = self._toBag(computed)
+		b_e = self._toBag(expected)
 		if as_bag and b_c != b_e or not as_bag and set(computed) != set(expected):
-			print("-------------------> %s test failed <---------------------" % self.test_name)
+			print("-------------------> %s test failed <---------------------" % self._testName)
 			print("Expected: %s, found: %s" % (b_e, b_c))
 			return False
 		else:
-			print("%s test passed <---" % self.test_name)
+			print("%s test passed <---" % self._testName)
 			return True
-
-	def execution_complete(self, return_vals):
-		if "expected_result" in self.app.__dict__:
-			print(return_vals)
-			return self.check(return_vals, self.app.__dict__["expected_result"]())
-		if "expected_result_set" in self.app.__dict__:
-			print(return_vals)
-			return self.check(return_vals, self.app.__dict__["expected_result_set"](),False)
-		else:
-			print(self.test_name + ".py contains no expected_result function")
-			return None
 	
 def loaderFactory(filename):
 	if not os.path.isfile(filename) or not re.search(".py$",filename):

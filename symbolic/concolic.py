@@ -12,14 +12,13 @@ from .symbolic_types import symbolic_type
 log = logging.getLogger("se.conc")
 
 class ConcolicEngine:
-	def __init__(self, funcinv, options):
+	def __init__(self, funcinv):
 		self.invocation = funcinv
 		# the input to the function
 		self.symbolic_inputs = {}  # string -> SymbolicType
 		# TODO: we need to get default values from the type instead
 		for n in funcinv.getNames():
 			self.symbolic_inputs[n] = funcinv.createParameterValue(n,0)
-		self.options = options
 
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
@@ -107,9 +106,4 @@ class ConcolicEngine:
 				log.info("Maximum number of iterations reached, terminating")
 				break
 
-		if (self.options.dot_graph):
-			file = open(self.options.filename+".dot","w")
-			file.write(self.path.toDot())
-			file.close()
-
-		return self.execution_return_values
+		return (self.execution_return_values,self.path)

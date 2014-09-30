@@ -28,8 +28,6 @@ if len(args) == 0 or not os.path.exists(args[0]):
 	sys.exit(1)
 	
 filename = os.path.abspath(args[0])
-app_args = args[1:]
-options.filename = filename
 
 # Get the object describing the application
 app = loaderFactory(filename)
@@ -39,14 +37,20 @@ if app == None:
 if not (options.logfile == ""):
 	logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
 
-print ("Running PyExZ3 on " + app.test_name)
+print ("Running PyExZ3 on " + app.getName())
 
-engine = ConcolicEngine(app.create_invocation(),options)
-return_vals = engine.run(options.max_iters)
+engine = ConcolicEngine(app.createInvocation())
+returnVals,path = engine.run(options.max_iters)
 
 # check the result
-result = app.execution_complete(return_vals)
-	
+result = app.executionComplete(returnVals)
+
+# output DOT graph
+if (options.dot_graph):
+	file = open(filename+".dot","w")
+	file.write(path.toDot())	
+	file.close()
+
 if result == None or result == True:
 	sys.exit(0);
 else:

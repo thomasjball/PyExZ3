@@ -15,6 +15,16 @@ class SymbolicType(object):
 		self.name = name
 		self.expr = expr
 
+	# to be provided by subclass
+
+	def getConcrValue(self):
+		raise NotImplemented()
+
+	def wrap(conc,sym):
+		raise NotImplemented()
+
+	# public funs
+
 	def isVariable(self):
 		return self.expr == None
 
@@ -23,12 +33,6 @@ class SymbolicType(object):
 			return (self.getConcrValue(),self)
 		else:
 			return (self.getConcrValue(),self.expr)
-
-	def getConcrValue(self):
-		raise NotImplemented()
-
-	def wrap(conc,sym):
-		raise NotImplemented()
 
 	def getVars(self):
 		if self.isVariable():
