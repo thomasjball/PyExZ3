@@ -2,7 +2,6 @@
 
 import sys
 import ast
-import logging
 
 from z3 import *
 from .z3_expr.integer import Z3IntegerExpression
@@ -10,7 +9,6 @@ from .z3_expr.bitvector import Z3BitVectorExpression
 
 class Z3Wrapper(object):
 	def __init__(self):
-		self.log = logging.getLogger("se.z3")
 		self.N = 32
 		self.asserts = None
 		self.query = None
@@ -101,10 +99,8 @@ class Z3Wrapper(object):
 		#print("Assertions")
 		#print(self.solver.assertions())
 		if ret == unsat:
-			self.log.warning("Z3: UNSAT")
 			res = None
 		elif ret == unknown:
-			self.log.error("Z3: UNKNOWN")
 			res = None
 		elif not mismatch:
 			res = self._getModel()

@@ -1,5 +1,4 @@
 import ast
-import logging
 import utils
 
 from symbolic.symbolic_types.symbolic_int import SymbolicInteger
@@ -9,7 +8,6 @@ from z3 import *
 class Z3Expression(object):
 	def __init__(self):
 		self.z3_vars = {}
-		self.log = logging.getLogger("se.z3")
 
 	def toZ3(self,solver,asserts,query):
 		self.z3_vars = {}
@@ -39,8 +37,6 @@ class Z3Expression(object):
 	def _getIntegerVariable(self,name,solver):
 		if name not in self.z3_vars:
 			self.z3_vars[name] = self._variable(name,solver)
-		else:
-			self.log.error("Trying to create a duplicate variable")
 		return self.z3_vars[name]
 
 	def _variable(self,name,solver):

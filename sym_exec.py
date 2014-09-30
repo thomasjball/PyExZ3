@@ -17,11 +17,8 @@ sys.path = [os.path.abspath(os.path.join(os.path.dirname(__file__)))] + sys.path
 usage = "usage: %prog [options] <path to a *.py file>"
 parser = OptionParser(usage=usage)
 
-parser.add_option("-d", "--debug", dest="debug", action="store_true", help="Disassemble only")
-parser.add_option("-l", "--log", dest="logfile", action="store", help="Save log output to a file", default="logfile")
-parser.add_option("-f", "--force", dest="force_normalize", action="store_true", help="Force the regeneration of normalized files")
+parser.add_option("-l", "--log", dest="logfile", action="store", help="Save log output to a file", default="")
 parser.add_option("-g", "--graph", dest="dot_graph", action="store_true", help="Generate a DOT graph of execution tree")
-parser.add_option("-q", "--quiet", dest="quiet", action="store_true", help="Do not print statistics at the end of execution")
 parser.add_option("-m", "--max-iters", dest="max_iters", type="int", help="Run specified number of iterations", default=0)
 
 (options, args) = parser.parse_args()
@@ -39,8 +36,8 @@ app = loaderFactory(filename)
 if app == None:
 	sys.exit(1)
 
-logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
-log = logging.getLogger()
+if not (options.logfile == ""):
+	logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
 
 print ("Running PyExZ3 on " + app.test_name)
 

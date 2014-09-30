@@ -93,8 +93,6 @@ class ConcolicEngine:
 			model = selected.processConstraint(self.solver)
 
 			if model == None:
-				log.warning("Unsolvable constraints, skipping iteration")
-				#iterations += 1
 				continue
 			else:
 				for name in model.keys():
@@ -106,7 +104,7 @@ class ConcolicEngine:
 			self.num_processed_constraints += 1
 
 			if max_iterations != 0 and iterations >= max_iterations:
-				log.debug("Maximum number of iterations reached, terminating")
+				log.info("Maximum number of iterations reached, terminating")
 				break
 
 		if (self.options.dot_graph):
