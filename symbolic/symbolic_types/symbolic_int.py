@@ -1,21 +1,21 @@
 # Copyright: copyright.txt
 
 import ast
-from . symbolic_type import SymbolicType
+from . symbolic_type import SymbolicObject
 
 # we use multiple inheritance to achieve concrete execution for any
 # operation for which we don't have a symbolic representation. As
-# we can see a SymbolicInteger is both symbolic (SymbolicType) and 
+# we can see a SymbolicInteger is both symbolic (SymbolicObject) and 
 # concrete (int)
 
-class SymbolicInteger(SymbolicType,int):
+class SymbolicInteger(SymbolicObject,int):
 	# since we are inheriting from int, we need to use new
 	# to perform construction correctly
 	def __new__(cls, name, v, expr=None):
 		return int.__new__(cls, v)
 
 	def __init__(self, name, v, expr=None):
-		SymbolicType.__init__(self, name, expr)
+		SymbolicObject.__init__(self, name, expr)
 		self.val = v
 
 	def getConcrValue(self):

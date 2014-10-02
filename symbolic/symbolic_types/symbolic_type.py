@@ -9,8 +9,6 @@ import functools
 # it also tracks the corresponding concrete value for the expression (aka concolic execution)
 
 class SymbolicType(object):
-	SI = None    # this is set up by ConcolicEngine to link __bool__ to PathConstraint
-
 	def __init__(self, name, expr=None):
 		self.name = name
 		self.expr = expr
@@ -50,44 +48,7 @@ class SymbolicType(object):
 		else:
 			return []
 
-	# this is a critical interception point: the __bool__
-	# method is called whenever a predicate is evaluated in
-	# Python execution (if, while, and, or). This allows us
-	# to capture the path condition
-
-	def __bool__(self):
-		ret = bool(self.getConcrValue())
-		if SymbolicType.SI != None:
-			SymbolicType.SI.whichBranch(ret,self)
-		return ret
-
-	def __eq__(self, other):
-		if isinstance(other, type(None)):
-			return False
-		else:
-			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq, SymbolicType.wrap)
-
-	def __ne__(self, other):
-		if isinstance(other, type(None)):
-			return True
-		else:
-			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq, SymbolicType.wrap)
-
-	def __lt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt, SymbolicType.wrap)
-
-	def __le__(self, other):
-		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE, SymbolicType.wrap)
-
-	def __gt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt, SymbolicType.wrap)
-
-	def __ge__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicType.wrap)
-
-	# TODO: we should generalize this to s-expressions in order to 
-	# to accommodate unary and function calls
-
+	# creating the expression tree
 	def _do_sexpr(self,args,fun,op,wrap):
 		unwrapped = [ (a.unwrap() if isinstance(a,SymbolicType) else (a,a)) for a in args ]
 		args = zip(inspect.getargspec(fun).args, [ c for (c,s) in unwrapped ])
@@ -98,8 +59,6 @@ class SymbolicType(object):
 	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, op, wrap):
 		return self._do_sexpr([self,other], fun, op, wrap)
-
-	# BELOW HERE is only for our use
 
 	def symbolicEq(self, other):
 		if not isinstance(other,SymbolicType):
@@ -133,6 +92,48 @@ class SymbolicType(object):
 			return expr.toString()
 		else:
 			return str(expr)
+
+class SymbolicObject(SymbolicType,object): 
+	def __init__(self, name, expr=None):
+		SymbolicType.__init__(self,name,expr)
+
+	SI = None    # this is set up by ConcolicEngine to link __bool__ to PathConstraint
+
+	# this is a critical interception point: the __bool__
+	# method is called whenever a predicate is evaluated in
+	# Python execution (if, while, and, or). This allows us
+	# to capture the path condition
+
+	def __bool__(self):
+		ret = bool(self.getConcrValue())
+		if SymbolicObject.SI != None:
+			SymbolicObject.SI.whichBranch(ret,self)
+		return ret
+
+	def __eq__(self, other):
+		if isinstance(other, type(None)):
+			return False
+		else:
+			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq, SymbolicType.wrap)
+
+	def __ne__(self, other):
+		if isinstance(other, type(None)):
+			return True
+		else:
+			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq, SymbolicType.wrap)
+
+	def __lt__(self, other):
+		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt, SymbolicType.wrap)
+
+	def __le__(self, other):
+		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE, SymbolicType.wrap)
+
+	def __gt__(self, other):
+		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt, SymbolicType.wrap)
+
+	def __ge__(self, other):
+		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicType.wrap)
+
 
 def op2str(o):
 	if isinstance(o,ast.Add):

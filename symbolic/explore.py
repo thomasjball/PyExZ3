@@ -24,8 +24,8 @@ class ExplorationEngine:
 		self.num_processed_constraints = 0
 
 		self.path = PathToConstraint(lambda c : self.addConstraint(c))
-		# link up SymbolicType to PathToConstraint in order to intercept control-flow
-		symbolic_type.SymbolicType.SI = self.path
+		# link up SymbolicObject to PathToConstraint in order to intercept control-flow
+		symbolic_type.SymbolicObject.SI = self.path
 
 		self.solver = Z3Wrapper()
 
