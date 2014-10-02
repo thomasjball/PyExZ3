@@ -2,8 +2,6 @@
 
 import os
 import sys
-import platform
-import shutil
 import logging
 from optparse import OptionParser
 
@@ -23,19 +21,19 @@ parser.add_option("-m", "--max-iters", dest="max_iters", type="int", help="Run s
 
 (options, args) = parser.parse_args()
 
+if not (options.logfile == ""):
+	logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
+
 if len(args) == 0 or not os.path.exists(args[0]):
 	parser.error("Missing app to execute")
 	sys.exit(1)
-	
-filename = os.path.abspath(args[0])
 
+filename = os.path.abspath(args[0])
+	
 # Get the object describing the application
 app = loaderFactory(filename)
 if app == None:
 	sys.exit(1)
-
-if not (options.logfile == ""):
-	logging.basicConfig(filename=options.logfile,level=logging.DEBUG)
 
 print ("Running PyExZ3 on " + app.getName())
 

@@ -8,9 +8,9 @@ from .constraint import Constraint
 log = logging.getLogger("se.pathconstraint")
 
 class PathToConstraint:
-	def __init__(self, engine):
+	def __init__(self, add):
 		self.constraints = {}
-		self.engine = engine
+		self.add = add
 		self.root_constraint = Constraint(None, None)
 		self.current_constraint = self.root_constraint
 		self.expected_path = None
@@ -43,7 +43,7 @@ class PathToConstraint:
 
 			# we add the new constraint to the queue of the engine for later processing
 			log.debug("New constraint: %s" % c)
-			self.engine.addConstraint(c)
+			self.add(c)
 			
 		# check for path mismatch
 		# IMPORTANT: note that we don't actually check the predicate is the

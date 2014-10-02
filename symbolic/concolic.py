@@ -23,7 +23,7 @@ class ConcolicEngine:
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
 
-		self.path = PathToConstraint(self)
+		self.path = PathToConstraint(lambda c : self.addConstraint(c))
 		# link up SymbolicType to PathToConstraint in order to intercept control-flow
 		symbolic_type.SymbolicType.SI = self.path
 
@@ -33,60 +33,24 @@ class ConcolicEngine:
 		self.generated_inputs = []
 		self.execution_return_values = []
 
-	def updateSymbolicParameter(self, name, val):
-		self.symbolic_inputs[name] = self.invocation.createParameterValue(name,val)
-
-	def getInputs(self):
-		# TODOthis could be optimized
-		return self.symbolic_inputs.copy()
-
-	def setInputs(self,d):
-		self.symbolic_inputs = d
-
 	def addConstraint(self, constraint):
 		self.constraints_to_solve.append(constraint)
 		# make sure to remember the input that led to this constraint
-		constraint.inputs = self.getInputs()
-
-	def isExplorationComplete(self):
-		num_constr = len(self.constraints_to_solve)
-		if num_constr == 0:
-			log.info("Exploration complete")
-			return True
-		else:
-			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_processed_constraints + num_constr, self.num_processed_constraints))
-			return False
-
-	def execute(self, invocation):
-		res = invocation.callFunction(self.symbolic_inputs)
-		return res
-
-	def record_inputs(self):
-		args = self.symbolic_inputs
-		inputs = [ (k,args[k].getConcrValue()) for k in args ]
-		self.generated_inputs.append(inputs)
-		print(inputs)
-		
-	def one_execution(self,expected_path=None):
-		self.record_inputs()
-		self.path.reset(expected_path)
-		ret = self.execute(self.invocation)
-		print(ret)
-		self.execution_return_values.append(ret)
+		constraint.inputs = self._getInputs()
 
 	def run(self, max_iterations=0):
-		self.one_execution()
+		self._oneExecution()
 		
 		iterations = 1
 		if max_iterations != 0 and iterations >= max_iterations:
 			log.debug("Maximum number of iterations reached, terminating")
 			return self.execution_return_values
 
-		while not self.isExplorationComplete():
+		while not self._isExplorationComplete():
 			selected = self.constraints_to_solve.popleft()
 			if selected.processed:
 				continue
-			self.setInputs(selected.inputs)			
+			self._setInputs(selected.inputs)			
 
 			log.info("Selected constraint %s" % selected)
 			model = selected.processConstraint(self.solver)
@@ -95,9 +59,9 @@ class ConcolicEngine:
 				continue
 			else:
 				for name in model.keys():
-					self.updateSymbolicParameter(name,model[name])
+					self._updateSymbolicParameter(name,model[name])
 
-			self.one_execution(selected)
+			self._oneExecution(selected)
 
 			iterations += 1			
 			self.num_processed_constraints += 1
@@ -107,3 +71,38 @@ class ConcolicEngine:
 				break
 
 		return (self.execution_return_values,self.path)
+
+	# private
+
+	def _updateSymbolicParameter(self, name, val):
+		self.symbolic_inputs[name] = self.invocation.createParameterValue(name,val)
+
+	def _getInputs(self):
+		# TODOthis could be optimized
+		return self.symbolic_inputs.copy()
+
+	def _setInputs(self,d):
+		self.symbolic_inputs = d
+
+	def _isExplorationComplete(self):
+		num_constr = len(self.constraints_to_solve)
+		if num_constr == 0:
+			log.info("Exploration complete")
+			return True
+		else:
+			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_processed_constraints + num_constr, self.num_processed_constraints))
+			return False
+
+	def _recordInputs(self):
+		args = self.symbolic_inputs
+		inputs = [ (k,args[k].getConcrValue()) for k in args ]
+		self.generated_inputs.append(inputs)
+		print(inputs)
+		
+	def _oneExecution(self,expected_path=None):
+		self._recordInputs()
+		self.path.reset(expected_path)
+		ret = self.invocation.callFunction(self.symbolic_inputs)
+		print(ret)
+		self.execution_return_values.append(ret)
+
