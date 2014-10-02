@@ -26,7 +26,7 @@ class Constraint:
 		else:
 			return False
 
-	def processConstraint(self,solver):
+	def getAssertsAndQuery(self):
 		self.processed = True
 
 		# collect the assertions
@@ -36,8 +36,7 @@ class Constraint:
 			asserts.append(tmp.predicate)
 			tmp = tmp.parent
 
-		# ask the constraint solver for new input
-		return solver.findCounterexample(asserts, self.predicate)
+		return asserts, self.predicate	       
 
 	def getLength(self):
 		if self.parent == None:

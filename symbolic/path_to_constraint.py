@@ -27,9 +27,8 @@ class PathToConstraint:
 				tmp = tmp.parent
 
 	def whichBranch(self, branch, symbolic_type):
-		""" To be called from the process being executed, this function acts as instrumentation.
-		branch can be either True or False, according to the branch taken after the last conditional
-		jump. """
+		""" This function acts as instrumentation.
+		Branch can be either True or False."""
 
 		# add both possible predicate outcomes to constraint (tree)
 		p = Predicate(symbolic_type, branch)

@@ -6,7 +6,7 @@ import logging
 from optparse import OptionParser
 
 from symbolic.loader import *
-from symbolic.concolic import ConcolicEngine
+from symbolic.explore import ExplorationEngine
 
 print("PyExZ3 (Python Symbolic Execution via Z3)")
 
@@ -37,7 +37,7 @@ if app == None:
 
 print ("Running PyExZ3 on " + app.getName())
 
-engine = ConcolicEngine(app.createInvocation())
+engine = ExplorationEngine(app.createInvocation())
 returnVals,path = engine.run(options.max_iters)
 
 # check the result
