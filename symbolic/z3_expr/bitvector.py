@@ -1,7 +1,7 @@
 from z3 import *
 from .expression import Z3Expression
 
-class Z3BitVectorExpression(Z3Expression):
+class Z3BitVector(Z3Expression):
 	def __init__(self,N):
 		Z3Expression.__init__(self)
 		self.N = N

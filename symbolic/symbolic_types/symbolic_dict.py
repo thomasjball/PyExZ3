@@ -26,7 +26,7 @@ class SymbolicDict(SymbolicType,dict):
 		val = super.__getitem__(key)
 		if isinstance(val,SymbolicType):
 			wrap = val.wrap
-		else
+		else:
 			wrap = lambda c,s : c
 		return self._do_bin_op(key, lambda d, k: val, ast.Index, wrap)
 

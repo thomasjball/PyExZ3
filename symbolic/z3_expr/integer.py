@@ -1,7 +1,7 @@
 from z3 import *
 from .expression import Z3Expression
 
-class Z3IntegerExpression(Z3Expression):
+class Z3Integer(Z3Expression):
 	def _isIntVar(self,v):
 		return isinstance(v,IntRef)
 

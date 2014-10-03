@@ -20,8 +20,16 @@ class Loader:
 	
 	def createInvocation(self):
 		inv = FunctionInvocation(self._execute,self._resetCallback)
-		# associate a SymbolicInteger with each formal parameter of function
 		func = self.app.__dict__[self._testName]
+		# check to see if user specified initial values of arguments
+		if "concrete_args" in func.__dict__:
+			#TODO
+			pass
+		if "symbolic_args" in func.__dict__:
+			#TODO: base on the type of the arg, find the appropriate
+			#symbolic type and initialize it
+			pass
+		#TODO: make sure lists don't overlap and are included inside argspec.args
 		argspec = inspect.getargspec(func)
 		for a in argspec.args:
 			inv.addSymbolicParameter(a, lambda n,v : SymbolicInteger(n,v))

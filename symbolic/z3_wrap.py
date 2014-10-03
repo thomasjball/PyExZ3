@@ -4,8 +4,8 @@ import sys
 import ast
 
 from z3 import *
-from .z3_expr.integer import Z3IntegerExpression
-from .z3_expr.bitvector import Z3BitVectorExpression
+from .z3_expr.integer import Z3Integer
+from .z3_expr.bitvector import Z3BitVector
 
 class Z3Wrapper(object):
 	def __init__(self):
@@ -55,7 +55,7 @@ class Z3Wrapper(object):
 		# Try QF_LIA first (as it may fairly easily recognize unsat instances)
 		if self.use_lia:
 			self.solver.push()
-			self.z3_expr = Z3IntegerExpression()
+			self.z3_expr = Z3Integer()
 			self.z3_expr.toZ3(self.solver,self.asserts,self.query)
 			res = self.solver.check()
 			#print(self.solver.assertions)
@@ -110,7 +110,7 @@ class Z3Wrapper(object):
 		return res
 
 	def _setAssertsQuery(self):
-		self.z3_expr = Z3BitVectorExpression(self.N)
+		self.z3_expr = Z3BitVector(self.N)
 		self.z3_expr.toZ3(self.solver,self.asserts,self.query)
 
 	def _findModel2(self):
