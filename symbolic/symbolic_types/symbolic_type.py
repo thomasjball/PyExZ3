@@ -97,8 +97,7 @@ class SymbolicObject(SymbolicType,object):
 	def __init__(self, name, expr=None):
 		SymbolicType.__init__(self,name,expr)
 
-	# this is set up by ExplorationEngine to link __bool__ to PathConstraint
-	SI = None    
+	SI = None    # this is set up by ConcolicEngine to link __bool__ to PathConstraint
 
 	# this is a critical interception point: the __bool__
 	# method is called whenever a predicate is evaluated in
