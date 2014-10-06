@@ -42,9 +42,13 @@ portability of the engine, as well as reducing the code size.
 - **Arguments to starting function**: by default, sym_exec will associate a SymbolicInteger 
 (with initial value 0) for each parameter to the starting function. 
 You can decorate the start function to specify concrete values for parameters 
-(@concrete) so that they never will be treated symbolically; you can also specify 
-which values should be treated symbolically (@symbolic) - the type of associated 
-initial value for the argument will be used to determine the proper symbolic type (if one exists)
+(`@concrete`) so that they never will be treated symbolically; you can also specify 
+which values should be treated symbolically (`@symbolic`) - the type of associated 
+initial value for the argument will be used to determine the proper symbolic type 
+(if one exists). Here is an example, where parameters `a` and `b` are treated concretely
+and will have initial values `1` and `2`, parameter `c` will be treated as a symbolic
+integer input with the "initial" initial value `3`. Since parameter `d` is not
+specified, it will be treated as a symbolic integer input with the "initial" initial value 0:
 
 ```
 from symbolic.args import *
@@ -52,13 +56,19 @@ from symbolic.args import *
 @concrete(a=1,b=2)
 @symbolic(c=3)
 startingfun(a,b,c,d):
-...
+    ...
 ```
 
-- **Oracle test functions*
+- **Output**: TBD
 
-- **Import behavior**
+- **Oracle test functions** can be added to the `FILE.py` to TBD
 
+- **Import behavior**: TBD
+
+- **Other options**
+  - `--graph` DOTFILE
+  - `--log` LOGFILE
+  - `--max-iters` N
 
 ### MacOS specific
 
