@@ -7,8 +7,17 @@ This code is a port/rewrite of the NICE project's
 (http://code.google.com/p/nice-of/) symbolic execution engine for
 Python to use the Z3 theorem prover (http://z3.codeplex.com). We have
 removed the NICE-specific dependences, platform-specific code, and
-makes various improvements so the code base can be used by students or
-anyone wanting to experiment with dynamic symbolic execution.
+makes various improvements (like documentation) so it can be used
+by anyone wanting to experiment with dynamic symbolic execution.
+
+In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
+Python function by:
+-  executing the function on a concrete input to trace a path through the control flow of the function;
+- using symbolic execution along the path to determine how the conditions inside the
+function depend on the function's parameters;
+- generating new values for the parameters to drive the function to yet uncovered paths, using Z3.  
+
+For small programs without loops or recursion, PyExZ3 may be able to explore all feasible paths.
 
 A novel aspect of the rewrite is to rely solely on Python's operator
 overloading to accomplish all the interception needed for symbolic
@@ -16,18 +25,6 @@ execution; no AST rewriting or bytecode instrumentation is required,
 as was done in the NICE project. This significantly improves the
 robustness and portability of the engine, as well as reducing the code
 size.
-
-In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
-Python function by:
--  executing the function on a concrete input to trace
-a path through the control flow of the function;
-- using symbolic execution along the path to determine how the conditions inside the
-function depend on the functions' parameters;
-- generating new values for the parameters to drive the function to yet
-uncovered path, using Z3.  
-
-For small programs without loops or recursion,
-PyExZ3 may be able to explore all feasible programs.
 
 ###Setup instructions:
 
@@ -55,8 +52,8 @@ PyExZ3 may be able to explore all feasible programs.
 
   - sym_exec `--start MAIN` FILE.py
 
-- **Bounding the number of iterations* of the path explorer is essential when you are
-exploring functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
+- **Bounding the number of iterations** of the explorer is essential when you are
+analyzing functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
 
   - sym_exec `--max-iters 42` FILE.py
 
