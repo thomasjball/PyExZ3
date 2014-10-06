@@ -29,11 +29,11 @@ portability of the engine, as well as reducing the code size.
 - "python run_tests.py test" should pass all tests
 - "python sym_exec.py test\FILE.py" to run a single test from test directory
 
-### Usage
+### Usage of `sym_exec.py`
 
-- sym_exec:
-  - By default, sym_exec expects FILE.py to contain a function named FILE where symbolic execution will start. 
-  - You can override the default starting function with `--start MAIN`, where MAIN is the name of a function in FILE.
+- sym_exec `FILE.py`
+  - *starting point* By default, `sym_exec` expects `FILE.py` to contain a function named `FILE` where symbolic execution will start. You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a function in `FILE`: 
+  - `sym_exec --start MAIN FILE.py`
   
   - By default, sym_exec will associate a SymbolicInteger (with initial value 0) for each parameter to the start function. 
   - You can decorate the start function to specify concrete values for parameters (@concrete) so that they never will be treated symbolically; you can also specify which values should be treated symbolically (@symbolic) - the type of associated initial value for the argument will be used to determine the proper symbolic type (if one exists)
