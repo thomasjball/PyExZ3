@@ -1,19 +1,32 @@
 PyExZ3
 ======
 
-###A Nicer Symbolic Execution for Python (Z3)
+###A Python Explorer using Z3
 
-This code is a port/rewrite of the NICE project's (http://code.google.com/p/nice-of/) 
-symbolic execution engine for Python to use the Z3 theorem prover (http://z3.codeplex.com). We have removed 
-the NICE-specific dependences, platform-specific code, and
-makes various improvements so the code base can be used by students or anyone wanting to
-experiment with dynamic symbolic execution. 
+This code is a port/rewrite of the NICE project's
+(http://code.google.com/p/nice-of/) symbolic execution engine for
+Python to use the Z3 theorem prover (http://z3.codeplex.com). We have
+removed the NICE-specific dependences, platform-specific code, and
+makes various improvements so the code base can be used by students or
+anyone wanting to experiment with dynamic symbolic execution.
 
-A novel aspect of the rewrite is to rely solely
-on Python's operator overloading to accomplish all 
-the  interception needed for symbolic execution; no AST rewriting or bytecode instrumentation 
-is required, as was done in the NICE project. This significantly improves the robustness and 
-portability of the engine, as well as reducing the code size.
+A novel aspect of the rewrite is to rely solely on Python's operator
+overloading to accomplish all the interception needed for symbolic
+execution; no AST rewriting or bytecode instrumentation is required,
+as was done in the NICE project. This significantly improves the
+robustness and portability of the engine, as well as reducing the code
+size.
+
+In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
+Python function by:
+-  executing the function on a concrete input to trace
+a path through the control flow of the function;
+- using symbolic execution along the path to determine how the conditions inside the
+function depend on the functions' parameters;
+- generating new values for the parameters to drive the function to yet
+uncovered path, using Z3.  
+For small programs without loops or recursion,
+PyExZ3 may be able to explore all feasible programs.
 
 ###Setup instructions:
 
@@ -26,7 +39,9 @@ portability of the engine, as well as reducing the code size.
 -- install GraphViz utilities (http://graphviz.org/)
 
 ### Check that everything works:
+
 - "python run_tests.py test" should pass all tests
+
 - "python sym_exec.py test\FILE.py" to run a single test from test directory
 
 ### Usage of sym_exec.py
@@ -39,7 +54,7 @@ portability of the engine, as well as reducing the code size.
 
   - sym_exec `--start MAIN` FILE.py
   
-- **Arguments to starting function**: by default, sym_exec will associate a SymbolicInteger 
+- **Arguments to starting function**: by default, sym_exec will associate a symbolic integer
 (with initial value 0) for each parameter to the starting function. 
 You can decorate the start function to specify concrete values for parameters 
 (`@concrete`) so that they never will be treated symbolically; you can also specify 
@@ -47,8 +62,8 @@ which values should be treated symbolically (`@symbolic`) - the type of associat
 initial value for the argument will be used to determine the proper symbolic type 
 (if one exists). Here is an example, where parameters `a` and `b` are treated concretely
 and will have initial values `1` and `2`, parameter `c` will be treated as a symbolic
-integer input with the "initial" initial value `3`. Since parameter `d` is not
-specified, it will be treated as a symbolic integer input with the "initial" initial value 0:
+integer input with the initial value `3`. Since parameter `d` is not
+specified, it will be treated as a symbolic integer input with the initial value 0:
 
 ```
 from symbolic.args import *
@@ -59,7 +74,7 @@ startingfun(a,b,c,d):
     ...
 ```
 
-- **Output**: TBD
+- **Output**: the list of generated inputs (as text)
 
 - **Oracle test functions** can be added to the `FILE.py` to TBD
 
