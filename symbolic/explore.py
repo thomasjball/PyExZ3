@@ -38,7 +38,7 @@ class ExplorationEngine:
 		# make sure to remember the input that led to this constraint
 		constraint.inputs = self._getInputs()
 
-	def run(self, max_iterations=0):
+	def explore(self, max_iterations=0):
 		self._oneExecution()
 		
 		iterations = 1
@@ -71,7 +71,7 @@ class ExplorationEngine:
 				log.info("Maximum number of iterations reached, terminating")
 				break
 
-		return (self.execution_return_values,self.path)
+		return self.generated_inputs, self.execution_return_values, self.path
 
 	# private
 

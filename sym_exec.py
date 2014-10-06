@@ -3,6 +3,7 @@
 import os
 import sys
 import logging
+import traceback
 from optparse import OptionParser
 
 from symbolic.loader import *
@@ -38,25 +39,29 @@ if app == None:
 
 print ("Running PyExZ3 on " + app.getName())
 
+result = None
 try:
 	engine = ExplorationEngine(app.createInvocation())
-	returnVals,path = engine.run(options.max_iters)
+	generatedInputs, returnVals, path = engine.explore(options.max_iters)
+	# check the result
+	result = app.executionComplete(returnVals)
+
+	# output DOT graph
+	if (options.dot_graph):
+		file = open(filename+".dot","w")
+		file.write(path.toDot())	
+		file.close()
+
 except ImportError:
 	# createInvocation can raise this
 	sys.exit(1)
-except:
-	# this is the underlying code raising an exception
-	# print("Code under test raised exception")
-	sys.exit(1)
-
-# check the result
-result = app.executionComplete(returnVals)
-
-# output DOT graph
-if (options.dot_graph):
-	file = open(filename+".dot","w")
-	file.write(path.toDot())	
-	file.close()
+#except:
+	#e = sys.exc_info()[0]
+	#print("Exception:")
+	#print(e)
+	#tb = traceback.format_exc()
+	#print(tb)
+	#sys.exit(1)
 
 if result == None or result == True:
 	sys.exit(0);

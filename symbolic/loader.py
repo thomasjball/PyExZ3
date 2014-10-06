@@ -31,7 +31,7 @@ class Loader:
 					print("Error in @concrete: " +  self._entryPoint + " has no argument named " + f)
 					raise ImportError()
 				else:
-					Loader._initializeArgument(inv,f,v,Loader._createLambda(v))
+					Loader._initializeArgumentConcrete(inv,f,v)
 		if "symbolic_args" in func.__dict__:
 			for (f,v) in func.symbolic_args.items():
 				if not f in argspec.args:
@@ -45,18 +45,19 @@ class Loader:
 					if (s == None):
 						print("Error at argument " + f + " of entry point " + self._entryPoint + " : no corresponding symbolic type found for type " + str(type(v)))
 						raise ImportError()
-					Loader._initializeArgument(inv, f, v, lambda x,y : s(x,y))
+					Loader._initializeArgumentSymbolic(inv, f, v, s)
 		for a in argspec.args:
 			if not a in inv.getNames():
-				Loader._initializeArgument(inv, a, 0, lambda n,v : SymbolicInteger(n,v))
+				Loader._initializeArgumentSymbolic(inv, a, 0, SymbolicInteger)
 		return inv
 
-	def _initializeArgument(inv,f,val,con):
-		inv.addArgumentConstructor(f, val, con)
+	# need these here (rather than inline above) to correctly capture values in lambda
+	def _initializeArgumentConcrete(inv,f,val):
+		inv.addArgumentConstructor(f, val, lambda n,v: val)
 
-	# need this to properly capture value (don't inline this function)
-	def _createLambda(v):
-		return lambda n,b: v
+	def _initializeArgumentSymbolic(inv,f,val,st):
+		print(st)
+		inv.addArgumentConstructor(f, val, lambda n,v: st(n,v))
 
 	def executionComplete(self, return_vals):
 		if "expected_result" in self.app.__dict__:

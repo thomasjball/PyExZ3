@@ -20,9 +20,8 @@ class FunctionInvocation:
 
 	def createArgumentValue(self,name,val=None):
 		if val == None:
-			return self.arg_constructor[name](name,self.initial_value[name])
-		else:
-			return self.arg_constructor[name](name,val)
+			val = self.initial_value[name]
+		return self.arg_constructor[name](name,val)
 
 	
 

@@ -3,12 +3,12 @@
 import sys
 import traceback
 
-def _traceback():
+def traceback():
 	stack = traceback.format_stack()
-	return stack[:-2]
+	rest = stack[:-2]
+	return "\n"+"".join(rest)
 
 def crash(msg):
 	#stack = _traceback()
-	#print("\n"+"".join(stack))
 	print(msg)
 	sys.exit(-1)

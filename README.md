@@ -25,6 +25,7 @@ a path through the control flow of the function;
 function depend on the functions' parameters;
 - generating new values for the parameters to drive the function to yet
 uncovered path, using Z3.  
+
 For small programs without loops or recursion,
 PyExZ3 may be able to explore all feasible programs.
 
@@ -53,7 +54,12 @@ PyExZ3 may be able to explore all feasible programs.
 - **Starting function**: You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a function in `FILE`: 
 
   - sym_exec `--start MAIN` FILE.py
-  
+
+- **Bounding the number of iterations* of the path explorer is essential when you are
+exploring functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
+
+  - sym_exec `--max-iters 42` FILE.py
+
 - **Arguments to starting function**: by default, sym_exec will associate a symbolic integer
 (with initial value 0) for each parameter to the starting function. 
 You can decorate the start function to specify concrete values for parameters 
@@ -74,7 +80,10 @@ startingfun(a,b,c,d):
     ...
 ```
 
-- **Output**: the list of generated inputs (as text)
+- **Output**: the explorer prints the list of generated inputs and observed return values
+to standard out; the lists of generated inputs and the corresponding return values are
+returned by the `explore` function to `sym_exec` where they can be used for other purposes, 
+as described below
 
 - **Oracle test functions** can be added to the `FILE.py` to TBD
 
