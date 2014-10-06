@@ -1,27 +1,28 @@
 # Copyright: see copyright.txt
 
-# symbolic tainting starts at FunctionInvocation by adding a symbolic parameter
-# via the method addSymbolicParameter with a subclass of SymbolicType
-# see loader.py for example of setting it up
-
 class FunctionInvocation:
 	def __init__(self, function, reset):
 		self.function = function
 		self.reset = reset
-		self.symbolic_constructor = {}
+		self.arg_constructor = {}
+		self.initial_value = {}
 
 	def callFunction(self,args):
 		self.reset()
 		return self.function(**args)
 
-	def addSymbolicParameter(self, name, constructor):
-		self.symbolic_constructor[name] = constructor
+	def addArgumentConstructor(self, name, init, constructor):
+		self.initial_value[name] = init
+		self.arg_constructor[name] = constructor
 
 	def getNames(self):
-		return self.symbolic_constructor.keys()
+		return self.arg_constructor.keys()
 
-	def createParameterValue(self,name,val):
-		return self.symbolic_constructor[name](name,val)
+	def createArgumentValue(self,name,val=None):
+		if val == None:
+			return self.arg_constructor[name](name,self.initial_value[name])
+		else:
+			return self.arg_constructor[name](name,val)
 
 	
 

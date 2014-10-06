@@ -21,9 +21,19 @@ portability of the engine, as well as reducing the code size.
 - Install Python 3.2.3 (https://www.python.org/download/releases/3.2.3/)
 - Install the latest "unstable" release of Z3 to directory Z3HOME from http://z3.codeplex.com/releases (click on the "Planned" link on the right to get the latest binaries for all platforms)
 - Add Z3HOME\bin to PATH and PYTHONPATH
-- MacOS: see setup.sh for Homebrew default locations for Python and Z3
+- MacOS: setup.sh for Homebrew default locations for Python and Z3; see end for MacOS specifi instructions
 - Optional:
 -- install GraphViz utilities (http://graphviz.org/)
+
+### Check that everything works:
+- "python run_tests.py test" should pass all tests
+- "python sym_exec.py test\FILE.py" to run a single test from test directory
+
+### Usage
+
+- sym_exec.py:
+-- By default, sym_exec expects FILE.py to contain a function named FILE where symbolic execution will start. You can override this with --start=MAIN, where MAIN is the name of the function in FILE to start execution.
+-- By default, sym_exec will associate a SymbolicInteger (with initial value 0) for each parameter to the start function. You can decorate the start function to specify concrete values for parameters (@concrete) so that they never will be treated symbolically; you can also specify which values should be treated symbolically (@symbolic) - the type of associated initial value for the argument will be used to determine the proper symbolic type (if one exists)
 
 ### MacOS specific
 
@@ -33,7 +43,3 @@ portability of the engine, as well as reducing the code size.
 4. Get z3: `brew install homebrew/science/z3`
 5. Clone this repository: `git clone https://github.com/thomasjball/PyExZ3.git` 
 6. Set the PATH: `. PyExZ3/setup.sh`  (do not run the setup script in a subshell `./ PyExZ3/`)
-
-### Check that everything works:
-- "python run_tests.py test" should pass all tests
-- "python sym_exec.py test\FILE.py" to run a single test from test directory

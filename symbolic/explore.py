@@ -7,7 +7,7 @@ import os
 from .z3_wrap import Z3Wrapper
 from .path_to_constraint import PathToConstraint
 from .invocation import FunctionInvocation
-from .symbolic_types import symbolic_type
+from .symbolic_types import symbolic_type, SymbolicType
 
 log = logging.getLogger("se.conc")
 
@@ -16,9 +16,9 @@ class ExplorationEngine:
 		self.invocation = funcinv
 		# the input to the function
 		self.symbolic_inputs = {}  # string -> SymbolicType
-		# TODO: we need to get default values from the type instead
+		# initialize
 		for n in funcinv.getNames():
-			self.symbolic_inputs[n] = funcinv.createParameterValue(n,0)
+			self.symbolic_inputs[n] = funcinv.createArgumentValue(n)
 
 		self.constraints_to_solve = deque([])
 		self.num_processed_constraints = 0
@@ -76,7 +76,7 @@ class ExplorationEngine:
 	# private
 
 	def _updateSymbolicParameter(self, name, val):
-		self.symbolic_inputs[name] = self.invocation.createParameterValue(name,val)
+		self.symbolic_inputs[name] = self.invocation.createArgumentValue(name,val)
 
 	def _getInputs(self):
 		return self.symbolic_inputs.copy()
@@ -93,9 +93,15 @@ class ExplorationEngine:
 			log.info("%d constraints yet to solve (total: %d, already solved: %d)" % (num_constr, self.num_processed_constraints + num_constr, self.num_processed_constraints))
 			return False
 
+	def _getConcrValue(self,v):
+		if isinstance(v,SymbolicType):
+			return v.getConcrValue()
+		else:
+			return v
+
 	def _recordInputs(self):
 		args = self.symbolic_inputs
-		inputs = [ (k,args[k].getConcrValue()) for k in args ]
+		inputs = [ (k,self._getConcrValue(args[k])) for k in args ]
 		self.generated_inputs.append(inputs)
 		print(inputs)
 		
