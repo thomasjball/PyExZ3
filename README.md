@@ -17,13 +17,14 @@ Python function by:
 function depend on the function's parameters;
 - generating new values for the parameters to drive the function to yet uncovered paths, using Z3.  
 
-For small programs without loops or recursion, PyExZ3 may be able to explore all feasible paths.
+For small programs without loops or recursion, 
+**PyExZ3** may be able to explore all feasible paths.
 
 A novel aspect of the rewrite is to rely solely on Python's operator
 overloading to accomplish all the interception needed for symbolic
 execution; no AST rewriting or bytecode instrumentation is required,
 as was done in the NICE project. This significantly improves the
-robustness and portability of the engine, as well as reducing the code
+robustness and portability of the **PyExZ3**, as well as reducing its
 size.
 
 ###Setup instructions:
@@ -40,24 +41,24 @@ size.
 
 - "python run_tests.py test" should pass all tests
 
-- "python sym_exec.py test\FILE.py" to run a single test from test directory
+- "python pyexz3.py test\FILE.py" to run a single test from test directory
 
-### Usage of sym_exec.py
+### Usage of PyExZ3
 
-- **Basic usage** is very simple - give a Python file `FILE.py` as input. By default, `sym_exec` expects `FILE.py` to contain a function named `FILE` where symbolic execution will start:
+- **Basic usage** is very simple - give a Python file `FILE.py` as input. By default, `pyexz3` expects `FILE.py` to contain a function named `FILE` where symbolic execution will start:
 
-  - `sym_exec FILE.py`
+  - `pyexz3 FILE.py`
 
 - **Starting function**: You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a function in `FILE`: 
 
-  - sym_exec `--start MAIN` FILE.py
+  - pyexz3 `--start MAIN` FILE.py
 
 - **Bounding the number of iterations** of the explorer is essential when you are
 analyzing functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
 
-  - sym_exec `--max-iters 42` FILE.py
+  - pyexz3 `--max-iters 42` FILE.py
 
-- **Arguments to starting function**: by default, sym_exec will associate a symbolic integer
+- **Arguments to starting function**: by default, pyexz3 will associate a symbolic integer
 (with initial value 0) for each parameter to the starting function. 
 You can decorate the start function to specify concrete values for parameters 
 (`@concrete`) so that they never will be treated symbolically; you can also specify 
@@ -79,7 +80,7 @@ startingfun(a,b,c,d):
 
 - **Output**: the explorer prints the list of generated inputs and observed return values
 to standard out; the lists of generated inputs and the corresponding return values are
-returned by the `explore` function to `sym_exec` where they can be used for other purposes, 
+returned by the `explore` function to `pyexz3` where they can be used for other purposes, 
 as described below
 
 - **Oracle test functions** can be added to the `FILE.py` to TBD
