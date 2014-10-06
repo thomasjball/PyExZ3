@@ -43,7 +43,7 @@ class Loader:
 				else:
 					s = getSymbolic(v)
 					if (s == None):
-						print("No correspnding symbolic type found for value " + v + " of type " + type(v))
+						print("Error at argument " + f + " of entry point " + self._entryPoint + " : no corresponding symbolic type found for type " + str(type(v)))
 						raise ImportError()
 					Loader._initializeArgument(inv, f, v, lambda x,y : s(x,y))
 		for a in argspec.args:

@@ -31,9 +31,12 @@ portability of the engine, as well as reducing the code size.
 
 ### Usage
 
-- sym_exec.py:
--- By default, sym_exec expects FILE.py to contain a function named FILE where symbolic execution will start. You can override this with --start=MAIN, where MAIN is the name of the function in FILE to start execution.
--- By default, sym_exec will associate a SymbolicInteger (with initial value 0) for each parameter to the start function. You can decorate the start function to specify concrete values for parameters (@concrete) so that they never will be treated symbolically; you can also specify which values should be treated symbolically (@symbolic) - the type of associated initial value for the argument will be used to determine the proper symbolic type (if one exists)
+- sym_exec:
+  - By default, sym_exec expects FILE.py to contain a function named FILE where symbolic execution will start. 
+  - You can override the default starting function with `--start MAIN`, where MAIN is the name of a function in FILE.
+  
+  - By default, sym_exec will associate a SymbolicInteger (with initial value 0) for each parameter to the start function. 
+  - You can decorate the start function to specify concrete values for parameters (@concrete) so that they never will be treated symbolically; you can also specify which values should be treated symbolically (@symbolic) - the type of associated initial value for the argument will be used to determine the proper symbolic type (if one exists)
 
 ### MacOS specific
 

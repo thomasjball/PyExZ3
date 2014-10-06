@@ -8,7 +8,7 @@ def _traceback():
 	return stack[:-2]
 
 def crash(msg):
-	stack = _traceback()
-	print("\n"+"".join(stack))
+	#stack = _traceback()
+	#print("\n"+"".join(stack))
 	print(msg)
 	sys.exit(-1)

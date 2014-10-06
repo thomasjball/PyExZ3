@@ -38,8 +38,16 @@ if app == None:
 
 print ("Running PyExZ3 on " + app.getName())
 
-engine = ExplorationEngine(app.createInvocation())
-returnVals,path = engine.run(options.max_iters)
+try:
+	engine = ExplorationEngine(app.createInvocation())
+	returnVals,path = engine.run(options.max_iters)
+except ImportError:
+	# createInvocation can raise this
+	sys.exit(1)
+except:
+	# this is the underlying code raising an exception
+	# print("Code under test raised exception")
+	sys.exit(1)
 
 # check the result
 result = app.executionComplete(returnVals)
