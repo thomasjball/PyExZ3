@@ -12,9 +12,8 @@ by anyone wanting to experiment with dynamic symbolic execution.
 
 In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
 Python function by:
--  executing the function on a concrete input to trace a path through the control flow of the function;
-- using symbolic execution along the path to determine how the conditions inside the
-function depend on the function's parameters;
+- executing the function on a concrete input to trace a path through the control flow of the function;
+- using symbolic execution along the path to determine how the path's conditions depend on the function's parameters;
 - generating new values for the parameters to drive the function to yet uncovered paths, using Z3.  
 
 For small programs without loops or recursion, 
