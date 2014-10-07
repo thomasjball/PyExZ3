@@ -49,12 +49,12 @@ as well as reducing its size.
 
 - **Starting function**: You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a  function in `FILE`: 
 
-  - pyexz3 `--start MAIN` FILE.py
+  - pyexz3 `--start=MAIN` FILE.py
 
 - **Bounding the number of iterations** of the path exploration is essential when
 analyzing functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
 
-  - pyexz3 `--max-iters 42` FILE.py
+  - pyexz3 `--max-iters=42` FILE.py
 
 - **Arguments to starting function**: by default, pyexz3 associates a symbolic integer
 (with initial value 0) for each parameter of the starting function. Import from
@@ -65,7 +65,7 @@ from symbolic.args import *
 
 @concrete(a=1,b=2)
 @symbolic(c=3)
-startingfun(a,b,c,d):
+def startingfun(a,b,c,d):
     ...
   ```
   The `@concrete` decorator declares that a parameter will not be treated symbolically and
@@ -92,8 +92,8 @@ in different orders.
 relative to that file will work.
 
 - **Other options**
-  - `--graph` DOTFILE
-  - `--log` LOGFILE
+  - `--graph=DOTFILE`
+  - `--log=LOGFILE`
 
 ### MacOS specific
 
