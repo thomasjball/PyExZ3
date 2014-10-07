@@ -53,21 +53,22 @@ size.
 
   - pyexz3 `--start MAIN` FILE.py
 
-- **Bounding the number of iterations** of the path exploration is essential when you are
+- **Bounding the number of iterations** of the path exploration is essential when
 analyzing functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
 
   - pyexz3 `--max-iters 42` FILE.py
 
 - **Arguments to starting function**: by default, pyexz3 associates a symbolic integer
 (with initial value 0) for each parameter of the starting function. 
-You can decorate the starting function to provde concrete values for parameters 
-(`@concrete`) so that they never will be treated symbolically; you can also specify 
-which values should be treated symbolically (`@symbolic`) - the type of the associated 
+You can decorate the starting function to provide concrete values for parameters 
+(`@concrete`) so that they never will be treated symbolically. You can also specify 
+which parameters should be treated symbolically (`@symbolic`) - the type of the associated 
 initial value for the argument will be used to determine the proper symbolic type 
 (if one exists). Here is an example, where parameters `a` and `b` are treated concretely
-and will have initial values `1` and `2`, and parameter `c` will be treated as a symbolic
-integer input with the initial value `3`. Since parameter `d` is not
-specified, it will be treated as a symbolic integer input with the initial value 0:
+and will have initial values `1` and `2` (for all paths explored), and parameter `c` will 
+be treated as a symbolic integer input with the initial value `3` (value might change after
+first path explored). Since parameter `d` is not specified, it will be treated as a symbolic 
+integer input with the initial value 0:
 
 ```
 from symbolic.args import *
