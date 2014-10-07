@@ -13,7 +13,7 @@ by anyone wanting to experiment with dynamic symbolic execution.
 In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
 Python function by:
 - executing the function on a concrete input to trace a path through the control flow of the function;
-- using symbolic execution along the path to determine how the path's conditions depend on the function's parameters;
+- symbolic executing the path to determine how its conditions depend on the function's input parameters;
 - generating new values for the parameters to drive the function to yet uncovered paths, using Z3.  
 
 For small programs without loops or recursion, 
@@ -22,9 +22,8 @@ For small programs without loops or recursion,
 A novel aspect of the rewrite is to rely solely on Python's operator
 overloading to accomplish all the interception needed for symbolic
 execution; no AST rewriting or bytecode instrumentation is required,
-as was done in the NICE project. This significantly improves the
-robustness and portability of **PyExZ3**, as well as reducing its
-size.
+This significantly improves the robustness and portability of **PyExZ3**, 
+as well as reducing its size.
 
 ###Setup instructions:
 
@@ -58,25 +57,26 @@ analyzing functions with loops and/or recursion. Specify a bound using the `max-
   - pyexz3 `--max-iters 42` FILE.py
 
 - **Arguments to starting function**: by default, pyexz3 associates a symbolic integer
-(with initial value 0) for each parameter of the starting function. 
-You can decorate the starting function to provide concrete values for parameters 
-(`@concrete`) so that they never will be treated symbolically. You can also specify 
-which parameters should be treated symbolically (`@symbolic`) - the type of the associated 
-initial value for the argument will be used to determine the proper symbolic type 
-(if one exists). Here is an example, where parameters `a` and `b` are treated concretely
-and will have initial values `1` and `2` (for all paths explored), and parameter `c` will 
-be treated as a symbolic integer input with the initial value `3` (value might change after
-first path explored). Since parameter `d` is not specified, it will be treated as a symbolic 
-integer input with the initial value 0:
-
-```
+(with initial value 0) for each parameter of the starting function. Import from
+`symbolic.args` to get the `@concrete` and `@symbolic` decorators that let you override
+the defaults on the starting function:
+  ```
 from symbolic.args import *
 
 @concrete(a=1,b=2)
 @symbolic(c=3)
 startingfun(a,b,c,d):
     ...
-```
+  ```
+  The `@concrete` decorator declares that a parameter will not be treated symbolically and
+provides an initial value for the parameter.
+The `@symbolic` decorator declares that a parameter will be treated symbolically - the type 
+of the associated initial value for the argument will be used to determine the proper symbolic 
+type  (if one exists).   In the above example, parameters `a` and `b` are treated concretely
+and will have initial values `1` and `2` (for all paths explored), and parameter `c` will 
+be treated as a symbolic integer input with the initial value `3` (its value can change after
+first path has been explored). Since parameter `d` is not specified, it will be treated as a symbolic 
+integer input with the initial value 0:
 
 - **Output**: `pyexz3` prints the list of generated inputs and observed return values
 to standard out; the lists of generated inputs and the corresponding return values are
