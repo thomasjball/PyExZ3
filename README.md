@@ -3,11 +3,11 @@ PyExZ3
 
 ###A Python Explorer using Z3
 
-This code is a port/rewrite of the NICE project's
+This code is a substantial rewrite of the NICE project's
 (http://code.google.com/p/nice-of/) symbolic execution engine for
 Python to use the Z3 theorem prover (http://z3.codeplex.com). We have
 removed the NICE-specific dependences, platform-specific code, and
-makes various improvements (like documentation) so it can be used
+makes various improvements, documented below, so it can be used
 by anyone wanting to experiment with dynamic symbolic execution.
 
 In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
@@ -24,7 +24,7 @@ A novel aspect of the rewrite is to rely solely on Python's operator
 overloading to accomplish all the interception needed for symbolic
 execution; no AST rewriting or bytecode instrumentation is required,
 as was done in the NICE project. This significantly improves the
-robustness and portability of the **PyExZ3**, as well as reducing its
+robustness and portability of **PyExZ3**, as well as reducing its
 size.
 
 ###Setup instructions:
@@ -39,9 +39,9 @@ size.
 
 ### Check that everything works:
 
-- "python run_tests.py test" should pass all tests
+- `python run_tests.py test` should pass all tests
 
-- "python pyexz3.py test\FILE.py" to run a single test from test directory
+- `python pyexz3.py test\FILE.py` to run a single test from test directory
 
 ### Usage of PyExZ3
 
@@ -49,7 +49,7 @@ size.
 
   - `pyexz3 FILE.py`
 
-- **Starting function**: You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a function in `FILE`: 
+- **Starting function**: You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a  function in `FILE`: 
 
   - pyexz3 `--start MAIN` FILE.py
 
@@ -78,19 +78,21 @@ startingfun(a,b,c,d):
     ...
 ```
 
-- **Output**: the explorer prints the list of generated inputs and observed return values
+- **Output**: `pyexz3` prints the list of generated inputs and observed return values
 to standard out; the lists of generated inputs and the corresponding return values are
 returned by the `explore` function to `pyexz3` where they can be used for other purposes, 
 as described below
 
-- **Oracle test functions** can be added to the `FILE.py` to TBD
+- **Oracle test functions** are used for testing of the tool. If the `FILE.py` contains a function named `expected_result` then after path exploration is complete, the list of return values will be compared against the list returned by `expected_result`. More precisely, the two lists are converted into bags and the bags compared for equality.  If a function named
+`expected_result_set` is present instead, the list are converted into sets and the sets are compared for equality. 
+List equality is too strong a criteria for testing, since small changes to programs can lead to paths being explored
+in different orders. 
 
 - **Import behavior**: TBD
 
 - **Other options**
   - `--graph` DOTFILE
   - `--log` LOGFILE
-  - `--max-iters` N
 
 ### MacOS specific
 
