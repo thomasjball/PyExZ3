@@ -7,7 +7,7 @@ This code is a substantial rewrite of the NICE project's
 (http://code.google.com/p/nice-of/) symbolic execution engine for
 Python to use the Z3 theorem prover (http://z3.codeplex.com). We have
 removed the NICE-specific dependences, platform-specific code, and
-makes various improvements, documented below, so it can be used
+made various improvements, documented below, so it can be used
 by anyone wanting to experiment with dynamic symbolic execution.
 
 In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
@@ -41,11 +41,11 @@ size.
 
 - `python run_tests.py test` should pass all tests
 
-- `python pyexz3.py test\FILE.py` to run a single test from test directory
+- `python pyexz3.py test\FILE.py` to run a single test from the test directory
 
 ### Usage of PyExZ3
 
-- **Basic usage** is very simple - give a Python file `FILE.py` as input. By default, `pyexz3` expects `FILE.py` to contain a function named `FILE` where symbolic execution will start:
+- **Basic usage**: give a Python file `FILE.py` as input. By default, `pyexz3` expects `FILE.py` to contain a function named `FILE` where symbolic execution will start:
 
   - `pyexz3 FILE.py`
 
@@ -53,19 +53,19 @@ size.
 
   - pyexz3 `--start MAIN` FILE.py
 
-- **Bounding the number of iterations** of the explorer is essential when you are
+- **Bounding the number of iterations** of the path exploration is essential when you are
 analyzing functions with loops and/or recursion. Specify a bound using the `max-iters` flag:
 
   - pyexz3 `--max-iters 42` FILE.py
 
-- **Arguments to starting function**: by default, pyexz3 will associate a symbolic integer
-(with initial value 0) for each parameter to the starting function. 
-You can decorate the start function to specify concrete values for parameters 
+- **Arguments to starting function**: by default, pyexz3 associates a symbolic integer
+(with initial value 0) for each parameter of the starting function. 
+You can decorate the starting function to provde concrete values for parameters 
 (`@concrete`) so that they never will be treated symbolically; you can also specify 
-which values should be treated symbolically (`@symbolic`) - the type of associated 
+which values should be treated symbolically (`@symbolic`) - the type of the associated 
 initial value for the argument will be used to determine the proper symbolic type 
 (if one exists). Here is an example, where parameters `a` and `b` are treated concretely
-and will have initial values `1` and `2`, parameter `c` will be treated as a symbolic
+and will have initial values `1` and `2`, and parameter `c` will be treated as a symbolic
 integer input with the initial value `3`. Since parameter `d` is not
 specified, it will be treated as a symbolic integer input with the initial value 0:
 
@@ -80,15 +80,16 @@ startingfun(a,b,c,d):
 
 - **Output**: `pyexz3` prints the list of generated inputs and observed return values
 to standard out; the lists of generated inputs and the corresponding return values are
-returned by the `explore` function to `pyexz3` where they can be used for other purposes, 
-as described below
+returned by the exploration engine to `pyexz3` where they can be used for other 
+purposes, as described below.
 
 - **Oracle test functions** are used for testing of the tool. If the `FILE.py` contains a function named `expected_result` then after path exploration is complete, the list of return values will be compared against the list returned by `expected_result`. More precisely, the two lists are converted into bags and the bags compared for equality.  If a function named
 `expected_result_set` is present instead, the list are converted into sets and the sets are compared for equality. 
 List equality is too strong a criteria for testing, since small changes to programs can lead to paths being explored
 in different orders. 
 
-- **Import behavior**: TBD
+- **Import behavior**: the location of the `FILE.py` is added to the import path so that all imports in `FILE.py` 
+relative to that file will work.
 
 - **Other options**
   - `--graph` DOTFILE
