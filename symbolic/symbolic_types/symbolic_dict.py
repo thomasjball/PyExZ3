@@ -8,13 +8,12 @@ from . symbolic_type import SymbolicType
 # values in dictionary may be mutable
 
 class SymbolicDict(dict):
-	def __new__(cls, *args, **kwargs):
-		print("HERE")
-		print(args)
-		print(kwargs)
+	def __new__(cls, name, *args, **kwargs):
 		self = dict.__new__(cls,args,kwargs)
-		print(self)
 		return self
+
+	def __init__(self, name, kwargs):
+		super(SymbolicDict,self).__init__(kwargs)
 
 #class SymbolicDict(dict):
 #

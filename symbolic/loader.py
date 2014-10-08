@@ -56,7 +56,6 @@ class Loader:
 		inv.addArgumentConstructor(f, val, lambda n,v: val)
 
 	def _initializeArgumentSymbolic(inv,f,val,st):
-		print(st)
 		inv.addArgumentConstructor(f, val, lambda n,v: st(n,v))
 
 	def executionComplete(self, return_vals):

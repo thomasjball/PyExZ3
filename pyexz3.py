@@ -55,13 +55,6 @@ try:
 except ImportError:
 	# createInvocation can raise this
 	sys.exit(1)
-#except:
-	#e = sys.exc_info()[0]
-	#print("Exception:")
-	#print(e)
-	#tb = traceback.format_exc()
-	#print(tb)
-	#sys.exit(1)
 
 if result == None or result == True:
 	sys.exit(0);
