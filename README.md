@@ -82,13 +82,15 @@ be treated as a symbolic integer input with the initial value `3` (its value can
 first path has been explored). Since parameter `d` is not specified, it will be treated as a symbolic 
 integer input with the initial value 0:
 
-- **Output**: `pyexz3` prints the list of generated inputs and observed return values
-to standard out; the lists of generated inputs and the corresponding return values are
+- **Output**: `pyexz3` prints the list of generated inputs and corresponding observed 
+return values to standard out; the lists of generated inputs and the corresponding return values are
 returned by the exploration engine to `pyexz3` where they can be used for other 
 purposes, as described below.
 
-- **Oracle test functions** are used for testing of the tool. If the `FILE.py` contains a function named `expected_result` then after path exploration is complete, the list of return values will be compared against the list returned by `expected_result`. More precisely, the two lists are converted into bags and the bags compared for equality.  If a function named
-`expected_result_set` is present instead, the list are converted into sets and the sets are compared for equality. 
+- **Expected result functions** are used for testing of the `pyexz3`. If the `FILE.py` contains a function named `expected_result` then after path exploration is complete, the list of return values will be compared against the list 
+returned by `expected_result`. More precisely, the two lists are converted into bags and the bags compared for equality.  
+If a function named `expected_result_set` is present instead, the list are converted into sets and the sets are
+compared for equality. 
 List equality is too strong a criteria for testing, since small changes to programs can lead to paths being explored
 in different orders. 
 
