@@ -1,23 +1,23 @@
 import ast
 import sys
-from . symbolic_type import SymbolicType
+from . symbolic_type import SymbolicObject
 
 # SymbolicDict: the key and values will both be SymbolicType for full generality
 
 # keys of dictionary must be immutable
 # values in dictionary may be mutable
 
-class SymbolicDict(dict,SymbolicType):
+class SymbolicDict(SymbolicObject,dict):
 	def __new__(cls, name, *args, **kwargs):
 		self = dict.__new__(cls,args,kwargs)
 		return self
 
 	def __init__(self, name, kwargs):
-		super(SymbolicDict,self).__init__(kwargs)
+		SymbolicObject.__init__(self,name,None)
+		dict.__init__(self,kwargs)
 		# TODO: what is the initial expression?
 		# TODO: we need to remember the initialization
 		# self._init_val = v
-		super(SymbolicDict,self).__st_init__(name,None)
 
 	def getConcrValue(self):
 		return self

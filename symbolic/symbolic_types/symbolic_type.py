@@ -13,10 +13,6 @@ class SymbolicType(object):
 		self.name = name
 		self.expr = expr
 
-	def __st_init__(self, name, expr):
-		self.name = name
-		self.expr = expr
-
 	# to be provided by subclass
 
 	def getConcrValue(self):
