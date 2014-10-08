@@ -1,16 +1,16 @@
 PyExZ3
 ======
 
-###A Python Explorer using Z3
+###Python Exploration with Z3
 
 This code is a substantial rewrite of the NICE project's
 (http://code.google.com/p/nice-of/) symbolic execution engine for
-Python to use the Z3 theorem prover (http://z3.codeplex.com). We have
+Python, now using the Z3 theorem prover (http://z3.codeplex.com). We have
 removed the NICE-specific dependences, platform-specific code, and
 made various improvements, documented below, so it can be used
 by anyone wanting to experiment with dynamic symbolic execution.
 
-In the limit, **PyExZ3** tries to *explore/execute* all the paths in a
+In the limit, **PyExZ3** attempts to *explore* all the feasible paths in a
 Python function by:
 - executing the function on a concrete input to trace a path through the control flow of the function;
 - symbolic executing the path to determine how its conditions depend on the function's input parameters;
@@ -27,11 +27,13 @@ as well as reducing its size.
 
 ###Setup instructions:
 
-- Make sure that you use Python 32-bit (64-bit) if-and-only-if you use the Z3 32-bit (64-bit) binaries. Testing so far has been on Python 3.2.3 and 32-bit.
+- Make sure that you use Python 32-bit (64-bit) if-and-only-if you use the Z3 32-bit (64-bit) binaries. 
+Testing so far has been on Python 3.2.3 and 32-bit.
 - Install Python 3.2.3 (https://www.python.org/download/releases/3.2.3/)
-- Install the latest "unstable" release of Z3 to directory Z3HOME from http://z3.codeplex.com/releases (click on the "Planned" link on the right to get the latest binaries for all platforms)
+- Install the latest "unstable" release of Z3 to directory Z3HOME from http://z3.codeplex.com/releases
+(click on the "Planned" link on the right to get the latest binaries for all platforms)
 - Add Z3HOME\bin to PATH and PYTHONPATH
-- MacOS: setup.sh for Homebrew default locations for Python and Z3; see end for MacOS specifi instructions
+- MacOS: setup.sh for Homebrew default locations for Python and Z3; see end for MacOS specific instructions
 - Optional:
 -- install GraphViz utilities (http://graphviz.org/)
 
@@ -43,11 +45,13 @@ as well as reducing its size.
 
 ### Usage of PyExZ3
 
-- **Basic usage**: give a Python file `FILE.py` as input. By default, `pyexz3` expects `FILE.py` to contain a function named `FILE` where symbolic execution will start:
+- **Basic usage**: give a Python file `FILE.py` as input. By default, `pyexz3` expects `FILE.py` 
+to contain a function named `FILE` where symbolic execution will start:
 
   - `pyexz3 FILE.py`
 
-- **Starting function**: You can override the default starting function with `--start MAIN`, where `MAIN` is the name of a  function in `FILE`: 
+- **Starting function**: You can override the default starting function with `--start MAIN`,
+where `MAIN` is the name of a  function in `FILE`: 
 
   - pyexz3 `--start=MAIN` FILE.py
 
