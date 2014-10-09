@@ -87,12 +87,9 @@ return values to standard out; the lists of generated inputs and the correspondi
 returned by the exploration engine to `pyexz3` where they can be used for other 
 purposes, as described below.
 
-- **Expected result functions** are used for testing of the `pyexz3`. If the `FILE.py` contains a function named `expected_result` then after path exploration is complete, the list of return values will be compared against the list 
-returned by `expected_result`. More precisely, the two lists are converted into bags and the bags compared for equality.  
-If a function named `expected_result_set` is present instead, the list are converted into sets and the sets are
-compared for equality. 
-List equality is too strong a criteria for testing, since small changes to programs can lead to paths being explored
-in different orders. 
+- **Expected result functions** are used for testing of `pyexz3`. If the `FILE.py` contains a function named `expected_result` then after path exploration is complete, the list of return values will be compared against the list 
+returned by `expected_result`. More precisely, the two lists are converted into bags and the bags compared for equality. If a function named `expected_result_set` is present instead, the list are converted into sets and the sets are
+compared for equality.  List equality is too strong a criteria for testing, since small changes to programs can lead to paths being explored in different orders. 
 
 - **Import behavior**: the location of the `FILE.py` is added to the import path so that all imports in `FILE.py` 
 relative to that file will work.
