@@ -1,10 +1,11 @@
 # Copyright: see copyright.txt
 
 from .symbolic_int import SymbolicInteger as SymInt
+from .symbolic_int import SymbolicObject as SymObj
 from .symbolic_dict import SymbolicDict as SymD
 from .symbolic_type import SymbolicType as SymType
 
-SymType.wrap = lambda conc, sym : SymbolicInteger("se",conc,sym)
+SymObj.wrap = lambda conc, sym : SymbolicInteger("se",conc,sym)
 SymbolicInteger = SymInt
 SymbolicDict = SymD
 SymbolicType = SymType

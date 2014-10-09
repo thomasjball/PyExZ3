@@ -93,11 +93,19 @@ class SymbolicType(object):
 		else:
 			return str(expr)
 
+# this class is also ABSTRACT although __init__.py does
+# initialize wrap to return SymbolicInteger for the 
+# relational comparison operators
+
 class SymbolicObject(SymbolicType,object): 
 	def __init__(self, name, expr=None):
 		SymbolicType.__init__(self,name,expr)
 
 	SI = None    # this is set up by ConcolicEngine to link __bool__ to PathConstraint
+
+	def wrap(conc,sym):
+		# see __init__.py
+		raise NotImplemented()
 
 	# this is a critical interception point: the __bool__
 	# method is called whenever a predicate is evaluated in
@@ -114,25 +122,25 @@ class SymbolicObject(SymbolicType,object):
 		if isinstance(other, type(None)):
 			return False
 		else:
-			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq, SymbolicType.wrap)
+			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq, SymbolicObject.wrap)
 
 	def __ne__(self, other):
 		if isinstance(other, type(None)):
 			return True
 		else:
-			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq, SymbolicType.wrap)
+			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq, SymbolicObject.wrap)
 
 	def __lt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt, SymbolicType.wrap)
+		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt, SymbolicObject.wrap)
 
 	def __le__(self, other):
-		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE, SymbolicType.wrap)
+		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE, SymbolicObject.wrap)
 
 	def __gt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt, SymbolicType.wrap)
+		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt, SymbolicObject.wrap)
 
 	def __ge__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicType.wrap)
+		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicObject.wrap)
 
 
 def op2str(o):

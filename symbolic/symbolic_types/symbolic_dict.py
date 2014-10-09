@@ -7,6 +7,9 @@ from . symbolic_type import SymbolicObject
 # keys of dictionary must be immutable
 # values in dictionary may be mutable
 
+
+# TODO: big simplification: can only initialize with
+# an empty dictionary
 class SymbolicDict(SymbolicObject,dict):
 	def __new__(cls, name, *args, **kwargs):
 		self = dict.__new__(cls,args,kwargs)
@@ -15,9 +18,7 @@ class SymbolicDict(SymbolicObject,dict):
 	def __init__(self, name, kwargs):
 		SymbolicObject.__init__(self,name,None)
 		dict.__init__(self,kwargs)
-		# TODO: what is the initial expression?
-		# TODO: we need to remember the initialization
-		# self._init_val = v
+
 
 	def getConcrValue(self):
 		return self
