@@ -17,8 +17,11 @@ class Loader:
 			self._entryPoint = entry;
 		self._resetCallback(True)
 
-	def getName(self):
+	def getFile(self):
 		return self._fileName
+
+	def getEntry(self):
+		return self._entryPoint
 	
 	def createInvocation(self):
 		inv = FunctionInvocation(self._execute,self._resetCallback)
@@ -60,10 +63,8 @@ class Loader:
 
 	def executionComplete(self, return_vals):
 		if "expected_result" in self.app.__dict__:
-			print(return_vals)
 			return self._check(return_vals, self.app.__dict__["expected_result"]())
 		if "expected_result_set" in self.app.__dict__:
-			print(return_vals)
 			return self._check(return_vals, self.app.__dict__["expected_result_set"](),False)
 		else:
 			print(self._fileName + ".py contains no expected_result function")

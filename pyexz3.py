@@ -9,7 +9,7 @@ from optparse import OptionParser
 from symbolic.loader import *
 from symbolic.explore import ExplorationEngine
 
-print("PyExZ3 (Python Symbolic Execution via Z3)")
+print("PyExZ3 (Python Exploration with Z3)")
 
 sys.path = [os.path.abspath(os.path.join(os.path.dirname(__file__)))] + sys.path
 
@@ -37,7 +37,7 @@ app = loaderFactory(filename,options.entry)
 if app == None:
 	sys.exit(1)
 
-print ("Running PyExZ3 on " + app.getName())
+print ("Exploring " + app.getFile() + "." + app.getEntry())
 
 result = None
 try:
