@@ -7,7 +7,7 @@ apt-get -y upgrade
 
 ## Modern Git
 apt-get -y install git
-apt-get -y install zlib1g-dev libcurl4-openssl-dev
+apt-get -y install gettext zlib1g-dev libcurl4-openssl-dev
 apt-get -y install autoconf
 cd /tmp
 git clone https://github.com/git/git.git 
@@ -45,4 +45,3 @@ ln -s /vagrant $INSTALLDIR
 # Tests
 cd $INSTALLDIR
 python3 run_tests.py test
-python3 run_tests.py fail    
