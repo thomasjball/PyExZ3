@@ -106,3 +106,12 @@ relative to that file will work.
 4. Get z3: `brew install homebrew/science/z3`
 5. Clone this repository: `git clone https://github.com/thomasjball/PyExZ3.git` 
 6. Set the PATH: `. PyExZ3/setup.sh`  (do not run the setup script in a subshell `./ PyExZ3/`)
+
+### Vagrant specific
+
+[Vagrant](http://www.vagrantup.com/) is a cross-platform tool to manage 
+virtualized development environments. Vagrant runs on Windows, OS X, and 
+Linux and can manage virtual machines running on VirtualBox, VMware, 
+Docker, and Hyper-V.
+
+1. [Download Vagrant](http://www.vagrantup.com/downloads.html)
