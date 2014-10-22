@@ -1,6 +1,5 @@
 # Copyright: copyright.txt
 
-import ast
 from . symbolic_type import SymbolicObject
 
 # we use multiple inheritance to achieve concrete execution for any
@@ -27,62 +26,34 @@ class SymbolicInteger(SymbolicObject,int):
 	def __hash__(self):
 		return hash(self.val)
 
-	def __add__(self, other):
-		return self._do_bin_op(other, lambda x, y: x+y, ast.Add, SymbolicInteger.wrap)
-	def __radd__(self,other):
-		return self.__add__(other)
+	def _op_worker(self,args,fun,op):
+		return self._do_sexpr(args, fun, op, SymbolicInteger.wrap)
 
-	def __sub__(self, other):
-		return self._do_bin_op(other, lambda x, y: x - y, ast.Sub, SymbolicInteger.wrap)
-	def __rsub__(self,other):
-		return self.__sub__(other)
+# now update the SymbolicInteger class for operations we
+# will build symbolic terms for
 
-	def __mul__(self, other):
-		return self._do_bin_op(other, lambda x, y: x*y, ast.Mult, SymbolicInteger.wrap)
-	def __rmul__(self,other):
-		return self.__mul__(other)
+ops =  [("add",    "+"  ),\
+	("sub",    "-"  ),\
+	("mul",    "*"  ),\
+	("mod",    "%"  ),\
+	("floordiv", "//" ),\
+	("and",    "&"  ),\
+	("or",     "|"  ),\
+	("xor",    "^"  ),\
+	("lshift", "<<" ),\
+	("rshift", ">>" ) ]
 
-	def __mod__(self, other):
-		return self._do_bin_op(other, lambda x, y: x % y, ast.Mod, SymbolicInteger.wrap)
-	def __rmod__(self,other):
-		return self.__mod__(other)
+for (name,op) in ops:
+	method  = "__%s__" % name
+	code  = "def %s(self,other):\n" % method
+	code += "   return self._op_worker([self,other],lambda x,y : x %s y, \"%s\")" % (op,op)
+	locals_dict = {}
+	exec(code, globals(), locals_dict)
+	setattr(SymbolicInteger,method,locals_dict[method])
 
-	def __floordiv__(self, other):
-		return self._do_bin_op(other, lambda x, y: x // y, ast.Div, SymbolicInteger.wrap)
-	def __rfloordiv__(self,other):
-		return self.__floordiv__(other)
-
-	# bit level operations
-
-	def __and__(self, other):
-		return self._do_bin_op(other, lambda x, y: x & y, ast.BitAnd, SymbolicInteger.wrap)
-	def __rand__(self,other):
-		return self.__and__(other)
-
-	def __or__(self, other):
-		return self._do_bin_op(other, lambda x, y: x | y, ast.BitOr, SymbolicInteger.wrap)
-	def __ror__(self,other):
-		return self.__or__(other)
-
-	def __xor__(self, other):
-		return self._do_bin_op(other, lambda x, y: x ^ y, ast.BitXor, SymbolicInteger.wrap)
-	def __rxor__(self,other):
-		return self.__xor__(other)
-
-	def __lshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: x << y, ast.LShift, SymbolicInteger.wrap)
-	def __rlshift__(self,other):
-		return self.__lshift__(other)
-
-	def __rshift__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >> y, ast.RShift, SymbolicInteger.wrap)
-	def __rrshift__(self,other):
-		return self.__rshift__(other)
-
-	# no symbolic implementation for
-	#
-	# __floordiv__
-	# __divmod__
-	# __pow__
-	# __bit_length__
-
+	rmethod = "__r%s__" % name
+	rcode  = "def %s(self,other):\n" % rmethod
+	rcode += "   return self._op_worker([other,self],lambda x,y : x %s y, \"%s\")" % (op,op)
+	locals_dict = {}
+	exec(rcode, globals(), locals_dict)
+	setattr(SymbolicInteger,rmethod,locals_dict[rmethod])

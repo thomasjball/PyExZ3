@@ -1,4 +1,3 @@
-import ast
 import utils
 
 from symbolic.symbolic_types.symbolic_int import SymbolicInteger
@@ -59,41 +58,41 @@ class Z3Expression(object):
 			z3_l,z3_r = args[0],args[1]
 
 			# arithmetical operations
-			if isinstance(op, ast.Add):
+			if op == "+":
 				return self._add(z3_l, z3_r, solver)
-			elif isinstance(op, ast.Sub):
+			elif op == "-":
 				return self._sub(z3_l, z3_r, solver)
-			elif isinstance(op, ast.Mult):
+			elif op == "*":
 				return self._mul(z3_l, z3_r, solver)
-			elif isinstance(op, ast.Div):
+			elif op == "//":
 				return self._div(z3_l, z3_r, solver)
-			elif isinstance(op, ast.Mod):
+			elif op == "%":
 				return self._mod(z3_l, z3_r, solver)
 
 			# bitwise
-			elif isinstance(op, ast.LShift):
+			elif op == "<<":
 				return self._lsh(z3_l, z3_r, solver)
-			elif isinstance(op, ast.RShift):
+			elif op == ">>":
 				return self._rsh(z3_l, z3_r, solver)
-			elif isinstance(op, ast.BitXor):
+			elif op == "^":
 				return self._xor(z3_l, z3_r, solver)
-			elif isinstance(op, ast.BitOr):
+			elif op == "|":
 				return self._or(z3_l, z3_r, solver)
-			elif isinstance(op, ast.BitAnd):
+			elif op == "&":
 				return self._and(z3_l, z3_r, solver)
 
 			# equality gets coerced to integer
-			elif isinstance(op, ast.Eq):
+			elif op == "==":
 				return self._wrapIf(z3_l == z3_r,solver,env)
-			elif isinstance(op, ast.NotEq):
+			elif op == "!=":
 				return self._wrapIf(z3_l != z3_r,solver,env)
-			elif isinstance(op, ast.Lt):
+			elif op == "<":
 				return self._wrapIf(z3_l < z3_r,solver,env)
-			elif isinstance(op, ast.Gt):
+			elif op == ">":
 				return self._wrapIf(z3_l > z3_r,solver,env)
-			elif isinstance(op, ast.LtE):
+			elif op == "<=":
 				return self._wrapIf(z3_l <= z3_r,solver,env)
-			elif isinstance(op, ast.GtE):
+			elif op == ">=":
 				return self._wrapIf(z3_l >= z3_r,solver,env)
 			else:
 				utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % op)

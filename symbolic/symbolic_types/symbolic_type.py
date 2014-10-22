@@ -1,7 +1,6 @@
 # Copyright: see copyright.txt
 
 import utils
-import ast
 import inspect
 import functools
 
@@ -52,9 +51,9 @@ class SymbolicType(object):
 	def _do_sexpr(self,args,fun,op,wrap):
 		unwrapped = [ (a.unwrap() if isinstance(a,SymbolicType) else (a,a)) for a in args ]
 		args = zip(inspect.getargspec(fun).args, [ c for (c,s) in unwrapped ])
-		result_concrete = fun(**dict([a for a in args]))
-		result_symbolic = [ op() ] + [ s for c,s in unwrapped ]
-		return wrap(result_concrete,result_symbolic)
+		concrete = fun(**dict([a for a in args]))
+		symbolic = [ op ] + [ s for c,s in unwrapped ]
+		return wrap(concrete,symbolic)
 
 	# compute both the symbolic and concrete image of operator
 	def _do_bin_op(self, other, fun, op, wrap):
@@ -87,7 +86,7 @@ class SymbolicType(object):
 
 	def _toString(self,expr):
 		if isinstance(expr,list):
-			return "(" + op2str(expr[0]) + " " + ", ".join([ self._toString(a) for a in expr[1:] ]) + ")"
+			return "(" + expr[0] + " " + ", ".join([ self._toString(a) for a in expr[1:] ]) + ")"
 		elif isinstance(expr,SymbolicType):
 			return expr.toString()
 		else:
@@ -119,74 +118,22 @@ class SymbolicObject(SymbolicType,object):
 		return ret
 
 	def __eq__(self, other):
-		if isinstance(other, type(None)):
-			return False
-		else:
-			return self._do_bin_op(other, lambda x, y: x == y, ast.Eq, SymbolicObject.wrap)
+		# TODO: what it self is not symbolic and other is???
+		return self._do_bin_op(other, lambda x, y: x == y, "==", SymbolicObject.wrap)
 
 	def __ne__(self, other):
-		if isinstance(other, type(None)):
-			return True
-		else:
-			return self._do_bin_op(other, lambda x, y: x != y, ast.NotEq, SymbolicObject.wrap)
+		return self._do_bin_op(other, lambda x, y: x != y, "!=", SymbolicObject.wrap)
 
 	def __lt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x < y, ast.Lt, SymbolicObject.wrap)
+		return self._do_bin_op(other, lambda x, y: x < y, "<", SymbolicObject.wrap)
 
 	def __le__(self, other):
-		return self._do_bin_op(other, lambda x, y: x <= y, ast.LtE, SymbolicObject.wrap)
+		return self._do_bin_op(other, lambda x, y: x <= y, "<=", SymbolicObject.wrap)
 
 	def __gt__(self, other):
-		return self._do_bin_op(other, lambda x, y: x > y, ast.Gt, SymbolicObject.wrap)
+		return self._do_bin_op(other, lambda x, y: x > y, ">", SymbolicObject.wrap)
 
 	def __ge__(self, other):
-		return self._do_bin_op(other, lambda x, y: x >= y, ast.GtE, SymbolicObject.wrap)
+		return self._do_bin_op(other, lambda x, y: x >= y, ">=", SymbolicObject.wrap)
 
-
-def op2str(o):
-	if isinstance(o,ast.Add):
-		return "+"
-	if isinstance(o,ast.Sub):
-		return "-"
-	if isinstance(o,ast.Mult):
-		return "*"
-	if isinstance(o,ast.Div):
-		return "/"
-	if isinstance(o,ast.Mod):
-		return "%"
-	if isinstance(o,ast.Pow):
-		return "**"
-	if isinstance(o,ast.LShift):
-		return "<<"
-	if isinstance(o,ast.RShift):
-		return ">>"
-	if isinstance(o,ast.BitOr):
-		return "|"
-	if isinstance(o,ast.BitXor):
-		return "^"
-	if isinstance(o,ast.BitAnd):
-		return "&"
-	if isinstance(o,ast.FloorDiv):
-		return "//"
-	if isinstance(o,ast.Eq):
-		return "=="
-	if isinstance(o,ast.NotEq):
-		return "!="
-	if isinstance(o,ast.Lt):
-		return "<"
-	if isinstance(o,ast.Gt):
-		return ">"
-	if isinstance(o,ast.LtE):
-		return "<="
-	if isinstance(o,ast.GtE):
-		return ">="
-	if isinstance(o,ast.Is):
-		return "is"
-	if isinstance(o,ast.IsNot):
-		return "is not"
-	if isinstance(o,ast.In):
-		return "in"
-	if isinstance(o,ast.NotIn):
-		return "not in"
-	raise KeyError()
 
