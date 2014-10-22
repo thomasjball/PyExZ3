@@ -226,3 +226,7 @@ stdout
 #stdout.old#
 #tmp#
 *.dot
+tmp.txt
+
+# Vagrant
+.vagrant
