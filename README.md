@@ -109,9 +109,18 @@ relative to that file will work.
 
 ### Vagrant specific
 
-[Vagrant](http://www.vagrantup.com/) is a cross-platform tool to manage 
-virtualized development environments. Vagrant runs on Windows, OS X, and 
-Linux and can manage virtual machines running on VirtualBox, VMware, 
+[Vagrant](http://www.vagrantup.com/) is a cross-platform tool to manage
+virtualized development environments. Vagrant runs on Windows, OS X, and
+Linux and can manage virtual machines running on VirtualBox, VMware,
 Docker, and Hyper-V.
 
 1. [Download Vagrant](http://www.vagrantup.com/downloads.html)
+2. Run `vagrant up` from the PyExZ3 directory. The Vagrantfile in the
+repository tells Vagrant to download a Debian base image, launch it with
+the default provider (VirtualBox), and run the script `vagrant.sh` to
+provision the machine.
+3. Once the provisioning is done you can SSH into the machine using
+`vagrant ssh` and PyExZ3 is ready to run. Please note that the
+provisioning takes a while as Git is compiled from source as Debian's
+Git is incompatible with [CodePlex](http://www.codeplex.com/) where Z3
+is hosted.
