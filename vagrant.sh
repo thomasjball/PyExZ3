@@ -39,6 +39,19 @@ cp z3*.py /usr/lib/python3/dist-packages
 cp z3*.pyc /usr/lib/python3/dist-packages
 cd
 
+## CVC4
+apt-get install -y libgmp-dev
+apt-get install -y libboost-all-dev
+apt-get install -y openjdk-7-jre openjdk-7-jdk
+cd /tmp
+git clone https://github.com/CVC4/CVC4.git
+cd CVC4
+./autogen.sh
+contrib/get-antlr-3.4
+./configure --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3
+make
+make doc
+
 # Installation
 ln -s /vagrant $INSTALLDIR
 
