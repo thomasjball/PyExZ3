@@ -55,10 +55,6 @@ class SymbolicType(object):
 		symbolic = [ op ] + [ s for c,s in unwrapped ]
 		return wrap(concrete,symbolic)
 
-	# compute both the symbolic and concrete image of operator
-	def _do_bin_op(self, other, fun, op, wrap):
-		return self._do_sexpr([self,other], fun, op, wrap)
-
 	def symbolicEq(self, other):
 		if not isinstance(other,SymbolicType):
 			return False
@@ -116,6 +112,10 @@ class SymbolicObject(SymbolicType,object):
 		if SymbolicObject.SI != None:
 			SymbolicObject.SI.whichBranch(ret,self)
 		return ret
+
+	# compute both the symbolic and concrete image of operator
+	def _do_bin_op(self, other, fun, op, wrap):
+		return self._do_sexpr([self,other], fun, op, wrap)
 
 	def __eq__(self, other):
 		# TODO: what it self is not symbolic and other is???

@@ -43,17 +43,16 @@ ops =  [("add",    "+"  ),\
 	("lshift", "<<" ),\
 	("rshift", ">>" ) ]
 
-for (name,op) in ops:
-	method  = "__%s__" % name
+def make_method(method,op,a):
 	code  = "def %s(self,other):\n" % method
-	code += "   return self._op_worker([self,other],lambda x,y : x %s y, \"%s\")" % (op,op)
+	code += "   return self._op_worker(%s,lambda x,y : x %s y, \"%s\")" % (a,op,op)
 	locals_dict = {}
 	exec(code, globals(), locals_dict)
 	setattr(SymbolicInteger,method,locals_dict[method])
 
-	rmethod = "__r%s__" % name
-	rcode  = "def %s(self,other):\n" % rmethod
-	rcode += "   return self._op_worker([other,self],lambda x,y : x %s y, \"%s\")" % (op,op)
-	locals_dict = {}
-	exec(rcode, globals(), locals_dict)
-	setattr(SymbolicInteger,rmethod,locals_dict[rmethod])
+for (name,op) in ops:
+	method  = "__%s__" % name
+	make_method(method,op,"[self,other]")
+	rmethod  = "__r%s__" % name
+	make_method(rmethod,op,"[other,self]")
+
