@@ -51,6 +51,8 @@ contrib/get-antlr-3.4
 ./configure --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3
 make
 make doc
+make install
+echo "/usr/local/lib" > /etc/ld.so.conf.d/cvc4.conf
 
 # Installation
 ln -s /vagrant $INSTALLDIR
