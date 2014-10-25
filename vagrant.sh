@@ -43,12 +43,13 @@ cd
 apt-get install -y libgmp-dev
 apt-get install -y libboost-all-dev
 apt-get install -y openjdk-7-jre openjdk-7-jdk
+apt-get install -y swig
 cd /tmp
 git clone https://github.com/CVC4/CVC4.git
 cd CVC4
 ./autogen.sh
 contrib/get-antlr-3.4
-./configure --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3
+./configure --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3 --enable-language-bindings=python
 make
 make doc
 make install
