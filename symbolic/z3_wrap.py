@@ -2,10 +2,13 @@
 
 import sys
 import ast
+import logging
 
 from z3 import *
 from .z3_expr.integer import Z3Integer
 from .z3_expr.bitvector import Z3BitVector
+
+log = logging.getLogger("se.z3")
 
 class Z3Wrapper(object):
 	def __init__(self):
@@ -22,15 +25,10 @@ class Z3Wrapper(object):
 		self.query = query
 		self.asserts = self._coneOfInfluence(asserts,query)
 		res = self._findModel()
-		if (False):
-			print("-- Query")
-			print(self.query)
-			print("-- Asserts")
-			print(asserts)
-			print("-- Cone")
-			print(self.asserts)
-			print("-- Result")
-			print(res)
+		log.debug("Query -- %s" % self.query)
+		log.debug("Asserts -- %s" % asserts)
+		log.debug("Cone -- %s" % self.asserts)
+		log.debug("Result -- %s" % res)
 		return res
 
 	# private
