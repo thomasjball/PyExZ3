@@ -44,7 +44,7 @@ apt-get install -y libgmp-dev
 apt-get install -y libboost-all-dev
 apt-get install -y openjdk-7-jre openjdk-7-jdk
 apt-get install -y swig
-SWIG_FEATURES="-py3"
+export SWIG_FEATURES="-py3"
 cd /tmp
 git clone https://github.com/CVC4/CVC4.git
 cd CVC4
