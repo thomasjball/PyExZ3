@@ -49,8 +49,10 @@ git clone https://github.com/CVC4/CVC4.git
 cd CVC4
 ./autogen.sh
 contrib/get-antlr-3.4
+export PYTHON_CONFIG=/usr/bin/python3.2-config
 ./configure --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3 --enable-language-bindings=python
-export SWIG_FEATURES="-py3"
+echo "python_cpp_SWIGFLAGS = -py3" >> src/bindings/Makefile.am
+autoreconf
 make
 make doc
 make install
