@@ -17,7 +17,10 @@ def myprint(color, s, *args):
   else:
     print(*args)
 
+usage = "usage: %prog [options] <test directory>"
 parser = OptionParser()
+parser.add_option("--cvc", dest="cvc", action="store_true", help="Use the CVC SMT solver instead of Z3", default=False)
+parser.add_option("--z3", dest="cvc", action="store_false", help="Use the Z3 SMT solver")
 (options, args) = parser.parse_args()
 
 if len(args) == 0 or not os.path.exists(args[0]):
@@ -37,7 +40,8 @@ for f in files:
 	# execute the python runner for this test
         full = os.path.join(test_dir, f)
         with open(os.devnull, 'w') as devnull:
-            ret = subprocess.call([sys.executable, "pyexz3.py", "--m=25", full], stdout=devnull)
+            solver = "--cvc" if options.cvc else "--z3"
+            ret = subprocess.call([sys.executable, "pyexz3.py", "--m=25", solver, full], stdout=devnull)
         if (ret == 0):
             myprint(bcolors.SUCCESS, "✓", "Test " + f + " passed.")
         else:
