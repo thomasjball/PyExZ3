@@ -1,0 +1,782 @@
+%---------------------------------------------------------------------------
+%  Copyright 2013 Microsoft Corporation.
+% 
+%  This is free software; you can redistribute it and/or modify it under the
+%  terms of the Apache License, Version 2.0. A copy of the License can be
+%  found in the file "license.txt" at the root of this distribution.
+%---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}[1995/12/01]
+
+\RequirePackage{css}
+\RequirePackage{array}
+\RequirePackage{longtable}
+\RequirePackage{enumitem}
+\RequirePackage{booktabs}
+\RequirePackage{hyperref}
+\RequirePackage{amsmath}
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
+\RequirePackage{stmaryrd}
+\RequirePackage{textcomp}
+\RequirePackage{pifont}
+\RequirePackage{pdfcomment}
+\RequirePackage{wrapfig}
+
+% conditionals
+\newif\ifmathmode
+\newif\ifbeamer
+
+\@ifclassloaded{beamer}{\beamertrue}{\beamerfalse}
+\ifdef\mathmode{\mathmodetrue}{\mathmodefalse}
+
+% use '\defcommand' to define a command no matter if it is predefined or not
+\def\defcommand{\@ifstar\defcommand@S\defcommand@N}
+\def\defcommand@S#1{\let#1\outer\renewcommand*#1}
+\def\defcommand@N#1{\let#1\outer\renewcommand#1} 
+
+%-------------------------------------------------------------
+% Setup packages 
+%-------------------------------------------------------------
+
+
+% hyperref
+\hypersetup{
+  colorlinks=true,linkcolor=Navy,urlcolor=Blue,filecolor=Maroon,bookmarks=true,bookmarksdepth=3,bookmarksopenlevel=1
+}
+
+% booktabs
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+\setlength{\doublerulesep}{\heavyrulewidth}
+
+
+%-------------------------------------------------------------
+% Character commands 
+%-------------------------------------------------------------
+
+\providecommand{\lt}{\ensuremath{<}}
+\providecommand{\gt}{\ensuremath{>}}
+\providecommand{\abs}[1]{\ensuremath{\left\vert #1\right\vert}}
+
+%\providecommand{\bigstrut}{-0.5\baselineskip}{0pt}{1.5\baselineskip}
+%\providecommand{\deepstrut}{-0.5\baselineskip}{0pt}{0.5\baselineskip}
+%\providecommand{\highstrut}{0pt}{0pt}{\baselineskip}
+
+
+% inserted for unknown html entities
+\newcommand{\mdUnknownEntity}[1]{\&#1;}
+\newcommand{\mdEntity}[1]{\protect\mdUnknownEntity{#1}}
+
+% allow the definition of new entities: \mdDefineEntity{bar}{\|}
+\newcommand{\mdDefineEntity}[2]{%
+  \protected@edef\mdEntity##1{\protect\eifstrequal{##1}{#1}{#2}{\mdEntity{##1}}}%
+}
+
+
+% inserted for unknown unicode entities
+\newcommand{\mdUnicodeUnknown}[1]{%
+  \ifXeTeX\mdUnicodeChar{#1}\else%
+  \ifLuaTeX\mdUnicodeChar{#1}\else%
+  \&\##1;\fi\fi
+}
+\newcommand{\mdUnicodeChar}[1]{\char#1} % directly insert the unicode glyph
+\newcommand{\mdUnicode}[1]{\protect\mdUnicodeUnknown{#1}}
+
+% allow the definition of new unicode entities: \mdDefineUnicode{10214}{\ensuremath{\llbracket}}
+\newcommand{\mdDefineUnicode}[2]{%
+  \protected@edef\mdUnicode##1{\protect\ifnum##1=#1{#2}\protect\else{\mdUnicode{##1}}\protect\fi}%
+}
+
+% ballot boxes
+\mdDefineUnicode{9745}{\rlap{$\square$}\protect\raisebox{.15ex}{\kern 0.1em\ding{51}}}
+\mdDefineUnicode{9746}{\rlap{$\square$}{\kern 0.1em\ding{55}}}
+% magnifying glass
+\mdDefineUnicode{128270}{\kern -0.75ex\protect\raisebox{-0.25ex}{$\arrownot$}\kern 1.05ex\protect\raisebox{0.5ex}{$\circ$}\hspace{-0.25ex}}
+% short underscore
+\mdDefineUnicode{818}{\leavevmode\kern 0.06em\vbox{\hrule width 0.3em}}
+
+% break and nbsp
+\newcommand{\mdBr}{\ifvmode\leavevmode\fi\\}
+\newcommand{\mdNbsp}{\nobreak\rule{0pt}{0pt}~}
+
+% logo
+\cssClassRuleDoBefore{madokologo}{\vfill}
+
+
+% We need to call \mdLabeltarget for any structure that can set label
+\newcounter{@mdTargetCount}
+\newcommand{\mdLabeltarget}{\refstepcounter{@mdTargetCount}}
+
+
+%-------------------------------------------------------------
+% Title and subtitle 
+%-------------------------------------------------------------
+
+\providecommand{\@doi}{?}
+
+\ifdef\titlerunning%
+  {\newcommand{\mdTitlerunning}[1]{\titlerunning{#1}}}% llncs
+  {\newcommand{\mdTitlerunning}[1]{\global\def\titlerunning{#1}}}% eptcs
+
+\ifdef\authorrunning%
+  {\newcommand{\mdAuthorrunning}[1]{\authorrunning{#1}}}% llncs
+  {\newcommand{\mdAuthorrunning}[1]{\global\def\authorrunning{#1}}}% eptcs
+
+% LLNCS: \author{ \and ...}, \institute{ \email \and ...}
+% EPTCS: \author{ \institute \email \and ... }
+% LATEX: \author{ ... } \date
+
+\ifdef\date{\date{}}{}
+\providecommand{\email}[1]{\textsf{#1}}%
+\ifbeamer\providecommand{\inst}[1]{$^{\mbox{#1}}$}\fi%
+
+% If there is no \authorinfo, we provide a simple one that works
+% with some other common styles
+\newcounter{@mdAuthorcount}
+\newcommand{\@mdauthors}{}   % fancy list of authors
+\newcommand{\@mdauthorss}{}  % simple list of authors
+\newcommand{\@mdinsts}{}
+\providerobustcmd{\@and}{\and}
+\providecommand{\authorinfo}[3]{%
+  \stepcounter{@mdAuthorcount}%
+  \ifdef{\institute}{%  
+    \ifnum\value{@mdAuthorcount}>1%
+     \gappto\@mdauthors{\@and}%
+     \ifx\relax#2\else\gappto\@mdinsts{\@and}\fi
+    \fi%    
+    \ifdef{\inst}%
+    {%LLNCS, Beamer
+      \gappto\@mdauthors{#1}%
+      \gappto\@mdinsts{#2}%
+      \ifx\relax#3\else\gappto\@mdinsts{\mdBr\email{#3}}\fi
+    }%
+    {% EPTCS
+      \gappto\@mdauthors{#1%
+        \ifx\relax#2\else\protect\institute{#2}\fi%
+        \ifx\relax#3\else\protect\email{#3}\fi}%
+    }%
+  }%
+  {% Our own simple style (similar to sigplanconf)
+   \ifnum\value{@mdAuthorcount}>1%
+     \gappto\@mdauthors{\\[2ex]}%
+   \fi%
+   \gappto\@mdauthors{{\large #1}}%
+   \ifx\relax#2\relax\else\gappto\@mdauthors{\\[0.25ex]\normalsize #2}\fi%
+   \ifx\relax#3\relax\else\gappto\@mdauthors{\\\normalsize\email{#3}}\fi%
+  }%
+  \ifnum\value{@mdAuthorcount}>1%
+    \gappto\@mdauthorsx{, #1}%
+  \else
+    \global\def\@mdauthorsx{#1}%
+  \fi
+  \mdAuthorrunning{\@mdauthorsx}%
+}
+
+% support \inst
+\newcommand{\mdInst}[1]{%
+  \ifdef{\inst}{\inst{#1}}{\ensuremath{^{\mbox{#1}}}}%
+}
+\cssClassRuleCmd{inst}{\mdInst}
+
+
+\newcommand{\mdTitle}[1]{\gdef\@mdTitle{#1}\title{\@mdTitle}\mdTitlerunning{#1}}
+\newcommand{\mdSubtitle}[1]{\gappto\@mdTitle{\\{\Large #1}}\title{\@mdTitle}}
+\newcommand{\mdAuthorAddressNote}[2]{%
+  #1%
+  \ifx\relax#2\relax\else\\ #2\fi%
+}
+\newcommand{\mdAuthor}[4]{%
+  \authorinfo{#1}{\mdAuthorAddressNote{#2}{#4}}{#3}%
+}
+\newcommand{\mdMaketitle}[1]{%  
+  \ifnum\value{@mdAuthorcount}>0%
+    \author{\@mdauthors}%
+    \ifdef\inst{\ifdef\institute{\institute{\@mdinsts}}{}}{}%
+  \fi
+  \ifx#1\relax\else%
+    %\ifdef\titlenote% some styles disregard the date command...
+    {%\gappto\@mdTitle{\titlenote{#1}}\title{\@mdTitle}}
+     \mdSubtitle{\normalfont\normalsize #1}}%
+     % {\date{#1}}%
+  \fi%
+  \maketitle%
+}
+
+% Use the pre-defined abstract environment
+\cssElemRuleEnv{abstract}{abstract}
+
+% and define it if not yet defined
+\ifdef{\abstract}{}{
+  \newenvironment{abstract}%
+    {\list{}{\small
+      \leftmargin=2.65em%
+      \labelwidth=0em%
+      \listparindent=0em%
+      \itemindent\listparindent
+      \rightmargin\leftmargin}\item[\hskip\labelsep\bfseries Abstract.]}
+    {\endlist}
+}
+
+%-------------------------------------------------------------
+% Paragraphs and indentation 
+%-------------------------------------------------------------
+\newcommand{\mdParIndent}{\parindent}
+\cssClassRule{indent}{text-indent=\mdParIndent}
+\cssClassRule{para-block}{text-indent=0pt}
+
+\cssNewBlockElem{mdP}{p}{}
+
+\cssParentClassRule{align-center}{text-align=center,margin-left=auto,margin-right=auto}
+
+\cssClassRule{hidden}{display=hidden}
+
+%-------------------------------------------------------------
+% Common Inline elements 
+%-------------------------------------------------------------
+\cssNewInlineElem{\mdEm}{em}{font-style=italic}
+\cssNewInlineElem{\mdStrong}{strong}{font-weight=bold}
+\cssNewInlineElem{\mdDel}{del}{color=gray}  % not great but strike-out is just not well supported on LaTeX...
+
+\cssNewKey{css}{label}{\cssLabel}{}
+
+\newcommand{\mdFootnote}[2][]{%
+  \mdSpan[#1]{\gdef\@thefnmark{\cssLabel}\@footnotemark}\@footnotetext{#2}%  
+  %\footnote{#2}} % no cssInline since footnotes can contain block elements
+}
+\newcommand{\mdSub}[2][]{\ensuremath{_{\mbox{\scriptsize\cssInline[elem=sub,#1]{#2}}}}}
+\newcommand{\mdSup}[2][]{\ensuremath{^{\mbox{\scriptsize\cssInline[elem=sup,#1]{#2}}}}}
+
+\cssClassRule{footnote-backref}{display=hidden}
+\cssClassRule{footnote-before}{display=hidden}
+
+\newcommand{\mdTooltip}[2]{%
+  #2%
+  \eifstrequal{#1}{}{}{%
+    \hbox to 0pt{\raisebox{1ex}{\tiny%
+      \pdfmarkupcomment[color=White,author=Title]{}{#1}%
+    }}%
+  }%
+}
+
+\newcommand{\@mdHyperref}[2]{\hyperref[#1]{#2}}
+\newcommand{\@mdMakeA}[2]{%
+  \cssIfHasClass{localref}%
+    {\@mdHyperref{#1}{#2}%
+     \cssIfHasClass{bibref}{\write\@mainaux{\string\citation{#1}}}{}}%
+    {\href{#1}{#2}}%
+}
+
+\newcommand{\mdA}[4][]{\mdTooltip{#3}{\cssInlineCmd[#1]{\@mdMakeA{#2}}{#4}}}
+
+%-------------------------------------------------------------
+% Headers
+%-------------------------------------------------------------
+\cssNewKey{css}{bookmark}{\cssBookmark}{}
+\newcommand{\mdBookmark}[3]{\eifstrequal{#2}{}{}{\pdfbookmark[#1]{#2}{#3}}}
+\newcommand{\mdHBookmark}[2]{\cssInitKeys{#2}\mdBookmark{#1}{\cssBookmark}{\cssId}}
+
+\newcommand{\mdH}[2][]{\mdHBookmark{0}{#1}\part*{\cssInline[elem=h0,#1]{#2}}}
+\newcommand{\mdHx}[2][]{\mdHBookmark{1}{#1}\chapter*{\cssInline[elem=h1,#1]{#2}}}
+\newcommand{\mdHxx}[2][]{\mdHBookmark{2}{#1}\section*{\cssInline[elem=h2,#1]{#2}}}
+\newcommand{\mdHxxx}[2][]{\mdHBookmark{3}{#1}\subsection*{\cssInline[elem=h3,#1]{#2}}}
+\newcommand{\mdHxxxx}[2][]{\mdHBookmark{4}{#1}\subsubsection*{\cssInline[elem=h4,#1]{#2}}}
+\newcommand{\mdHxxxxx}[2][]{\paragraph*{\cssInline[elem=h5,#1]{#2}}}
+\newcommand{\mdHxxxxxx}[2][]{\paragraph*{\cssInline[elem=h6,#1]{#2}}}
+\newenvironment{mdSection}[1][]{\mdHBookmark{2}{#1}\begin{mdDiv}[#1]}{\end{mdDiv}}
+
+%\patchcmd{\@startsection}%
+%	{\@ssect{#3}{#4}{#5}{#6}}%
+%	{\@dblarg{\@sect{#1}{\@m}{#3}{#4}{#5}{#6}}}%
+%	{}%
+%	{\PackageError{madoko}{Unable to patch \string\@startsection}\@ehd}
+
+%-------------------------------------------------------------
+% Common block elements
+%-------------------------------------------------------------
+\cssNewInlineElem{\mdSpan}{span}{}
+\cssNewBlockElem{mdDiv}{div}{}
+\cssNewBlockElem{mdDivInline}{divinline}{display=block-inline}
+\newenvironment{mdBlockquote}[1][]%
+  {\begin{mdDiv}[#1]\begin{quote}}%
+  {\end{quote}\end{mdDiv}}
+
+%-------------------------------------------------------------
+% Images 
+%-------------------------------------------------------------
+
+\newcommand{\@imgInclude}[4]{%
+  \begin{minipage}[#1]{#2}%
+  \eifstrequal{#1}{c}%
+    {$\vcenter{\hbox{\protect\includegraphics[#4]{#3}}}$}%
+    {\eifstrequal{#1}{t}{\vspace{-0.7\baselineskip}}{}%
+     \protect\includegraphics[#4]{#3}}%
+  \end{minipage}%
+}
+\newcommand{\@imgArgs}{}
+
+\newcommand{\mdImg}[2][]{%
+  \begingroup%  
+  \cssNewLengthKey{csspre}{width}{\cssImageWidth}    % capture width and height
+  \cssNewLengthKey{csspre}{height}{\cssImageHeight}
+  \cssInline[elem=img,#1]{%   
+    \renewcommand{\@imgArgs}{keepaspectratio=true}%
+    \ifdim\cssImageWidth=0pt\else\appto{\@imgArgs}{,width=\cssImageWidth}\fi
+    \ifdim\cssImageHeight=0pt\else\appto{\@imgArgs}{,height=\cssImageHeight}\fi
+    \eifstrequal{\@imgArgs}{}%
+      {\includegraphics{#2}}%
+    {\eifstrequal{\cssVerticalAlign}{top}%
+      {\@expandafter{\@imgInclude{t}{\cssImageWidth}{#2}}{\@imgArgs}}%
+    {\eifstrequal{\cssVerticalAlign}{middle}%
+      {\@expandafter{\@imgInclude{c}{\cssImageWidth}{#2}}{\@imgArgs}}%
+      {\@expandafter{\@imgInclude{b}{\cssImageWidth}{#2}}{\@imgArgs}}}%
+    }%
+  }%
+  \endgroup%
+}%
+
+%-------------------------------------------------------------
+% Math
+%-------------------------------------------------------------
+
+\newenvironment{mdMathprearray}%
+  {\setlength{\arraycolsep}{0pt}\begin {array}{llllllll}}%
+  {\end{array}\hspace*{\linewidth minus \linewidth}} % flush left
+
+\defcommand{\mathkw}[1]{\mathsf{{#1}}}
+\defcommand{\mathid}[1]{\mathit{#1}}
+
+\defcommand{\smallstrut}{\mbox{\rule{0ex}{1ex}}}
+
+\newcommand{\mdMathspace}[1]{\mskip\numexpr4*#1\relax mu plus #1mu minus #1mu\smallstrut}
+\newcommand{\mdMathindent}[1]{\mskip\numexpr8*#1\relax mu\smallstrut}
+\newcommand{\mdMathbr}{\\}
+
+% Equation tags are stored in mdTag (which resets automatically after each math display)
+\newcommand{\mdTag}{}
+\preto{\]}{\mdTag\global\def\mdTag{}}  % hookup in math displays
+
+\newcommand{\mdEquationbefore}[1]{%
+  \global\def\mdTag{\tag*{#1}}% use the amsmath tag command to set the label
+  \mdLabeltarget%
+}
+\cssClassRuleCmd{equation-before}{\mdEquationbefore}
+
+
+
+%-------------------------------------------------------------
+% Lists
+%-------------------------------------------------------------
+
+\newcounter{mdListNesting}
+
+
+\newlength{\xtopsep}
+\newenvironment{mdUl}[1][]%
+  {\begin{mdDiv}[#1]%
+   \advance\c@mdListNesting by 1% use advance to be local
+   \setlength{\xtopsep}{\topsep}%
+   \addtolength{\topsep}{-\cssMarginTop}%
+   \begin{itemize}[topsep=\xtopsep]%
+   \cssIfHasClass{compact}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{}%
+  }%
+  {\strut\end{itemize}\end{mdDiv}}
+
+\cssNewKey{css}{start}{\cssStart}{}
+\newenvironment{mdOl}[1][]%
+  {\begin{mdDiv}[#1]%
+  \advance\c@mdListNesting by 1% use advance to be local
+  \setlength{\xtopsep}{\topsep}%
+  \addtolength{\topsep}{-\cssMarginTop}%
+  \begin{enumerate}[topsep=\xtopsep]%
+  \eifstrequal{\cssStart}{}{}%
+    {\addtocounter{enum\roman{mdListNesting}}{\cssStart}%
+     \addtocounter{enum\roman{mdListNesting}}{-1}}%
+  \cssIfHasClass{compact}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{}%
+  }%
+  {\strut\end{enumerate}\end{mdDiv}}
+
+\newenvironment{mdLi}[1][]{\item\mdLabeltarget\begin{mdDivInline}[#1]}{\end{mdDivInline}}
+
+\newenvironment{mdDl}[1][]%
+  {\begin{mdDiv}[#1]%
+   \advance\c@mdListNesting by 1% use advance to be local
+   \setlength{\xtopsep}{\topsep}%
+   \addtolength{\topsep}{-\cssMarginTop}%
+   \begin{itemize}[leftmargin=0pt,topsep=\xtopsep]%
+   \vspace{-\itemsep}%
+   \cssIfHasClass{compact}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{}%
+  }%
+  {\end{itemize}\end{mdDiv}}%
+
+\newenvironment{mdDt}[1][]%
+  {\item[]\begin{mdDiv}[#1]}%
+  {\end{mdDiv}}%
+
+\newenvironment{mdDd}[1][]%
+  {\begin{mdDiv}[#1]}%
+  {\end{mdDiv}}%
+
+
+% ---------------------------------------------------
+% Bibliography
+% ---------------------------------------------------
+
+
+\cssNewKey{css}{caption}{\cssCaption}{?}
+\newKey{css}{bibstyle}{%
+  \eifstrequal{#1}{}%
+    {\write\@mainaux{\string\bibstyle{plain}}}%
+    {\write\@mainaux{\string\bibstyle{#1}}}
+}
+\newKey{css}{bibdata}{\write\@mainaux{\string\bibdata{#1}}}
+
+
+\newcommand{\mdBibDisplay}{inline}
+
+\newcommand{\@ignore}[2][]{} % ignore argument (and optional argument)
+
+\newenvironment{mdBibliography}[1][]{%
+  \begin{mdDiv}[#1]%
+  \ifdef\section{\def\section{\@ifstar\@ignore\@ignore}}{}% suppress bibliography header
+  \ifdef\chapter{\def\chapter{\@ifstar\@ignore\@ignore}}{}% suppress bibliography header
+  \providecommand{\markboth}[2]{}%
+  \cssIfHasClass{bib-authoryear}{\def\mdBibDisplay{hidden}}{}%
+  \begin{thebibliography}{\cssCaption}\setlength{\topsep}{0pt}\vspace{-4ex}}%
+  {\markboth{}{}\end{thebibliography}\end{mdDiv}}
+
+
+\cssNewKey{css}{cite-label}{\cssCiteLabel}{}
+
+\newenvironment{mdBibitem}[1][]{%
+  \item[]\mdLabeltarget\begin{mdDivInline}[#1]\hspace*{-\leftmargin}}%  
+  {\end{mdDivInline}\par}
+
+\cssClassRule{bibitem-before}{display=\mdBibDisplay,width=\leftmargin,text-align=right}
+\providecommand{\newblock}{\hskip .11em plus .33em minus .07em}
+\cssClassRuleDoBefore{newblock}{\protect\newblock}
+
+% ---------------------------------------------------
+% Table of contents
+% ---------------------------------------------------
+
+% until this level, the entry is bold
+\newcommand{\mdTocLevelBold}{1}
+% until this level, no dots are used
+\newcommand{\mdTocLevelNodots}{1}
+\newlength{\mdTocIndent}
+\setlength{\mdTocIndent}{1.3em}
+
+\cssNewKeyNoReset{css}{toclevel}{\cssTocLevel}{1}
+\cssNewKeyNoReset{css}{toctarget}{\cssTocTarget}{no-toc-target}
+
+\cssElemRule{tocitem}{display=block-inline}
+\cssClassRuleDoBefore{tocitem}{%
+   \ifnum\cssTocLevel>\mdTocLevelBold\relax\else\bfseries\fi%
+   \noindent\hspace*{-\mdTocIndent}\hspace*{\cssTocLevel\mdTocIndent}}%
+\cssClassRuleDoAfter{tocitem}{%   
+   \hspace{1ex}%
+   \ifnum\cssTocLevel>\mdTocLevelNodots\dotfill\else\hfill\fi%
+   \hspace{1ex}\pageref{\cssTocTarget}}%
+
+
+
+% ---------------------------------------------------
+% Tables
+% ---------------------------------------------------
+
+\newcommand{\mdCellstrut}{}%\mbox{\rule{-0.1ex}{1.8ex}}}
+\newlength{\mdLineWidth}
+\setlength{\mdLineWidth}{\linewidth}
+\newlength{\mdDefaultColumnWidth}
+
+\newcommand{\mdTableInit}[1]{%
+  \setlength{\tabcolsep}{0.5ex}%
+  \setlength{\mdLineWidth}{\dimexpr\linewidth-\tabcolsep*2*#1-\tabcolsep\relax}% the line length minus table spacing
+  \setlength{\mdDefaultColumnWidth}{\dimexpr\mdLineWidth/#1\relax}%
+  \setlength{\linewidth}{\mdLineWidth}
+}
+
+\newenvironment{mdTable}[3][]{% [attributes]{column-count}{column-specifiers}
+  \begin{mdDiv}[#1]%
+  \mdTableInit{#2}%
+  \begin{tabular}{#3}}{\end{tabular}\end{mdDiv}}
+
+
+\newenvironment{mdLongTable}[3][]{% [attributes]{column-count}{column-specifiers}
+  \begin{mdDiv}[#1]%
+  \mdTableInit{#2}%
+  \begin{longtable}{#3}}{\end{longtable}\end{mdDiv}}
+
+
+\newenvironment{mdThead}[1][]{}{}
+\newenvironment{mdTbody}[1][]{}{}
+\cssNewBlockElem{mdColumn}{column}{width=\mdDefaultColumnWidth}
+
+\newcommand{\mdTr}[2][]{\mdSpan[#1]{#2}}
+\newcommand{\mdTd}[2][]{\mdSpan[#1]{\mdCellstrut #2}}
+\newcommand{\mdTh}[2][]{\mdSpan[font-weight=bold,#1]{#2}}
+
+\newlength{\mdTablelineskip}
+\setlength{\mdTablelineskip}{2.4ex}
+
+
+% ---------------------------------------------------
+% Figures
+% ---------------------------------------------------
+\cssNewKey{css}{page-align}{\cssPageAlign}{}
+\cssElemRuleDo{figure}{%
+  \eifstrequal{\cssPageAlign}{top}%
+    {\def\@pagealign{t}}%
+  {\eifstrequal{\cssPageAlign}{bottom}%
+    {\def\@pagealign{b}}%
+  {\eifstrequal{\cssPageAlign}{here}%
+    {\def\@pagealign{ht}}%
+  {\eifstrequal{\cssPageAlign}{page}%
+    {\def\@pagealign{p}}%
+  {\eifstrequal{\cssPageAlign}{forcehere}%
+    {\def\@pagealign{!ht}}%
+    {\def\@pagealign{tbp}}}}}}% default tbp
+  %\cssDoAfter{\cssRestoreFootnotes}%
+  \eifstrequal{\cssFloat}{left}%
+    {}%
+  {\eifstrequal{\cssFloat}{right}%
+    {}%
+  {\cssIfHasClass{wide}%
+    {\cssDoBefore{\@expandafter{\begin{figure*}[}{\@pagealign}]}\cssDoAfter{\end{figure*}}}%
+    {\cssDoBefore{\@expandafter{\begin{figure}[}{\@pagealign}]}\cssDoAfter{\end{figure}}}%
+  }}%
+  %\cssDoBefore{\cssSaveFootnotes}%
+}
+
+\newlength{\mdCaptionlen}
+\newcommand{\mdCaption}[1]{%
+  \settowidth{\mdCaptionlen}{#1}%
+  \ifnum\mdCaptionlen<\linewidth%
+    \parbox{\linewidth}{\noindent\centering #1}%
+  \else%
+    \parbox{\linewidth}{\noindent #1}%
+  \fi%
+}
+\cssClassRuleCmd{figure-caption}{\mdCaption}
+\cssClassRule{figure-caption}{text-align=justify}% prevents insertion of hspace{\fill} due to outer align-center
+
+\newcommand{\mdHr}[2][]{%
+  \begingroup%  
+  \cssNewLengthKey{csspre}{width}{\cssHrWidth}% capture width 
+  %\relax\ifhmode\par\fi%
+  \begin{mdDiv}[height=1ex,vertical-align=center,text-align=center,#1]{%
+    \ifdim\cssHrWidth=0pt\setlength{\cssHrWidth}{\linewidth}\fi%
+    \rule{\cssHrWidth}{\cssPixel}#2}%
+  \end{mdDiv}%
+  \endgroup}
+
+\cssClassRule{block}{margin-top=\topsep,margin-bottom=\topsep}
+
+
+%-------------------------------------------------------------
+% Float boxes  (should this be in css.sty?)
+%-------------------------------------------------------------
+\newlength{\@sideheight}
+\newsavebox{\@sidebox}
+\newcommand{\mdFloatBox}[3]{
+  \savebox{\@sidebox}{#3}%
+  \ifdim\ht\@sidebox>0pt\relax%
+    \savebox{\@sidebox}{\raisebox{-\ht\@sidebox}{\usebox{\@sidebox}}}% top-align the box
+  \fi%
+  \ifnum 0=0#2\relax%
+    \setlength{\@sideheight}{\dp\@sidebox}%
+    \addtolength{\@sideheight}{\ht\@sidebox}%
+    \def\@hangafter{\the\numexpr(0 - \@sideheight - \baselineskip/2)/\baselineskip\relax}%  
+  \else%
+    \def\@hangafter{-#2}%
+  \fi%
+  \eifstrequal{#1}{right}%
+      {\hangindent=-\wd\@sidebox%
+       \hangafter=\@hangafter%
+       \smash{\hspace*{\dimexpr\textwidth - \wd\@sidebox}\usebox{\@sidebox}}%
+    }%
+   {\hangindent=\wd\@sidebox%
+       \hangafter=\@hangafter%
+       \smash{\usebox{\@sidebox}}%
+    }%  
+}
+
+
+%-------------------------------------------------------------
+% Code and syntax highlighting 
+%-------------------------------------------------------------
+\newcommand{\mdPrettyFont}{serif}
+
+\newenvironment{mdPre}[1][]%
+  {\begin{cssBlockX}{elem=pre,margin-top=1ex,margin-bottom=1ex,text-indent=0pt,font-family=monospace}{text-align=left,#1}}% text-align must come after defaults due to parent rules..
+  {\end{cssBlockX}}%
+
+\cssNewInlineElem{\mdCode}{code}{font-family=monospace}
+\cssNewInlineElem{\mdPrecode}{precode}{}
+\cssClassRule{pretty}{font-family=\mdPrettyFont}
+\cssClassRuleDo{pretty}{\def\@tokenPostfix{Pretty}}
+
+\newlength{\presp}
+\settowidth{\presp}{\texttt{ }}
+\newcommand{\prespace}[1]{\hspace*{#1\presp}}
+\newcommand{\preindent}[1]{\hspace*{#1\presp}}
+\newcommand{\prebr}{\strut\\}
+
+
+
+% pretty layout
+\newenvironment{mdCodeTable}[3][]{% [attributes]{column-count}{column-specifiers}
+  \begin{mdDiv}[#1]%
+  \mdTableInit{#2}%
+  \mdPrettyInit%
+  \begin{tabular}{#3}}{\end{tabular}\end{mdDiv}}
+
+\newenvironment{mdCodeLongTable}[3][]{% [attributes]{column-count}{column-specifiers}
+  \begin{mdDiv}[#1]%
+  \mdTableInit{#2}%
+  \mdPrettyInit%
+  \begin{longtable}{#3}}{\end{longtable}\end{mdDiv}}
+
+\newcommand\mdPrettyInit{%
+  \setlength{\tabcolsep}{0pt}%
+  \def\prespace{\pprespace}%
+  \def\preindent{\ppreindent}%
+  \def\prebr{\pprebr}%
+}
+
+\newlength{\ppresp}
+\setlength{\ppresp}{0.5ex}
+\newcommand{\ppreindent}[1]{\hspace*{3\ppresp}}%{\hspace*{#1\ppresp}}
+\newcommand{\pprespace}[1]{\hspace*{\ppresp}}
+\newcommand{\pprebr}[1]{ }
+
+
+% Tokens for highlighting
+
+\cssNewKey{css}{language}{\cssLanguage}{}
+
+\newcommand{\@tokenPostfix}{}
+\newcommand{\@tokencmd}[1]{#1}
+\newcommand{\mdToken}[2]{%
+  \renewcommand{\@tokencmd}[1]{##1}%
+  \@for\@tname:=#1\do{%
+    \ifcsdef{mdToken\@tokenPostfix\@tname}{\apptox{\@tokencmd}{\csname mdToken\@tokenPostfix\@tname\endcsname}}{}%
+  }%
+  \@tokencmd{#2}%
+}
+
+%-------------------------------------------------------------
+% Standard token classes for syntax highlighting 
+%-------------------------------------------------------------
+
+\newcommand{\mdTokenIdentifier}[1]{#1}
+\newcommand{\mdTokenKeyword}[1]{\textcolor{Navy}{#1}}
+\newcommand{\mdTokenPredefined}[1]{\textcolor{Navy}{#1}}
+\newcommand{\mdTokenString}[1]{\textcolor{Maroon}{#1}}
+\newcommand{\mdTokenStringEscape}[1]{\textcolor{Gray}{#1}}
+\newcommand{\mdTokenComment}[1]{\textcolor{Green}{#1}}
+\newcommand{\mdTokenSpecial}[1]{\textcolor{Navy}{#1}}
+\newcommand{\mdTokenDoc}[1]{\textcolor{Gray}{#1}}
+\newcommand{\mdTokenConstant}[1]{\textcolor{Purple}{#1}}
+\newcommand{\mdTokenTag}[1]{\textcolor{Navy}{#1}}
+\newcommand{\mdTokenError}[1]{\textcolor{Red}{#1}}
+\newcommand{\mdTokenAttribute}[1]{\textcolor{Purple}{#1}}
+\newcommand{\mdTokenConstructor}[1]{\textcolor{Purple}{#1}}
+\newcommand{\mdTokenNamespace}[1]{\textcolor{Navy}{#1}}
+\newcommand{\mdTokenType}[1]{\textcolor{Teal}{#1}}
+\newcommand{\mdTokenEmphasis}[1]{\itshape #1}
+\newcommand{\mdTokenStrong}[1]{\bfseries #1}
+\newcommand{\mdTokenTitle}[1]{\bfseries #1}
+\newcommand{\mdTokenMeta}[1]{\textcolor{Gray}{#1}}
+\newcommand{\mdTokenEntity}[1]{{#1}}
+\newcommand{\mdTokenDelimiter}[1]{{#1}}
+
+\newcommand{\mdTokenNumber}[1]{\mdTokenConstant{#1}}
+\newcommand{\mdTokenLiteral}[1]{\mdTokenConstant{#1}}
+\newcommand{\mdTokenItalic}[1]{\mdTokenEmphasis{#1}}
+\newcommand{\mdTokenBold}[1]{\mdTokenStrong{#1}}
+\newcommand{\mdTokenRegexp}[1]{\mdTokenString{#1}}
+\newcommand{\mdTokenInvalid}[1]{\mdTokenError{#1}}
+\newcommand{\mdTokenValue}[1]{\mdTokenString{#1}}
+
+% Pretty tokens
+
+\newcommand{\mdTokenPrettyIdentifier}[1]{\textit{#1}}
+\newcommand{\mdTokenPrettyConstructor}[1]{\textit{#1}}
+\newcommand{\mdTokenPrettyKeyword}[1]{\textsf{#1}}
+\newcommand{\mdTokenPrettyOperator}[1]{\,#1\,}
+
+% ---------------------------------------------------
+% Support the Beamer class
+% ---------------------------------------------------
+
+
+\ifbeamer%
+  \renewcommand{\@mdHyperref}[2]{\hyperlink{#1}{#2}}%
+  \renewcommand{\mdH}[2][]{\frametitle{\cssInline[elem=h0,#1]{#2}}}%
+  \renewcommand{\mdHx}[2][]{\frametitle{\cssInline[elem=h1,#1]{#2}}}%
+  \renewcommand{\mdHxx}[2][]{\frametitle{\cssInline[elem=h2,#1]{#2}}}%
+  \renewenvironment{mdSection}[1][]{\begin{mdDiv}[#1]\begin{frame}\stepcounter{beamerpauses}}{\end{frame}\end{mdDiv}}%
+  % handle fragments
+  \cssClassRuleDo{fragment}{%
+    \eifstrequal{\cssDisplay}{inline}%
+    {\cssWrapCmd{\only<+->}}%
+    {\cssDoBefore{\begin{onlyenv}<+->}\cssDoAfter{\end{onlyenv}}}%
+  }
+  \cssClassRuleDoBefore{pause}{\pause{}}%
+  % item appearance on a list defined with a fragmented class
+  \let\old@mdLi\mdLi%
+  \let\old@endmdLi\endmdLi%
+  \def\mdLi{%
+    \begingroup\def\@fragmentend{}% use fragmented class from the parent (ie. ul or ol)
+    \cssIfHasClass{fragmented}{\def\@fragmentend{\end{onlyenv}}\begin{onlyenv}<+->}{}%
+    \old@mdLi}%
+  \def\endmdLi{%
+    \old@endmdLi\@fragmentend\endgroup%
+  }%
+\fi
+
+% ---------------------------------------------------
+% Math snippets for static image generation
+% ---------------------------------------------------
+
+% re-define some symbols
+\renewcommand{\notin}{\not\in}  %turns out the baseline for 'notin' is wrong
+
+% boxes and lengths
+\newsavebox{\@snippetBox}
+\newlength{\@snippetWidth}
+\newlength{\@snippetHeight}
+\newlength{\@snippetDepth}
+
+\newcounter{snippets}
+
+\newcommand{\@savedepth}{%
+  \setlength{\@snippetWidth}{\wd\@snippetBox}%
+  \setlength{\@snippetHeight}{\ht\@snippetBox}%
+  \setlength{\@snippetDepth}{\dp\@snippetBox}%
+  \addtolength{\@snippetHeight}{\@snippetDepth}%
+  \immediate\write\foo{\arabic{snippets},\@snippetName,\the\@snippetWidth,\the\@snippetHeight,\the\@snippetDepth}%
+  \noindent\usebox\@snippetBox%
+}
+
+\newenvironment{mdDisplaySnippet}[1][\arabic{snippets}]%
+  {\stepcounter{snippets}\edef\@snippetName{#1}%
+   \begin{lrbox}{\@snippetBox}\vbox\bgroup}%
+  {\egroup\end{lrbox}\@savedepth\newpage}
+
+\newenvironment{mdInlineSnippet}[1][\arabic{snippets}]%
+  {\stepcounter{snippets}\def\@snippetName{#1}%
+   \begin{lrbox}{\@snippetBox}}%
+  {\end{lrbox}\@savedepth\newpage}
+
+\newenvironment{mdSnippets}%
+    {\pagestyle{empty}%
+     \abovedisplayskip=0pt%
+     \belowdisplayskip=0pt%
+     \abovedisplayshortskip=0pt%
+     \belowdisplayshortskip=0pt%
+     \newwrite\foo\immediate\openout\foo=\jobname.dim%
+     \immediate\write\foo{\%ordinal,(hash)name,width,(total) height,depth,image width,image height,dpi,base64 encoding}%
+    }%
+    {\closeout\foo}
