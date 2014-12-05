@@ -2,10 +2,13 @@
 
 import sys
 import ast
+import logging
 
 from z3 import *
 from .z3_expr.integer import Z3Integer
 from .z3_expr.bitvector import Z3BitVector
+
+log = logging.getLogger("se.z3")
 
 class Z3Wrapper(object):
 	def __init__(self):
@@ -22,15 +25,10 @@ class Z3Wrapper(object):
 		self.query = query
 		self.asserts = self._coneOfInfluence(asserts,query)
 		res = self._findModel()
-		if (False):
-			print("-- Query")
-			print(self.query)
-			print("-- Asserts")
-			print(asserts)
-			print("-- Cone")
-			print(self.asserts)
-			print("-- Result")
-			print(res)
+		log.debug("Query -- %s" % self.query)
+		log.debug("Asserts -- %s" % asserts)
+		log.debug("Cone -- %s" % self.asserts)
+		log.debug("Result -- %s" % res)
 		return res
 
 	# private
@@ -63,30 +61,8 @@ class Z3Wrapper(object):
 			if res == unsat:
 				return None
 
-		# unsound check for unsat at 32 bits
-
-		self.N = 32
-		self.solver.push()
-		self._setAssertsQuery()
-		ret = self.solver.check()
-		self.solver.pop()
-		if ret == unsat:
-			return None
-
-		# If we were interested in really proving UNSAT,
-		# we would need to generate an overapproximation
-		# of the formula from the proof of UNSAT, as in
-		# @incollection{
-		# year={2007},
-		# booktitle={Tools and Algorithms for the Construction and Analysis of Systems},
-		# volume={4424},
-		# series={Lecture Notes in Computer Science},
-		# title={Deciding Bit-Vector Arithmetic with Abstraction},
-		# author={Bryant, RandalE. and Kroening, Daniel and Ouaknine, Joël and Seshia, SanjitA. and Strichman, Ofer and Brady, Bryan},
-		# pages={358-372},
-		# }
-
 		# now, go for SAT with bounds
+		self.N = 32
 		self.bound = (1 << 4) - 1
 		while self.N <= 64:
 			self.solver.push()
