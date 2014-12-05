@@ -57,6 +57,7 @@ make
 make doc
 make install
 echo "/usr/local/lib" > /etc/ld.so.conf.d/cvc4.conf
+/sbin/ldconfig
 cp builds/src/bindings/python/CVC4.py /usr/lib/python3/dist-packages/CVC4.py
 cp builds/src/bindings/python/.libs/CVC4.so /usr/lib/python3/dist-packages/_CVC4.so
 cd
