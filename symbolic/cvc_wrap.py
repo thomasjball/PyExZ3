@@ -58,12 +58,14 @@ class CVCWrapper(object):
 		self.cvc_expr.toCVC(self.solver,self.asserts,self.query)
 		res = self.solver.checkSat()
 		logging.debug("Solver returned %s" % res.toString())								
-		if res == Result.UNSAT:
+		if not res.isSat():
 			ret = None
-		elif res == Result.VALIDITY_UNKNOWN:
+		elif res.isUnknown():
 			ret = None
-		else: 
-			ret = self._getModel()		
+		elif res.isSat():
+			ret = self._getModel()
+		else:
+			raise Exception("Unexpected SMT result")
 		self.solver.pop()
 		return ret
 
