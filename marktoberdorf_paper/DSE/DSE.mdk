@@ -43,7 +43,7 @@ of coverage in a program. Two keys ideas of DSE are
 to: (1) seed symbolic execution by executing a program on an
 initial input; (2) using concrete values from the program
 execution in place of symbolic expressions whenever symbolic
-reasoning is hard or not desired. In this paper, we describe
+reasoning is hard or not desired. We describe
 DSE for a simple core language and then present
 a minimalist implementation of DSE for Python (in Python) 
 that follows this basic recipe. The code is available 
