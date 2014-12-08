@@ -106,7 +106,7 @@ class CVCExpression(object):
             elif op == "<=":
                 return self._wrapIf(em.mkExpr(CVC4.LTE, cvc_l, cvc_r), solver, env)
             elif op == ">=":
-                return self._wrapIf(em.mkExpr(CVC4.GTE, cvc_l, cvc_r), solver, env)
+                return self._wrapIf(em.mkExpr(CVC4.GEQ, cvc_l, cvc_r), solver, env)
             else:
                 utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % op)
 
