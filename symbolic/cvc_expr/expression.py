@@ -55,7 +55,7 @@ class CVCExpression(object):
 	def _wrapIf(self,e,solver,env):
 		em = solver.getExprManager()
 		if env is None:
-			return em.mkExpr(CVC4.ITE, e, self._constant(1,solver), self._constant(0,solver))			
+			return em.mkExpr(CVC4.ITE, e, self._constant(1,solver), self._constant(0,solver))
 		else:
 			return e
 
@@ -95,7 +95,7 @@ class CVCExpression(object):
 
 			# equality gets coerced to integer
 			elif op == "==":
-				return self._wrapIf(cvc_l == cvc_r,solver,env)
+				return self._wrapIf(em.mkExpr(CVC4.EQUAL, cvc_l, cvc_r), solver, env)
 			elif op == "!=":
 				return self._wrapIf(cvc_l != cvc_r,solver,env)
 			elif op == "<":
