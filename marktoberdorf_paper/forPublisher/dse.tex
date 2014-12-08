@@ -13,7 +13,7 @@
 %\subtitle{Subtitle}
 \author[A]{\fnms{Thomas} \snm{Ball}}
 and 
-\author[B]{\fnms{Daniel} \snm{Jakub}}
+\author[B]{\fnms{Jakub} \snm{Daniel}}
 
 \runningauthor{Thomas Ball et al.}
 \address[A]{Microsoft Research}
@@ -26,11 +26,11 @@ of coverage in a program. Two keys ideas of DSE are
 to: (1) seed symbolic execution by executing a program on an
 initial input; (2) using concrete values from the program
 execution in place of symbolic expressions whenever symbolic
-reasoning is hard or not desired. In this paper, we describe
+reasoning is hard or not desired. We describe
 DSE for a simple core language and then present
 a minimalist implementation of DSE for Python (in Python) 
 that follows this basic recipe. The code is available 
-at http://www.github.com/thomasjball/pyexz3/ (tagged % data-line={50}
+at https://www.github.com/thomasjball/PyExZ3/ (tagged % data-line={50}
 {}{\textquotedblleft}v1.0{\textquotedblright}% data-line={50}
 {}) 
 and has been designed to make it easy to experiment with and
@@ -57,7 +57,7 @@ prover (ATP) to determine if the current path % data-line={80}
 {} is feasible% data-line={80}
 {}{\mdNbsp}\mdSpan[class={citations},target-element={bibitem}]{[\mdA[class={bibref,localref},target-element={bibitem}]{clarke76}{}{\mdSpan[class={bibitem-label}]{4}}, \mdA[class={bibref,localref},target-element={bibitem}]{king76}{}{\mdSpan[class={bibitem-label}]{11}}]}% data-line={80}
 {}. 
-Ideally, symbolic execution a path % data-line={81}
+Ideally, symbolic execution of a path % data-line={81}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$p$}% data-line={81}
 {} through program
 % data-line={82}
@@ -71,7 +71,7 @@ to program % data-line={83}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$P$}% data-line={83}
 {} such that for any % data-line={83}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$i \in I$}% data-line={83}
-{}, execution of % data-line={83}
+{}, the execution % data-line={83}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$P(i)$}% data-line={83}
 {} follows path % data-line={83}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$p$}% data-line={83}
@@ -174,12 +174,12 @@ for % data-line={111}
 {} can be thought of as function from a
 program% data-line={112}
 {}{'}% data-line={112}
-{}s primary inputs to a boolean output representing whether
+{}s primary inputs to a Boolean output representing whether
 or not % data-line={113}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$p$}% data-line={113}
 {} is executed under a given input. Thus, we are asking
 the ATP to invert a function when we ask it to decide
-the satisfiability/unsatisfiability of a path-condition%
+the satisfiability/unsatisfiability of a path-condition.%
 \end{mdP}%
 \begin{mdP}[class={indent},data-line={117}]%
 % data-line={117}
@@ -211,7 +211,7 @@ encoding Python% data-line={127}
 {}{'}% data-line={127}
 {}s method resolution order is possible but non-trivial.
 There are other reasons it is hard or undesirable to symbolically 
-execute various operations, as will detail later.%
+execute various operations, as will be in explained in detail later.%
 \end{mdP}%
 \mdHxxx[id=sec-dynamic-symbolic-execution,label={[1.1]\{.heading-label\}},toc={},data-line={131},caption={[[1.1]\{.heading-label\}.{\enspace}]\{.heading-before\}Dynamic symbolic execution},bookmark={1.1.{\enspace}Dynamic symbolic execution}]{% data-line={131}
 {}\mdSpan[class={heading-before}]{\mdSpan[class={heading-label}]{1.1}.{\enspace}}% data-line={131}
@@ -286,7 +286,7 @@ a logical formula % data-line={164}
 {} is constructed.
 Finally, the ATP is called with the negation of the path-condition
 to find a new input (that hopefully will cover a new path).  This
-pseudo-code ellides a number of details that we will deal with later.%
+pseudo-code elides a number of details that we will deal with later.%
 \end{mdP}%
 \begin{mdDiv}[class={figure,align-center},id=fig-easy-dse,label={[2]\{.figure-label\}},elem={figure},toc={tof},toc-line={[2]\{.figure-label\}. Easy example: computing the maximum of four numbers in Python.},caption={Easy example: computing the maximum of four numbers in Python.},data-line={169}]%
 \begin{mdPre}[class={para-block,pre-fenced,pre-fenced3,language-python,lang-python,python,highlighted},language={python},data-line={170},data-line-code={171}]%
@@ -481,7 +481,7 @@ a solution that would cause % data-line={251}
 arithmetic operations,
 such as % data-line={254}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{x}\mdToken{Operator,Python}{*}\mdToken{Identifier,Python}{x}\mdToken{Operator,Python}{*}\mdToken{Identifier,Python}{x}}% data-line={254}
-{}, we might choose to treat the operation concretely.%
+{}, we might choose to handle the operation concretely.%
 \end{mdP}%
 \begin{mdP}[class={indent},data-line={256}]%
 % data-line={256}
@@ -525,7 +525,7 @@ the code in Figure% data-line={269}
 By using the name % data-line={271}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{unknown}}% data-line={271}
 {} we simply mean to say that we 
-wish treat this function as a black box, with no knowledge
+wish to model this function as a black box, with no knowledge
 of how it operates internally.%
 \end{mdP}%
 \begin{mdDiv}[class={figure,align-center},id=fig-hash,label={[4]\{.figure-label\}},elem={figure},toc={tof},toc-line={[4]\{.figure-label\}. Another hard example for symbolic execution},caption={Another hard example for symbolic execution},data-line={275}]%
@@ -546,10 +546,12 @@ of how it operates internally.%
 {}In such a case, we can use DSE to execute the function % data-line={284}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{unknown}}% data-line={284}
 {}
-function on a specific input (say % data-line={285}
+on a specific input (say % data-line={285}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Number,Python}{5013}}% data-line={285}
 {}) and observe its output
-(say 42). That is, rather than try to execute % data-line={286}
+(say % data-line={286}
+{}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Number,Python}{42}}% data-line={286}
+{}). That is, rather than execute % data-line={286}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{unknown}}% data-line={286}
 {} symbolically
 and invoke an ATP to invert the function% data-line={287}
@@ -652,7 +654,7 @@ Section% data-line={321}
 {} describes an implementation of DSE for the Python language
 in the Python language that follows the instrumented semantics pattern closely
 (full implementation and tests available at% data-line={323}
-{}{\mdNbsp}\mdA{http://www.github.com/thomasjball/pyexz3}{}{PyExZ3}% data-line={323}
+{}{\mdNbsp}\mdA{https://github.com/thomasjball/PyExZ3/}{}{PyExZ3}% data-line={323}
 {}, tagged % data-line={323}
 {}{\textquotedblleft}v1.0{\textquotedblright}% data-line={323}
 {}).
@@ -666,7 +668,7 @@ Section% data-line={328}
 {}{\mdNbsp}\mdA[class={localref},target-element={h1}]{sec-extensions}{}{\mdSpan[class={heading-label}]{6}}% data-line={328}
 {} offers a number of ideas for projects
 to extend the capabilities of% data-line={329}
-{}{\mdNbsp}\mdA{http://www.github.com/thomasjball/pyexz3}{}{PyExZ3}% data-line={329}
+{}{\mdNbsp}\mdA{https://github.com/thomasjball/PyExZ3/}{}{PyExZ3}% data-line={329}
 {}.%
 \end{mdP}%
 \mdHxx[id=sec-semantics,label={[2]\{.heading-label\}},toc={},data-line={331},caption={[[2]\{.heading-label\}.{\enspace}]\{.heading-before\}Instrumented Types},bookmark={2.{\enspace}Instrumented Types}]{% data-line={331}
@@ -829,7 +831,7 @@ whose children are the trees associated with the inputs to % data-line={385}
 % data-line={387}
 {}Figure% data-line={387}
 {}{\mdNbsp}\mdA[class={localref},target-element={figure}]{fig-subtype}{}{\mdSpan[class={figure-label}]{5}}% data-line={387}
-{} presents pseudo code for the instrumention
+{} presents pseudo code for the instrumentation
 of a type % data-line={388}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$T$}% data-line={388}
 {} via a type % data-line={388}
@@ -852,7 +854,7 @@ from both % data-line={391}
 {}. This ensures that a % data-line={391}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$T'$}% data-line={391}
 {} can be used
-whereever a % data-line={392}
+wherever a % data-line={392}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$T$}% data-line={392}
 {} is expected.%
 \end{mdP}%
@@ -1092,7 +1094,7 @@ a predicate % data-line={473}
 pre-states and a statement % data-line={474}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$S$}% data-line={474}
 {} from our language. The transformer % data-line={474}
-{}\mdSpan[class={math-inline},elem={math-inline}]{$Q = SP(P,S)$}% data-line={474}
+{}\mdSpan[class={math-inline},elem={math-inline}]{$SP(P,S)$}% data-line={474}
 {}
 yields a predicate % data-line={475}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$Q$}% data-line={475}
@@ -1279,7 +1281,7 @@ that the precondition % data-line={538}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$<\sigma,P_c>$}% data-line={538}
 {},
 where % data-line={539}
-{}\mdSpan[class={math-inline},elem={math-inline}]{$t$}% data-line={539}
+{}\mdSpan[class={math-inline},elem={math-inline}]{$\sigma$}% data-line={539}
 {} is a store mapping variables to values and % data-line={539}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$P_c$}% data-line={539}
 {} is
@@ -1422,7 +1424,7 @@ symbolic expression (predicate) to the path-condition % data-line={579}
 {}We have shown how the symbolic predicate transformer % data-line={592}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$SP$}% data-line={592}
 {} can 
-be refined into an symbolic interpreter operating over the
+be refined into a symbolic interpreter operating over the
 symbolic types defined in the previous section.
 In the case when every input variable is symbolic and every
 operator is redefined, the path-condition is equivalent to the
@@ -1449,7 +1451,7 @@ guaranteed to result in sound path-conditions.%
 % data-line={606}
 {}This section does not address the compilation of a symbolic
 expression to the (logic) language of an underlying ATP, nor the
-lifting of a satsifying assignment to a formula back to the
+lifting of a satisfying assignment to a formula back to the
 level of the source language. This is best done for a particular
 source language and ATP, as detailed in the next section.%
 \end{mdP}%
@@ -1459,7 +1461,7 @@ source language and ATP, as detailed in the next section.%
 % data-line={615}
 {}In this section we present the high-level architecture
 of a simple DSE tool for the Python language, written in Python, called% data-line={616}
-{}{\mdNbsp}\mdA{http://www.github.com/thomasjball/pyexz3}{}{PyExZ3}% data-line={616}
+{}{\mdNbsp}\mdA{https://github.com/thomasjball/PyExZ3/}{}{PyExZ3}% data-line={616}
 {}. 
 Figure% data-line={617}
 {}{\mdNbsp}\mdA[class={localref},target-element={figure}]{fig-arch}{}{\mdSpan[class={figure-label}]{6}}% data-line={617}
@@ -1483,9 +1485,9 @@ are % data-line={619}
 {}%
 \end{mdDiv}%%
 \end{mdDiv}%
-\mdHxxx[id=sec-loadingtesting-the-code-under-test,label={[4.1]\{.heading-label\}},toc={},data-line={627},caption={[[4.1]\{.heading-label\}.{\enspace}]\{.heading-before\}Loading/testing the code under test},bookmark={4.1.{\enspace}Loading/testing the code under test}]{% data-line={627}
+\mdHxxx[id=sec-loading-the-code-under-test,label={[4.1]\{.heading-label\}},toc={},data-line={627},caption={[[4.1]\{.heading-label\}.{\enspace}]\{.heading-before\}Loading the code under test},bookmark={4.1.{\enspace}Loading the code under test}]{% data-line={627}
 {}\mdSpan[class={heading-before}]{\mdSpan[class={heading-label}]{4.1}.{\enspace}}% data-line={627}
-{}Loading/testing the code under test}\begin{mdP}[data-line={629}]%
+{}Loading the code under test}\begin{mdP}[data-line={629}]%
 % data-line={629}
 {}The % data-line={629}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Namespace,Identifier,Python}{Loader}}% data-line={629}
@@ -1498,7 +1500,7 @@ to import. The loader expects to find a function named
 {} inside the file % data-line={631}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{foo}\mdToken{Delimiter,Python}{.}\mdToken{Identifier,Python}{py}}% data-line={631}
 {}, which will serve as the starting point
-for symbolic execution. Thc % data-line={632}
+for symbolic execution. The % data-line={632}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Namespace,Identifier,Python}{FunctionInvocation}}% data-line={632}
 {} class
 wraps this starting point. By default, each parameter to % data-line={633}
@@ -1514,7 +1516,7 @@ the type to use for a particular argument.%
 \begin{mdP}[class={indent},data-line={637}]%
 % data-line={637}
 {}The loader provides the capability to reload the
-file/module % data-line={638}
+module % data-line={638}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{foo}\mdToken{Delimiter,Python}{.}\mdToken{Identifier,Python}{py}}% data-line={638}
 {} so that the function % data-line={638}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Identifier,Python}{foo}}% data-line={638}
@@ -1694,7 +1696,7 @@ an % data-line={704}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Keyword,Python}{if}}% data-line={704}
 {} or % data-line={704}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Keyword,Python}{while}}% data-line={704}
-{} condition or as the operand of a boolean operation
+{} condition or as the operand of a Boolean operation
 (% data-line={705}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Keyword,Python}{and}}% data-line={705}
 {}, % data-line={705}
@@ -1738,7 +1740,7 @@ inputs so there is no value in adding them to the path-condition.%
 % data-line={722}
 {}A % data-line={722}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Namespace,Identifier,Python}{Predicate}}% data-line={722}
-{} records a conditional (more precisly the symbolic expression
+{} records a conditional (more precisely the symbolic expression
 found in % data-line={723}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Namespace,Identifier,Python}{SymbolicInteger}}% data-line={723}
 {}) and
@@ -1770,7 +1772,7 @@ the tree of % data-line={732}
 and is responsible for installing a new % data-line={733}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Namespace,Identifier,Python}{Constraint}}% data-line={733}
 {} in the tree
-when notified by the overrided % data-line={734}
+when notified by the overridden % data-line={734}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Predefined,Python}{\_\_bool\_\_}}% data-line={734}
 {} method of % data-line={734}
 {}\mdCode[class={code,code1,language-python,lang-python,python,highlighted},language={python}]{\mdToken{Namespace,Identifier,Python}{SymbolicObject}}% data-line={734}
@@ -2055,7 +2057,7 @@ Python integers don% data-line={845}
 we can% data-line={846}
 {}{'}% data-line={846}
 {}t hope to decide algorithmically whether or not a given
-equation over integer variables has a solution in general. Hibert% data-line={847}
+equation over integer variables has a solution in general. Hilbert% data-line={847}
 {}{'}% data-line={847}
 {}s famous
 10th problem and its solution by Matiyasevich tells us that it is
@@ -2131,7 +2133,7 @@ leaving the bound where it is and continue.%
 % data-line={880}
 {}{\textquotedblleft}satisfiable{\textquotedblright}% data-line={880}
 {}, it may be the case that Z3 found a solution
-that involved overflow in the bitvector world of arithemetic
+that involved overflow in the bitvector world of arithmetic
 (modulo % data-line={882}
 {}\mdSpan[class={math-inline},elem={math-inline}]{$2^N-1$}% data-line={882}
 {}). Therefore,
@@ -2180,7 +2182,7 @@ for their questions and feedback about the first author% data-line={909}
 {}s lectures on dynamic
 symbolic execution. The following students of the summer school
 helpfully provided tests for the% data-line={911}
-{}{\mdNbsp}\mdA{http://www.github.com/thomasjball/pyexz3}{}{PyExZ3}% data-line={911}
+{}{\mdNbsp}\mdA{https://github.com/thomasjball/PyExZ3/}{}{PyExZ3}% data-line={911}
 {} tool: Daniel Darvas,
 Damien Rusinek, Christian Dehnert and Thomas Pani. Thanks also to Peter
 Chapman for his contributions.%
@@ -2406,7 +2408,7 @@ Chapman for his contributions.%
 {} (7):% data-line={972;out\DSE-bib.bbl:80}
 {}\mdSpan[penalty={0}]{}% data-line={972;out\DSE-bib.bbl:80}
 {}
-  385–394, 1976.%
+  385â€“394, 1976.%
 \end{mdBibitem}%
 \begin{mdBibitem}[class={bibitem},id=korel90,label={[12]\{.bibitem-label\}},elem={bibitem},cite-label={Korel(1990)},caption={Bogdan Korel. \\Automated software test data generation.},searchterm={Automated+software+test+data+generation++Bogdan+Korel+},data-line={972;out{\textbackslash}DSE-bib.bbl:84}]%
 % data-line={972;out\DSE-bib.bbl:85}
