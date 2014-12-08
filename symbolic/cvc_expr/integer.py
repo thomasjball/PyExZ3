@@ -1,7 +1,7 @@
 import logging
 
 import CVC4
-from CVC4 import Rational
+from CVC4 import Rational, Integer
 
 from .expression import CVCExpression
 
@@ -18,7 +18,7 @@ class CVCInteger(CVCExpression):
 
     def _constant(self, v, solver):
         em = solver.getExprManager()
-        const_expr = em.mkConst(Rational(v))
+        const_expr = em.mkConst(Rational(Integer(v)))
         logging.debug("Created constant expression %s from %s" % (const_expr.toString(), v))
         return const_expr
 

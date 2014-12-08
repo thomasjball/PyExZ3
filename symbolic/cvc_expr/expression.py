@@ -27,7 +27,6 @@ class CVCExpression(object):
             if not CVC4.Type.isBoolean(sym_expr.getType()):
                 sym_expr = em.mkExpr(CVC4.NOT, em.mkExpr(CVC4.EQUAL, sym_expr, self._constant(0, solver)))
             if not pred.result:
-                log.debug("Negating expression %s" % sym_expr.toString())
                 sym_expr = em.mkExpr(CVC4.NOT, sym_expr)
         else:
             if not pred.result:
