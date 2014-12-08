@@ -29,7 +29,7 @@ Heading base: 2
 %\subtitle{Subtitle}
 \author[A]{\fnms{Thomas} \snm{Ball}}
 and 
-\author[B]{\fnms{Daniel} \snm{Jakub}}
+\author[B]{\fnms{Jakub} \snm{Daniel}}
 
 \runningauthor{Thomas Ball et al.}
 \address[A]{Microsoft Research}
@@ -78,9 +78,9 @@ Theorem Provers
 Static, path-based symbolic execution explores one control-flow path
 at a time through a (sequential) program $P$, using an automated theorem
 prover (ATP) to determine if the current path $p$ is feasible [@King76;@Clarke76]. 
-Ideally, symbolic execution a path $p$ through program
+Ideally, symbolic execution of a path $p$ through program
 $P$ yields a logic formula $\phi_p$ that describes the set of inputs $I$ (possibly empty)
-to program $P$ such that for any $i \in I$, execution of $P(i)$ follows path $p$. 
+to program $P$ such that for any $i \in I$, the execution $P(i)$ follows path $p$. 
 
 If the formula $\phi_p$ is unsatisfiable then $I$ is empty and so path $p$ is not feasible; 
 if the formula is satisfiable then $I$ is not empty and so path $p$ is feasible.
@@ -109,10 +109,10 @@ limitations in automatically deciding satisfiability of various logics.
 In the case that the ATP is able to prove "satisfiable" we can query it for 
 satisfying model in order to generate test inputs. A path-condition 
 for $p$ can be thought of as function from a
-program's primary inputs to a boolean output representing whether
+program's primary inputs to a Boolean output representing whether
 or not $p$ is executed under a given input. Thus, we are asking
 the ATP to invert a function when we ask it to decide
-the satisfiability/unsatisfiability of a path-condition
+the satisfiability/unsatisfiability of a path-condition.
 
 The static translation of a path $p$ through a program $P$ into 
 the most precise path-condition $\phi_p$ is not a simple task, as 
@@ -126,7 +126,7 @@ depends on the inheritance hierarchy of the program, a directed,
 acyclic graph that can evolve during program execution. Symbolically
 encoding Python's method resolution order is possible but non-trivial.
 There are other reasons it is hard or undesirable to symbolically 
-execute various operations, as will detail later.
+execute various operations, as will be in explained in detail later.
 
 ## Dynamic symbolic execution
 
@@ -164,7 +164,7 @@ traces  a path `p`, from which
 a logical formula `pathCondition(p)` is constructed.
 Finally, the ATP is called with the negation of the path-condition
 to find a new input (that hopefully will cover a new path).  This
-pseudo-code ellides a number of details that we will deal with later. 
+pseudo-code elides a number of details that we will deal with later. 
 
 ~ Figure { #fig-easy-DSE caption="Easy example: computing the maximum of four numbers in Python."}
 ```
@@ -251,7 +251,7 @@ is not reasonable to have a computer waste time trying to find
 a solution that would cause `fermat3` to print the string 
 `"Fermat and Wiles were wrong!?!"`.  In cases of complex (non-linear)
 arithmetic operations,
-such as `x*x*x`, we might choose to treat the operation concretely.
+such as `x*x*x`, we might choose to handle the operation concretely.
 
 There are a number of ways to deal with the above issue: one is 
 to recognize all non-linear terms in a symbolic expression and replace
@@ -269,7 +269,7 @@ operating system functions).  Consider
 the code in Figure [#fig-hash], which applies the function
 `unknown` to argument `x` and compares it to argument `y`.
 By using the name `unknown` we simply mean to say that we 
-wish treat this function as a black box, with no knowledge
+wish to model this function as a black box, with no knowledge
 of how it operates internally. 
 
 ~ Figure { #fig-hash caption="Another hard example for symbolic execution"}
@@ -282,8 +282,8 @@ def dart(x,y):
 ~
 
 In such a case, we can use DSE to execute the function `unknown`
-function on a specific input (say `5013`) and observe its output
-(say 42). That is, rather than try to execute `unknown` symbolically
+on a specific input (say `5013`) and observe its output
+(say `42`). That is, rather than execute `unknown` symbolically
 and invoke an ATP to invert the function's path-condition, we
 simply treat the call to `unknown` concretely, substituting
 its return value (in this case `42`) for the specialized expression 
@@ -384,12 +384,12 @@ values associated with its inputs;
 (2) build a symbolic expression tree rooted at operation $o$ 
 whose children are the trees associated with the inputs to $o$. 
 
-Figure [#fig-subtype] presents pseudo code for the instrumention
+Figure [#fig-subtype] presents pseudo code for the instrumentation
 of a type $T$ via a type $T'$.
 The class ``Symbolic`` is used to hold an expression tree (``Expr``).
 Given a class $T \in U$, a symbolic type $T' \in U'$ is defined by inheriting 
 from both $T$ and ``Symbolic``. This ensures that a $T'$ can be used
-whereever a $T$ is expected. 
+wherever a $T$ is expected. 
 
 ~ Figure { #fig-subtype caption="Type instrumentation to carry both concrete values and symbolic expressions." }
 ``` cpp2
@@ -471,7 +471,7 @@ of an interpreter.
 
 The strongest postcondition transformer $SP$ [@Dijkstra76] is defined over
 a predicate $P$ representing a set of 
-pre-states and a statement $S$ from our language. The transformer $Q = SP(P,S)$
+pre-states and a statement $S$ from our language. The transformer $SP(P,S)$
 yields a predicate $Q$ such that for any state $s$ satisfying
 predicate $P$, the execution of statement $S$ from state $s$,
 if it does not go wrong or diverge, yields a state $s'$ satisfying predicate $Q$. 
@@ -536,7 +536,7 @@ to refer to the value of variable $x$ in the pre-state.
 By construction,
 we have that every variable is defined before being used.  This means
 that the precondition $P$ can be reformulated as a pair $<St,P_c>$,
-where $t$ is a store mapping variables to values and $P_c$ is
+where $St$ is a store mapping variables to values and $P_c$ is
 the path-condition, a list of symbolic expressions (predicates) 
 corresponding
 to the expressions $E$ evaluated in the context of an **if-then-else** 
@@ -590,7 +590,7 @@ The other strongest postcondition rules remain unchanged.
 ## Summing it up
 
 We have shown how the symbolic predicate transformer $SP$ can 
-be refined into an symbolic interpreter operating over the
+be refined into a symbolic interpreter operating over the
 symbolic types defined in the previous section.
 In the case when every input variable is symbolic and every
 operator is redefined, the path-condition is equivalent to the
@@ -605,7 +605,7 @@ guaranteed to result in sound path-conditions.
 
 This section does not address the compilation of a symbolic
 expression to the (logic) language of an underlying ATP, nor the
-lifting of a satsifying assignment to a formula back to the
+lifting of a satisfying assignment to a formula back to the
 level of the source language. This is best done for a particular
 source language and ATP, as detailed in the next section. 
 
@@ -624,18 +624,18 @@ are "is-a" relationships) of the tool.
 
 [arch]: arch.png "arch"  { width=100% }
 
-## Loading/testing the code under test
+## Loading the code under test
 
 The `Loader` class takes as input the name of a Python file (e.g., `foo.py`) 
 to import. The loader expects to find a function named
 `foo` inside the file `foo.py`, which will serve as the starting point
-for symbolic execution. Thc `FunctionInvocation` class
+for symbolic execution. The `FunctionInvocation` class
 wraps this starting point. By default, each parameter to `foo` is
 a `SymbolicInteger` unless there is decorator `@symbolic` specifying
 the type to use for a particular argument.
 
 The loader provides the capability to reload the
-file/module `foo.py` so that the function `foo` can be 
+module `foo.py` so that the function `foo` can be 
 reexecuted within the same process from the same initial
 state with different inputs (see the class `ExplorationEngine`)
 via the `FunctionInvocation` class. 
@@ -701,7 +701,7 @@ as elaborated in Section [#sp-refined].
 
 The strong-postcondition rule for a conditional test requires
 a little more work. In Python, any object can be tested in
-an `if` or `while` condition or as the operand of a boolean operation
+an `if` or `while` condition or as the operand of a Boolean operation
 (`and`, `or`, `not`)
 The Python base class `object` provides a method named `__bool__` that
 the Python runtime calls whenever it needs to perform such a conditional test.
@@ -719,7 +719,7 @@ inputs so there is no value in adding them to the path-condition.
 
 ## Recording path-conditions
 
-A `Predicate` records a conditional (more precisly the symbolic expression
+A `Predicate` records a conditional (more precisely the symbolic expression
 found in `SymbolicInteger`) and
 which way it evaluated in an execution.  A `Constraint`
 has a `Predicate`, a parent `Constraint` and a set
@@ -731,7 +731,7 @@ been explored so far.
 The class `PathToConstraint` has a reference to the root of 
 the tree of `Constraint`s
 and is responsible for installing a new `Constraint` in the tree
-when notified by the overrided `__bool__` method of `SymbolicObject`.
+when notified by the overridden `__bool__` method of `SymbolicObject`.
 `PathToConstraint` also tracks whether or not the current execution
 is following an existing path in the tree and grows the
 tree as needed. In fact, it actually
@@ -844,7 +844,7 @@ Python (3.0) integers, however, are not finite-precision. They are only
 limited by the size of machine memory. This means, for example, that
 Python integers don't overflow or underflow. It also means that
 we can't hope to decide algorithmically whether or not a given
-equation over integer variables has a solution in general. Hibert's famous
+equation over integer variables has a solution in general. Hilbert's famous
 10th problem and its solution by Matiyasevich tells us that it is
 undecidable whether or not a polynomial
 equation of the form $p(x_1, \ldots, x_n) = 0$ with integer coefficients
@@ -878,7 +878,7 @@ leaving the bound where it is and continue.
 
 If Z3 returns
 "satisfiable", it may be the case that Z3 found a solution
-that involved overflow in the bitvector world of arithemetic
+that involved overflow in the bitvector world of arithmetic
 (modulo $2^N-1$). Therefore,
 the solution is validated back in the
 Python world by evaluating the formula under that solution
