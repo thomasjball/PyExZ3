@@ -47,7 +47,7 @@ reasoning is hard or not desired. We describe
 DSE for a simple core language and then present
 a minimalist implementation of DSE for Python (in Python) 
 that follows this basic recipe. The code is available 
-at http://www.github.com/thomasjball/pyexz3/ (tagged "v1.0") 
+at https://www.github.com/thomasjball/PyExZ3/ (tagged "v1.0") 
 and has been designed to make it easy to experiment with and
 extend. 
 ~
@@ -63,7 +63,7 @@ Theorem Provers
 ~
 
 
-[PyExZ3]: http://www.github.com/thomasjball/pyexz3
+[PyExZ3]: https://github.com/thomasjball/PyExZ3/ 
 [Z3]: http://z3.codeplex.org/
 [MRO]: https://www.python.org/download/releases/2.3/mro/ 
 
