@@ -43,7 +43,7 @@ class CVCExpression(object):
 
 	def _getIntegerVariable(self,name,solver):
 		if name not in self.cvc_vars:
-			self.cvc_vars[name] = self._variable(name,solver)
+			self.cvc_vars[name] = self._variable(name, solver)
 		return self.cvc_vars[name]
 
 	def _variable(self,name,solver):
@@ -54,7 +54,7 @@ class CVCExpression(object):
 
 	def _wrapIf(self,e,solver,env):
 		em = solver.getExprManager()
-		if env == None:
+		if env is None:
 			return em.mkExpr(CVC4.ITE, e, self._constant(1,solver), self._constant(0,solver))			
 		else:
 			return e
@@ -111,7 +111,7 @@ class CVCExpression(object):
 
 		elif isinstance(expr, SymbolicInteger):
 			if expr.isVariable():
-				if env == None:
+				if env is None:
 					return self._getIntegerVariable(expr.name,solver)
 				else:
 					return env[expr.name]

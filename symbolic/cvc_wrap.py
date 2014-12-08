@@ -2,8 +2,7 @@
 
 import logging
 
-import CVC4
-from CVC4 import ExprManager, SmtEngine, Result
+from CVC4 import ExprManager, SmtEngine, Result, SExpr
 
 from .cvc_expr.integer import CVCInteger
 
@@ -16,12 +15,15 @@ class CVCWrapper(object):
 		self.query = None
 		self.use_lia = True
 		self.cvc_expr = None
+		self.em = None
+		self.solver = None
 
 	def findCounterexample(self, asserts, query):
 		"""Tries to find a counterexample to the query while
 	  	 asserts remains valid."""
 		self.em = ExprManager()
 		self.solver = SmtEngine(self.em)
+		self.solver.setOption("produce-models",SExpr("true"))
 		self.query = query
 		self.asserts = self._coneOfInfluence(asserts,query)
 		res = self._findModel()
@@ -34,7 +36,8 @@ class CVCWrapper(object):
 	# private
 
 	# this is very inefficient
-	def _coneOfInfluence(self,asserts,query):
+	@staticmethod
+	def _coneOfInfluence(asserts, query):
 		cone = []
 		cone_vars = set(query.getVars())
 		ws = [ a for a in asserts if len(set(a.getVars()) & cone_vars) > 0 ]
@@ -65,13 +68,12 @@ class CVCWrapper(object):
 		return ret
 
 	def _getModel(self):
-		res = {}		
-		for name in self.cvc_expr.z3_vars.keys():
-			try:
-				ce = model.eval(self.z3_expr.z3_vars[name])
-				res[name] = ce.as_signed_long()
-			except:
-				pass
+		res = {}
+		for name, expr in self.cvc_expr.cvc_vars.items():
+			log.debug("Looking up assignment for %s" % name)
+			ce = self.solver.getValue(expr)
+			log.debug("%s assigned to %s" % (name, ce.toString()))
+			res[name] = ce.getConstRational().getDouble()
 		return res
 	
 

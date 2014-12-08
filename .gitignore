@@ -228,5 +228,12 @@ stdout
 *.dot
 tmp.txt
 
-# Vagrant
+#############
+## Vagrant
+#############
 .vagrant
+
+#############
+## PyCharm
+#############
+.idea
