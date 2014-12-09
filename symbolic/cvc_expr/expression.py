@@ -62,7 +62,6 @@ class CVCExpression(object):
     # add concrete evaluation to this, to check
     def _astToCVCExpr(self, expr, solver, env=None):
         em = solver.getExprManager()
-        logging.debug("Converting AST of type %s to CVC" % type(expr))
 
         if isinstance(expr, list):
             op = expr[0]

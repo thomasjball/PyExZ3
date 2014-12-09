@@ -77,7 +77,7 @@ class CVCWrapper(object):
 			log.debug("Looking up assignment for %s" % name)
 			ce = self.solver.getValue(expr)
 			log.debug("%s assigned to %s" % (name, ce.toString()))
-			res[name] = ce.getConstRational().getDouble()
+			res[name] = ce.getConstRational().getNumerator().getLong() / ce.getConstRational().getDenominator().getLong()
 		return res
 	
 
