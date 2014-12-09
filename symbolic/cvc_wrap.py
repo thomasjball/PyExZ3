@@ -25,6 +25,7 @@ class CVCWrapper(object):
 		self.solver = SmtEngine(self.em)
 		self.solver.setOption("produce-models",SExpr("true"))
 		self.solver.setOption("strings-exp",SExpr("true"))
+		self.solver.setOption("rewrite-divk",SExpr("true"))
 		self.solver.setLogic("ALL_SUPPORTED")
 		self.query = query
 		self.asserts = self._coneOfInfluence(asserts,query)
