@@ -126,7 +126,7 @@ depends on the inheritance hierarchy of the program, a directed,
 acyclic graph that can evolve during program execution. Symbolically
 encoding Python's method resolution order is possible but non-trivial.
 There are other reasons it is hard or undesirable to symbolically 
-execute various operations, as will be in explained in detail later.
+execute various operations, as will be explained in detail later.
 
 ## Dynamic symbolic execution
 
