@@ -2,7 +2,7 @@
 
 import logging
 
-from CVC4 import ExprManager, SmtEngine, Result, SExpr
+from CVC4 import ExprManager, SmtEngine, SExpr
 
 from .cvc_expr.integer import CVCInteger
 
@@ -35,9 +35,6 @@ class CVCWrapper(object):
 		log.debug("Result -- %s" % res)
 		return res
 
-	# private
-
-	# this is very inefficient
 	@staticmethod
 	def _coneOfInfluence(asserts, query):
 		cone = []
@@ -58,16 +55,20 @@ class CVCWrapper(object):
 		self.solver.push()
 		self.cvc_expr = CVCInteger()
 		self.cvc_expr.toCVC(self.solver,self.asserts,self.query)
-		res = self.solver.checkSat()
-		logging.debug("Solver returned %s" % res.toString())								
-		if not res.isSat():
+		try:
+			res = self.solver.checkSat()
+			log.debug("Solver returned %s" % res.toString())
+			if not res.isSat():
+				ret = None
+			elif res.isUnknown():
+				ret = None
+			elif res.isSat():
+				ret = self._getModel()
+			else:
+				raise Exception("Unexpected SMT result")
+		except RuntimeError as r:
+			log.debug("CVC Exception %s" % r)
 			ret = None
-		elif res.isUnknown():
-			ret = None
-		elif res.isSat():
-			ret = self._getModel()
-		else:
-			raise Exception("Unexpected SMT result")
 		self.solver.pop()
 		return ret
 

@@ -67,7 +67,7 @@ class CVCExpression(object):
             op = expr[0]
             args = [self._astToCVCExpr(a, solver, env) for a in expr[1:]]
             cvc_l, cvc_r = args[0], args[1]
-            logging.debug("Building %s %s %s" % (cvc_l.toString(), op, cvc_r.toString()))
+            log.debug("Building %s %s %s" % (cvc_l.toString(), op, cvc_r.toString()))
             # arithmetical operations
             if op == "+":
                 return self._add(cvc_l, cvc_r, solver)
