@@ -102,7 +102,7 @@ class CVCExpression(object):
             elif op == ">":
                 return self._wrapIf(em.mkExpr(CVC4.GT, cvc_l, cvc_r), solver, env)
             elif op == "<=":
-                return self._wrapIf(em.mkExpr(CVC4.LTE, cvc_l, cvc_r), solver, env)
+                return self._wrapIf(em.mkExpr(CVC4.LEQ, cvc_l, cvc_r), solver, env)
             elif op == ">=":
                 return self._wrapIf(em.mkExpr(CVC4.GEQ, cvc_l, cvc_r), solver, env)
             else:
