@@ -18,7 +18,7 @@ class CVCInteger(CVCExpression):
 
     def _constant(self, v, solver):
         em = solver.getExprManager()
-        const_expr = em.mkConst(Rational(Integer(v)))
+        const_expr = em.mkConst(Rational(Integer(str(v))))
         return const_expr
 
     def _add(self, l, r, solver):

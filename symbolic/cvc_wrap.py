@@ -74,10 +74,15 @@ class CVCWrapper(object):
 	def _getModel(self):
 		res = {}
 		for name, expr in self.cvc_expr.cvc_vars.items():
-			log.debug("Looking up assignment for %s" % name)
 			ce = self.solver.getValue(expr)
+			rational = ce.getConstRational()
+			numerator = int(rational.getNumerator().toString())
+			denominator = int(rational.getDenominator().toString())
 			log.debug("%s assigned to %s" % (name, ce.toString()))
-			res[name] = ce.getConstRational().getNumerator().getLong() / ce.getConstRational().getDenominator().getLong()
+			if rational.isIntegral():
+				res[name] = numerator // denominator
+			else:
+				res[name] = numerator / denominator
 		return res
 	
 
