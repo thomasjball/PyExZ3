@@ -14,7 +14,7 @@ The paper [Deconstructing Dynamic Symbolic Execution](http://research.microsoft.
 explains the basic ideas behind dynamic symbolic execution and the architecture
 of the PyExZ3 tool (as of git tag v1.0).  Bruni, Disney and Flanagan wrote about 
 encoding symbolic execution for Python in Python in the same way in their 2008 paper 
-[A Peer Architecture for Lightweight Symbolic Execution](http://hoheinzollern.files.wordpress.com/2008/04/seer1.pdf). 
+[A Peer Architecture for Lightweight Symbolic Execution](http://hoheinzollern.files.wordpress.com/2008/04/seer1.pdf) - they use proxies rather than multiple inheritance for representing symbolic versions of Python types. 
 
 In the limit, **PyExZ3** attempts to *explore* all the feasible paths in a
 Python function by:
