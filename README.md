@@ -10,6 +10,10 @@ removed the NICE-specific dependences, platform-specific code, and
 made various improvements, documented below, so it can be used
 by anyone wanting to experiment with dynamic symbolic execution.
 
+The paper [Deconstructing Dynamic Symbolic Execution](http://research.microsoft.com/apps/pubs/?id=233035)
+explains the basic ideas behind dynamic symbolic execution and the architecture
+of the PyExZ3 tool (as of git tag v1.0).
+
 In the limit, **PyExZ3** attempts to *explore* all the feasible paths in a
 Python function by:
 - executing the function on a concrete input to trace a path through the control flow of the function;
