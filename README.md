@@ -12,7 +12,9 @@ by anyone wanting to experiment with dynamic symbolic execution.
 
 The paper [Deconstructing Dynamic Symbolic Execution](http://research.microsoft.com/apps/pubs/?id=233035)
 explains the basic ideas behind dynamic symbolic execution and the architecture
-of the PyExZ3 tool (as of git tag v1.0).
+of the PyExZ3 tool (as of git tag v1.0).  Bruni, Disney and Flanagan wrote about 
+encoding symbolic execution for Python in Python in the same way in their 2008 paper 
+[A Peer Architecture for Lightweight Symbolic Execution](http://hoheinzollern.files.wordpress.com/2008/04/seer1.pdf). 
 
 In the limit, **PyExZ3** attempts to *explore* all the feasible paths in a
 Python function by:
