@@ -9,7 +9,7 @@ log = logging.getLogger("se.cvc.integer")
 
 
 class CVCInteger(CVCExpression):
-    _bv_size = 64
+    _bv_size = 8
 
     def _isIntVar(self, v):
         return isinstance(v, IntRef)
@@ -45,11 +45,35 @@ class CVCInteger(CVCExpression):
 
     def _or(self, l, r, solver):
         em = solver.getExprManager()
-        #CVC4.IntToBitVector(self._bv_size)
-        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_OR, em.mkExpr(CVC4.INT_TO_BITVECTOR, l, self._bv_size),
-                         em.mkExpr(CVC4.INT_TO_BITVECTOR, r, self._bv_size)))
+        bvconversion = em.mkConst(CVC4.IntToBitVector(self._bv_size))
+        lbitvector = em.mkExpr(bvconversion, l)
+        rbitvector = em.mkExpr(bvconversion, r)
+        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_OR, lbitvector, rbitvector))
 
     def _and(self, l, r, solver):
         em = solver.getExprManager()
-        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_AND, em.mkExpr(CVC4.INT_TO_BITVECTOR, l, self._bv_size),
-                         em.mkExpr(CVC4.INT_TO_BITVECTOR, r, self._bv_size)))
+        bvconversion = em.mkConst(CVC4.IntToBitVector(self._bv_size))
+        lbitvector = em.mkExpr(bvconversion, l)
+        rbitvector = em.mkExpr(bvconversion, r)
+        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_AND, lbitvector, rbitvector))
+
+    def _lsh(self, l, r, solver):
+        em = solver.getExprManager()
+        bvconversion = em.mkConst(CVC4.IntToBitVector(self._bv_size))
+        lbitvector = em.mkExpr(bvconversion, l)
+        rbitvector = em.mkExpr(bvconversion, r)
+        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_SHL, lbitvector, rbitvector))
+
+    def _rsh(self, l, r, solver):
+        em = solver.getExprManager()
+        bvconversion = em.mkConst(CVC4.IntToBitVector(self._bv_size))
+        lbitvector = em.mkExpr(bvconversion, l)
+        rbitvector = em.mkExpr(bvconversion, r)
+        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_ASHR, lbitvector, rbitvector))
+
+    def _xor(self, l, r, solver):
+        em = solver.getExprManager()
+        bvconversion = em.mkConst(CVC4.IntToBitVector(self._bv_size))
+        lbitvector = em.mkExpr(bvconversion, l)
+        rbitvector = em.mkExpr(bvconversion, r)
+        return em.mkExpr(CVC4.BITVECTOR_TO_NAT, em.mkExpr(CVC4.BITVECTOR_XOR, lbitvector, rbitvector))

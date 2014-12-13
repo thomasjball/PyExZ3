@@ -17,7 +17,9 @@ class CVCExpression(object):
         self.cvc_vars = {}
         for p in asserts:
             solver.assertFormula(self.predToCVC(p, solver))
-        solver.assertFormula(solver.getExprManager().mkExpr(CVC4.NOT, self.predToCVC(query, solver)))
+        query = solver.getExprManager().mkExpr(CVC4.NOT, self.predToCVC(query, solver))
+        log.debug("Querying solver for %s" % query.toString())
+        solver.assertFormula(query)
 
     def predToCVC(self, pred, solver, env=None):
         em = solver.getExprManager()
