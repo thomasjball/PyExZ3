@@ -96,6 +96,6 @@ class CVCInteger(CVCExpression):
 
     def _assert_bvbounds(self, bvexpr, solver):
         em = solver.getExprManager()
-        bitof = em.mkConst(CVC4.BitVectorBitOf(0))
-        log.debug("Asserting bitvector bounds of %s" % em.mkExpr(bitof, bvexpr).toString())
-        solver.assertFormula(em.mkExpr(bitof, bvexpr))
+        bitextract = em.mkConst(CVC4.BitVectorExtract(0,0))
+        solver.assertFormula(em.mkExpr(CVC4.EQUAL,em.mkExpr(bitextract, bvexpr),
+                                       em.mkConst(CVC4.BitVector(1,0))))
