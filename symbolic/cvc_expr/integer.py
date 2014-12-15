@@ -11,9 +11,6 @@ log = logging.getLogger("se.cvc.integer")
 class CVCInteger(CVCExpression):
     _bv_size = 8
 
-    def _isIntVar(self, v):
-        return isinstance(v, IntRef)
-
     def _variable(self, name, solver):
         em = solver.getExprManager()
         return em.mkVar(name, em.integerType())
@@ -91,11 +88,11 @@ class CVCInteger(CVCExpression):
     def _assert_bvsanity(self, expr, solver):
         em = solver.getExprManager()
         solver.assertFormula(em.mkExpr(CVC4.EQUAL,
-                               em.mkExpr(CVC4.BITVECTOR_TO_NAT, self._tobv(expr, solver)),
-                               expr))
+                                       em.mkExpr(CVC4.BITVECTOR_TO_NAT, self._tobv(expr, solver)),
+                                       expr))
 
     def _assert_bvbounds(self, bvexpr, solver):
         em = solver.getExprManager()
-        bitextract = em.mkConst(CVC4.BitVectorExtract(0,0))
-        solver.assertFormula(em.mkExpr(CVC4.EQUAL,em.mkExpr(bitextract, bvexpr),
-                                       em.mkConst(CVC4.BitVector(1,0))))
+        bitextract = em.mkConst(CVC4.BitVectorExtract(0, 0))
+        solver.assertFormula(em.mkExpr(CVC4.EQUAL, em.mkExpr(bitextract, bvexpr),
+                                       em.mkConst(CVC4.BitVector(1, 0))))
