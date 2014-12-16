@@ -147,6 +147,8 @@ class CVCWrapper(object):
 
             if cvc_l.getType().isInteger() or cvc_l.getType().isReal():
                 optype = CVCInteger()
+            elif cvc_l.getType().isString():
+                optype = CVCString()
             else:
                 utils.crash("Unknown operand type during conversion from ast to CVC (expressions): %s" % cvc_l.getType().toString())
 
