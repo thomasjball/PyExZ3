@@ -30,36 +30,38 @@ class CVCInteger(CVCExpression):
 
     _bv_size = 8
 
-    def _variable(self, name, solver):
+    @staticmethod
+    def variable(name, solver):
         em = solver.getExprManager()
         return em.mkVar(name, em.integerType())
 
-    def _constant(self, v, solver):
+    @staticmethod
+    def constant(v, solver):
         em = solver.getExprManager()
         const_expr = em.mkConst(Rational(Integer(str(v))))
         return const_expr
 
-    def _add(self, l, r, solver):
+    def add(self, l, r, solver):
         em = solver.getExprManager()
         return em.mkExpr(CVC4.PLUS, l, r)
 
-    def _sub(self, l, r, solver):
+    def sub(self, l, r, solver):
         em = solver.getExprManager()
         return em.mkExpr(CVC4.MINUS, l, r)
 
-    def _mul(self, l, r, solver):
+    def mul(self, l, r, solver):
         em = solver.getExprManager()
         return em.mkExpr(CVC4.MULT, l, r)
 
-    def _div(self, l, r, solver):
+    def div(self, l, r, solver):
         em = solver.getExprManager()
         return em.mkExpr(CVC4.DIVISION, l, r)
 
-    def _mod(self, l, r, solver):
+    def mod(self, l, r, solver):
         em = solver.getExprManager()
         return em.mkExpr(CVC4.INTS_MODULUS, l, r)
 
-    def _or(self, l, r, solver):
+    def orop(self, l, r, solver):
         em = solver.getExprManager()
         calculation = em.mkExpr(CVC4.BITVECTOR_OR, self._tobv(l, solver), self._tobv(r, solver))
         self._assert_bvsanity(l, solver)
@@ -67,7 +69,7 @@ class CVCInteger(CVCExpression):
         self._assert_bvbounds(calculation, solver)
         return em.mkExpr(CVC4.BITVECTOR_TO_NAT, calculation)
 
-    def _and(self, l, r, solver):
+    def andop(self, l, r, solver):
         em = solver.getExprManager()
         calculation = em.mkExpr(CVC4.BITVECTOR_AND, self._tobv(l, solver), self._tobv(r, solver))
         self._assert_bvsanity(l, solver)
@@ -75,7 +77,7 @@ class CVCInteger(CVCExpression):
         self._assert_bvbounds(calculation, solver)
         return em.mkExpr(CVC4.BITVECTOR_TO_NAT, calculation)
 
-    def _lsh(self, l, r, solver):
+    def lsh(self, l, r, solver):
         em = solver.getExprManager()
         calculation = em.mkExpr(CVC4.BITVECTOR_SHL, self._tobv(l, solver), self._tobv(r, solver))
         self._assert_bvsanity(l, solver)
@@ -83,7 +85,7 @@ class CVCInteger(CVCExpression):
         self._assert_bvbounds(calculation, solver)
         return em.mkExpr(CVC4.BITVECTOR_TO_NAT, calculation)
 
-    def _rsh(self, l, r, solver):
+    def rsh(self, l, r, solver):
         em = solver.getExprManager()
         calculation = em.mkExpr(CVC4.BITVECTOR_ASHR, self._tobv(l, solver), self._tobv(r, solver))
         self._assert_bvsanity(l, solver)
@@ -91,7 +93,7 @@ class CVCInteger(CVCExpression):
         self._assert_bvbounds(calculation, solver)
         return em.mkExpr(CVC4.BITVECTOR_TO_NAT, calculation)
 
-    def _xor(self, l, r, solver):
+    def xor(self, l, r, solver):
         em = solver.getExprManager()
         calculation = em.mkExpr(CVC4.BITVECTOR_XOR, self._tobv(l, solver), self._tobv(r, solver))
         self._assert_bvsanity(l, solver)
