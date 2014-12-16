@@ -9,6 +9,25 @@ log = logging.getLogger("se.cvc.integer")
 
 
 class CVCInteger(CVCExpression):
+    """Python numbers are represented as integers in the CVC path expression. For bitwise operations, integers are
+    transformed into bit vectors of size _bv_size and then converted back to a natural number using CVC's
+    BITVECTOR_TO_NAT operator. In order to maintain sound reasoning of the behavior of generated inputs, all inputs to
+    bit vector operations are asserted positive through _assert_bvsanity as well as the outputs through
+    _assert_bvbounds. These assumptions restrict the symbolic execution from finding valid solutions to path formulas
+    in order to avoid generating path expressions with solutions that do not match program behavior. For example, x = -1
+    is a valid solution to x != CVC4.BITVECTOR_TO_NAT(CVC4.INT_TO_BITVECTOR(x)) since the output of the right-hand side
+    of the equation will be positive (natural numbers are >= 0).
+
+    Possible improvements:
+
+    1) _bv_size is currently fixed at a low number. The Z3 integration starts with small bit vectors and gradually
+    increases the size until a solution is found. Match that functionality in CVCInteger.
+
+    2) Create an alternative implementation of CVCInteger that uses bit vectors for all operations. In the presence of
+    bitwise operations, the conversion between bit vectors and integers is expensive.
+
+    3) Encode in the formula a BITVECTOR_TO_INT conversion that performs two's complement arithmetic."""
+
     _bv_size = 8
 
     def _variable(self, name, solver):
@@ -91,7 +110,8 @@ class CVCInteger(CVCExpression):
                                        em.mkExpr(CVC4.BITVECTOR_TO_NAT, self._tobv(expr, solver)),
                                        expr))
 
-    def _assert_bvbounds(self, bvexpr, solver):
+    @staticmethod
+    def _assert_bvbounds(bvexpr, solver):
         em = solver.getExprManager()
         bitextract = em.mkConst(CVC4.BitVectorExtract(0, 0))
         solver.assertFormula(em.mkExpr(CVC4.EQUAL, em.mkExpr(bitextract, bvexpr),

@@ -32,16 +32,8 @@ class CVCExpression(object):
                 sym_expr = em.mkExpr(CVC4.NOT, sym_expr)
         else:
             if not pred.result:
-                sym_expr = not sym_expr
+                sym_expr = em.mkExpr(CVC4.NOT, sym_expr)
         return sym_expr
-
-    def getIntVars(self):
-        return [v for v in self.cvc_vars.values() if self._isIntVar(v)]
-
-    # ----------- private ---------------
-
-    def _isIntVar(self, v):
-        raise NotImplementedException
 
     def _getIntegerVariable(self, name, solver):
         if name not in self.cvc_vars:
@@ -49,19 +41,18 @@ class CVCExpression(object):
         return self.cvc_vars[name]
 
     def _variable(self, name, solver):
-        raise NotImplementedException
+        raise NotImplementedError
 
     def _constant(self, v, solver):
-        raise NotImplementedException
+        raise NotImplementedError
 
-    def _wrapIf(self, e, solver, env):
+    def _wrapIf(self, expr, solver, env):
         em = solver.getExprManager()
         if env is None:
-            return em.mkExpr(CVC4.ITE, e, self._constant(1, solver), self._constant(0, solver))
+            return em.mkExpr(CVC4.ITE, expr, self._constant(1, solver), self._constant(0, solver))
         else:
-            return e
+            return expr
 
-    # add concrete evaluation to this, to check
     def _astToCVCExpr(self, expr, solver, env=None):
         em = solver.getExprManager()
 
@@ -70,6 +61,7 @@ class CVCExpression(object):
             args = [self._astToCVCExpr(a, solver, env) for a in expr[1:]]
             cvc_l, cvc_r = args[0], args[1]
             log.debug("Building %s %s %s" % (cvc_l.toString(), op, cvc_r.toString()))
+
             # arithmetical operations
             if op == "+":
                 return self._add(cvc_l, cvc_r, solver)
@@ -108,7 +100,7 @@ class CVCExpression(object):
             elif op == ">=":
                 return self._wrapIf(em.mkExpr(CVC4.GEQ, cvc_l, cvc_r), solver, env)
             else:
-                utils.crash("Unknown BinOp during conversion from ast to Z3 (expressions): %s" % op)
+                utils.crash("Unknown BinOp during conversion from ast to CVC (expressions): %s" % op)
 
         elif isinstance(expr, SymbolicInteger):
             if expr.isVariable():
@@ -119,16 +111,13 @@ class CVCExpression(object):
             else:
                 return self._astToCVCExpr(expr.expr, solver, env)
 
-        elif isinstance(expr, SymbolicType):
-            return self._astToZ3Expr(expr.symtype, solver, env)
-
         elif isinstance(expr, int):
             if env is None:
                 return self._constant(expr, solver)
             else:
                 return expr
         else:
-            utils.crash("Unknown node during conversion from ast to Z3 (expressions): %s" % expr)
+            utils.crash("Unknown node during conversion from ast to CVC (expressions): %s" % expr)
 
     def _add(self, l, r, solver):
         return l + r
