@@ -4,6 +4,7 @@ import logging
 import CVC4
 
 from symbolic.symbolic_types.symbolic_int import SymbolicInteger
+from symbolic.symbolic_types.symbolic_str import SymbolicStr
 from symbolic.symbolic_types.symbolic_type import SymbolicType
 
 log = logging.getLogger("se.cvc_expr.expr")
@@ -35,7 +36,7 @@ class CVCExpression(object):
                 sym_expr = em.mkExpr(CVC4.NOT, sym_expr)
         return sym_expr
 
-    def _getIntegerVariable(self, name, solver):
+    def _getVariable(self, name, solver):
         if name not in self.cvc_vars:
             self.cvc_vars[name] = self._variable(name, solver)
         return self.cvc_vars[name]
@@ -55,7 +56,7 @@ class CVCExpression(object):
 
     def _astToCVCExpr(self, expr, solver, env=None):
         em = solver.getExprManager()
-
+        log.debug("Converting %s (type: %s) to CVC expression" % (expr, type(expr)))
         if isinstance(expr, list):
             op = expr[0]
             args = [self._astToCVCExpr(a, solver, env) for a in expr[1:]]
@@ -105,7 +106,7 @@ class CVCExpression(object):
         elif isinstance(expr, SymbolicInteger):
             if expr.isVariable():
                 if env is None:
-                    return self._getIntegerVariable(expr.name, solver)
+                    return self._getVariable(expr.name, solver)
                 else:
                     return env[expr.name]
             else:
@@ -116,6 +117,23 @@ class CVCExpression(object):
                 return self._constant(expr, solver)
             else:
                 return expr
+        
+        elif isinstance(expr, SymbolicStr):
+            if expr.isVariable():
+                if env is None:
+                    return self._getVariable(expr.name, solver)
+                else:
+                    return env[expr.name]
+            else:
+                return self._astToCVCExpr(expr.expr, solver, env)
+        
+        elif isinstance(expr, str):
+            if env is None:
+                log.debug(type(self))
+                return self._constant(expr, solver)
+            else:
+                return expr
+                
         else:
             utils.crash("Unknown node during conversion from ast to CVC (expressions): %s" % expr)
 
