@@ -135,9 +135,8 @@ By default PyExZ3 uses the Z3 to solve path predicates. Optionally, the
 `--cvc` argument. While the two solvers offer a similar feature set, the 
 integration of CVC differs from Z3 in a number of ways. Most 
 predominately, the CVC integration uses an unbounded rational number 
-representation for Python numbers, converting back and forth to 
-bit vectors only in the presence of bitwise operations. The Z3 
-integration uses bounded bit vectors for generating inputs of all 
+representation for Python numbers, converting to bit vectors only for 
+bitwise operations. The Z3 integration uses bounded bit vectors for all 
 numbers. For programs that use any significant number of bitwise 
 operations, the default Z3-based configuration is strongly recommended. 
 Additionally, CVC does not support generating models for non-linear 
