@@ -14,8 +14,8 @@ class CVCExpression(object):
         self.variables = variables if variables is not None else {}
 
     def __eq__(self, y):
-        variables = self.variables.copy()
-        variables.update(y.variables)
+        variables = y.variables.copy()
+        variables.update(self.variables)
         return CVCExpression(self.em.mkExpr(CVC4.EQUAL, self.cvc_expr, y.cvc_expr), self.solver,
                              variables=variables)
 
@@ -23,9 +23,9 @@ class CVCExpression(object):
         return self.cvc_expr.toString()
 
     def ite(self, th, el):
-        variables = self.variables.copy()
+        variables = el.variables.copy()
         variables.update(th.variables)
-        variables.update(el.variables)
+        variables.update(self.variables)
         return CVCExpression(self.em.mkExpr(CVC4.ITE, self.cvc_expr, th.cvc_expr, el.cvc_expr),
                              self.solver, variables=variables)
 

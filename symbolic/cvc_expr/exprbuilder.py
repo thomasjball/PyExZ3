@@ -12,6 +12,7 @@ log = logging.getLogger("se.cvc_expr.exprbuilder")
 
 cvc_vars = {}
 
+#class ExprBuilder(object):
 def toCVC(asserts, query, solver):
     global cvc_vars
     cvc_vars = {}
@@ -21,7 +22,7 @@ def toCVC(asserts, query, solver):
     log.debug("Querying solver for %s" % cvc_query)
     solver.assertFormula(cvc_query.cvc_expr)
     #return cvc_query.variables
-    return cvc_vars
+    return {name: expr.cvc_expr for (name, expr) in cvc_vars.items()}
 
 def _predToCVC(pred, solver, env=None):
     sym_expr = CVCExpression(_astToCVCExpr(pred.symtype, solver, env), solver, cvc_vars)
@@ -36,26 +37,17 @@ def _predToCVC(pred, solver, env=None):
             sym_expr = sym_expr.not_op()
     return sym_expr
 
-# def _getVariable(symbolic_var, solver):
-#     name = symbolic_var.name
-#     variable = None
-#     if isinstance(symbolic_var, SymbolicInteger):
-#         variable = CVCInteger.variable(name, solver)
-#     elif isinstance(symbolic_var, SymbolicStr):
-#         variable = CVCString.variable(name, solver)
-#     return variable
-
-def _getVariable(expr, solver):
-    name = expr.name
-    if name not in cvc_vars:
-        variable = None
-        if isinstance(expr, SymbolicInteger):
-            variable = CVCInteger.variable(name, solver).cvc_expr
-        elif isinstance(expr, SymbolicStr):
-            variable = CVCString.variable(name, solver).cvc_expr
-        cvc_vars[name] = variable
-    return cvc_vars[name]
-
+def _getVariable(symbolic_var, solver):
+    name = symbolic_var.name
+    if name in cvc_vars:
+        return cvc_vars[name]
+    variable = None
+    if isinstance(symbolic_var, SymbolicInteger):
+        variable = CVCInteger.variable(name, solver)
+    elif isinstance(symbolic_var, SymbolicStr):
+        variable = CVCString.variable(name, solver)
+    cvc_vars[name] = variable
+    return variable
 
 def _wrapIf(expr, solver, env):
     em = solver.getExprManager()
@@ -135,9 +127,9 @@ def _astToCVCExpr(expr, solver, env=None):
         if expr.isVariable():
             if env is None:
                 variable = _getVariable(expr, solver)
-                #cvc_vars = dict(cvc_vars, **variable.variables)
-                #return variable.cvc_expr
-                return variable
+                #cvc_vars.update(variable.variables)
+                return variable.cvc_expr
+                #return variable
             else:
                 return env[expr.name]
         else:
