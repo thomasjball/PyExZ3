@@ -1,18 +1,40 @@
 import logging
 
+import CVC4
+
+
 log = logging.getLogger("se.cvc_expr.expr")
 
 
 class CVCExpression(object):
-    def __init__(self):
-        pass
+    def __init__(self, cvc_expr, solver, variables=None):
+        self.cvc_expr = cvc_expr
+        self.solver = solver
+        self.em = self.solver.getExprManager()
+        self.variables = variables if variables is not None else {}
 
-    @staticmethod
-    def variable(name, solver):
+    def __eq__(self, y):
+        variables = self.variables.copy()
+        variables.update(y.variables)
+        return CVCExpression(self.em.mkExpr(CVC4.EQUAL, self.cvc_expr, y.cvc_expr), self.solver,
+                             variables=variables)
+
+    def __str__(self):
+        return self.cvc_expr.toString()
+
+    def ite(self, th, el):
+        variables = self.variables.copy()
+        variables.update(th.variables)
+        variables.update(el.variables)
+        return CVCExpression(self.em.mkExpr(CVC4.ITE, self.cvc_expr, th.cvc_expr, el.cvc_expr),
+                             self.solver, variables=variables)
+
+    @classmethod
+    def variable(cls, name, solver):
         raise NotImplementedError
 
-    @staticmethod
-    def constant(v, solver):
+    @classmethod
+    def constant(cls, v, solver):
         raise NotImplementedError
 
     def _add(self, l, r, solver):
@@ -44,3 +66,6 @@ class CVCExpression(object):
 
     def _and(self, l, r, solver):
         return l & r
+
+    def not_op(self):
+        return CVCExpression(self.em.mkExpr(CVC4.NOT, self.cvc_expr), self.solver, variables=self.variables)

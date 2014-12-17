@@ -30,20 +30,23 @@ class CVCInteger(CVCExpression):
 
     _bv_size = 8
 
-    @staticmethod
-    def variable(name, solver):
+    @classmethod
+    def variable(cls, name, solver):
         em = solver.getExprManager()
-        return em.mkVar(name, em.integerType())
+        expr = em.mkVar(name, em.integerType())
+        return cls(expr, solver, variables={name: expr})
 
-    @staticmethod
-    def constant(v, solver):
+    @classmethod
+    def constant(cls, v, solver):
         em = solver.getExprManager()
-        const_expr = em.mkConst(Rational(Integer(str(v))))
-        return const_expr
+        return cls(em.mkConst(Rational(Integer(str(v)))), solver)
 
     def add(self, l, r, solver):
         em = solver.getExprManager()
         return em.mkExpr(CVC4.PLUS, l, r)
+
+    def __add__(self, other):
+        return CVCInteger(self.em.mkExpr(CVC4.PLUS, self.cvc_expr, self.cvc_expr), self.solver, self.vars|self.other)
 
     def sub(self, l, r, solver):
         em = solver.getExprManager()
