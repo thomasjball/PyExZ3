@@ -20,3 +20,6 @@ class CVCString(CVCExpression):
         em = solver.getExprManager()
         return cls(em.mkConst(CVC4.CVC4String(v)), solver)
 
+    def getvalue(self):
+        ce = self.solver.getValue(self.cvc_expr)
+        return ce.getConstString().toString()

@@ -17,16 +17,14 @@ class ExprBuilder(object):
         self.cvc_vars = {}
 
     def toCVC(self, asserts, query):
+        smt_query = self._predToCVC(query).not_op()
         for p in asserts:
-            self.solver.assertFormula(self._predToCVC(p).cvc_expr)
-        cvc_query = self._predToCVC(query).not_op()
-        log.debug("Querying solver for %s" % cvc_query)
-        self.solver.assertFormula(cvc_query.cvc_expr)
-        self.cvc_vars = {name: expr.cvc_expr for (name, expr) in self.cvc_vars.items()}
+            smt_query &= self._predToCVC(p)
+        log.debug("Querying solver for %s" % smt_query)
+        self.solver.assertFormula(smt_query.cvc_expr)
 
-    
     def _predToCVC(self, pred, env=None):
-        sym_expr = CVCExpression(self._astToCVCExpr(pred.symtype, env), self.solver)
+        sym_expr = self._astToCVCExpr(pred.symtype, env)
         log.debug("Converting predicate %s to CVC expression %s" % (pred, sym_expr))
         if env is None:
             if not sym_expr.cvc_expr.getType().isBoolean():
@@ -49,75 +47,58 @@ class ExprBuilder(object):
             variable = CVCString.variable(name, self.solver)
         self.cvc_vars[name] = variable
         return variable
-    
+
     def _wrapIf(self, expr, env):
         if env is None:
-            return self.em.mkExpr(CVC4.ITE, expr, CVCInteger.constant(1, self.solver).cvc_expr, CVCInteger.constant(0, self.solver).cvc_expr)
+            return expr.ite(CVCInteger.constant(1, self.solver), CVCInteger.constant(0, self.solver))
         else:
             return expr
     
-    
-    #def _wrapIf(expr, solver, env):
-    #    if env is None:
-    #        return CVCExpression(expr, solver).ite(CVCInteger.constant(1, solver), CVCInteger.constant(0, solver)).cvc_expr
-    #    else:
-    #        return expr
-    
     def _astToCVCExpr(self, expr, env=None):
-    
         log.debug("Converting %s (type: %s) to CVC expression" % (expr, type(expr)))
         if isinstance(expr, list):
             op = expr[0]
             args = [self._astToCVCExpr(a, env) for a in expr[1:]]
             cvc_l, cvc_r = args[0], args[1]
-            log.debug("Building %s %s %s" % (cvc_l.toString(), op, cvc_r.toString()))
-    
-            optype = None
-    
-            if cvc_l.getType().isInteger() or cvc_l.getType().isReal():
-                optype = CVCInteger(None, self.solver)
-            elif cvc_l.getType().isString():
-                optype = CVCString(None, self.solver)
-            else:
-                utils.crash("Unknown operand type during conversion from ast to CVC (expressions): %s" % cvc_l.getType().toString())
-    
+            log.debug("Building %s %s %s" % (cvc_l, op, cvc_r))
+
             # arithmetical operations
             if op == "+":
-                return optype.add(cvc_l, cvc_r, self.solver)
+                return cvc_l + cvc_r
             elif op == "-":
-                return optype.sub(cvc_l, cvc_r, self.solver)
+                return cvc_l - cvc_r
             elif op == "*":
-                return optype.mul(cvc_l, cvc_r, self.solver)
+                return cvc_l * cvc_r
             elif op == "//":
-                return optype.div(cvc_l, cvc_r, self.solver)
+                return cvc_l / cvc_r
             elif op == "%":
-                return optype.mod(cvc_l, cvc_r, self.solver)
+                return cvc_l % cvc_r
     
             # bitwise
             elif op == "<<":
-                return optype.lsh(cvc_l, cvc_r, self.solver)
+                return cvc_l << cvc_r
             elif op == ">>":
-                return optype.rsh(cvc_l, cvc_r, self.solver)
+                return cvc_l >> cvc_r
             elif op == "^":
-                return optype.xor(cvc_l, cvc_r, self.solver)
+                return cvc_l ^ cvc_r
             elif op == "|":
-                return optype.orop(cvc_l, cvc_r, self.solver)
+                return cvc_l | cvc_l
             elif op == "&":
-                return optype.andop(cvc_l, cvc_r, self.solver)
+                return cvc_l & cvc_r
     
             # equality gets coerced to integer
             elif op == "==":
-                return self._wrapIf(self.em.mkExpr(CVC4.EQUAL, cvc_l, cvc_r), env)
+                return self._wrapIf((cvc_l == cvc_r), env)
             elif op == "!=":
-                return self._wrapIf(self.em.mkExpr(CVC4.NOT, self.em.mkExpr(CVC4.EQUAL, cvc_l, cvc_r)), env)
+                return self._wrapIf((cvc_l != cvc_r), env)
             elif op == "<":
-                return self._wrapIf(self.em.mkExpr(CVC4.LT, cvc_l, cvc_r), env)
+                return self._wrapIf((cvc_l < cvc_r), env)
             elif op == ">":
-                return self._wrapIf(self.em.mkExpr(CVC4.GT, cvc_l, cvc_r), env)
+                return self._wrapIf((cvc_l > cvc_r), env)
             elif op == "<=":
-                return self._wrapIf(self.em.mkExpr(CVC4.LEQ, cvc_l, cvc_r), env)
+                return self._wrapIf((cvc_l <= cvc_r), env)
             elif op == ">=":
-                return self._wrapIf(self.em.mkExpr(CVC4.GEQ, cvc_l, cvc_r), env)
+                return self._wrapIf((cvc_l >= cvc_r), env)
             else:
                 utils.crash("Unknown BinOp during conversion from ast to CVC (expressions): %s" % op)
     
@@ -125,9 +106,7 @@ class ExprBuilder(object):
             if expr.isVariable():
                 if env is None:
                     variable = self._getVariable(expr)
-                    #cvc_vars.update(variable.variables)
-                    return variable.cvc_expr
-                    #return variable
+                    return variable
                 else:
                     return env[expr.name]
             else:
@@ -136,9 +115,9 @@ class ExprBuilder(object):
         elif isinstance(expr, int) | isinstance(expr, str):
             if env is None:
                 if isinstance(expr, int):
-                    return CVCInteger.constant(expr, self.solver).cvc_expr
+                    return CVCInteger.constant(expr, self.solver)
                 elif isinstance(expr, str):
-                    return CVCString.constant(expr, self.solver).cvc_expr
+                    return CVCString.constant(expr, self.solver)
             else:
                 return expr
     
