@@ -8,7 +8,6 @@ log = logging.getLogger("se.cvc.string")
 
 
 class CVCString(CVCExpression):
-
     @classmethod
     def variable(cls, name, solver):
         em = solver.getExprManager()

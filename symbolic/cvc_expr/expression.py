@@ -26,7 +26,7 @@ class CVCExpression(object):
     def ite(self, th, el):
         assert th.cvc_expr.getType().toString() == el.cvc_expr.getType().toString()
         return th.__class__(self.em.mkExpr(CVC4.ITE, self.cvc_expr,
-        th.cvc_expr, el.cvc_expr), self.solver)
+                                           th.cvc_expr, el.cvc_expr), self.solver)
 
     def __and__(self, other):
         return CVCExpression(self.em.mkExpr(CVC4.AND, self.cvc_expr, other.cvc_expr), self.solver)
@@ -41,7 +41,8 @@ class CVCExpression(object):
         return CVCExpression(self.em.mkExpr(CVC4.NOT, self.cvc_expr), self.solver)
 
     def __ne__(self, other):
-        return CVCExpression(self.em.mkExpr(CVC4.NOT, self.em.mkExpr(CVC4.EQUAL, self.cvc_expr, other.cvc_expr)), self.solver)
+        return CVCExpression(self.em.mkExpr(CVC4.NOT, self.em.mkExpr(CVC4.EQUAL, self.cvc_expr, other.cvc_expr)),
+                             self.solver)
 
     def __eq__(self, other):
         return CVCExpression(self.em.mkExpr(CVC4.EQUAL, self.cvc_expr, other.cvc_expr), self.solver)

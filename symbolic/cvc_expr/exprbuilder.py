@@ -1,7 +1,5 @@
 import logging
 
-import CVC4
-from symbolic.cvc_expr.expression import CVCExpression
 from symbolic.cvc_expr.integer import CVCInteger
 from symbolic.cvc_expr.string import CVCString
 from symbolic.symbolic_types import SymbolicInteger, SymbolicStr
@@ -9,6 +7,7 @@ from symbolic.symbolic_types.symbolic_type import SymbolicObject
 import utils
 
 log = logging.getLogger("se.cvc_expr.exprbuilder")
+
 
 class ExprBuilder(object):
     def __init__(self, asserts, query, solver):
@@ -36,7 +35,7 @@ class ExprBuilder(object):
             if not pred.result:
                 sym_expr = sym_expr.not_op()
         return sym_expr
-    
+
     def _getVariable(self, symbolic_var):
         name = symbolic_var.name
         if name in self.cvc_vars:
@@ -54,7 +53,7 @@ class ExprBuilder(object):
             return expr.ite(CVCInteger.constant(1, self.solver), CVCInteger.constant(0, self.solver))
         else:
             return expr
-    
+
     def _astToCVCExpr(self, expr, env=None):
         log.debug("Converting %s (type: %s) to CVC expression" % (expr, type(expr)))
         if isinstance(expr, list):
@@ -74,7 +73,7 @@ class ExprBuilder(object):
                 return cvc_l / cvc_r
             elif op == "%":
                 return cvc_l % cvc_r
-    
+
             # bitwise
             elif op == "<<":
                 return cvc_l << cvc_r
@@ -86,7 +85,7 @@ class ExprBuilder(object):
                 return cvc_l | cvc_l
             elif op == "&":
                 return cvc_l & cvc_r
-    
+
             # equality gets coerced to integer
             elif op == "==":
                 return self._wrapIf((cvc_l == cvc_r), env)
@@ -102,7 +101,7 @@ class ExprBuilder(object):
                 return self._wrapIf((cvc_l >= cvc_r), env)
             else:
                 utils.crash("Unknown BinOp during conversion from ast to CVC (expressions): %s" % op)
-    
+
         elif isinstance(expr, SymbolicObject):
             if expr.isVariable():
                 if env is None:
@@ -112,7 +111,7 @@ class ExprBuilder(object):
                     return env[expr.name]
             else:
                 return self._astToCVCExpr(expr.expr, env)
-    
+
         elif isinstance(expr, int) | isinstance(expr, str):
             if env is None:
                 if isinstance(expr, int):
@@ -121,7 +120,7 @@ class ExprBuilder(object):
                     return CVCString.constant(expr, self.solver)
             else:
                 return expr
-    
+
         else:
             utils.crash("Unknown node during conversion from ast to CVC (expressions): %s" % expr)
     
