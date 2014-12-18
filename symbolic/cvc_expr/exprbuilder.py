@@ -11,12 +11,13 @@ import utils
 log = logging.getLogger("se.cvc_expr.exprbuilder")
 
 class ExprBuilder(object):
-    def __init__(self, solver):
+    def __init__(self, asserts, query, solver):
         self.solver = solver
         self.em = self.solver.getExprManager()
         self.cvc_vars = {}
+        self._toCVC(asserts, query)
 
-    def toCVC(self, asserts, query):
+    def _toCVC(self, asserts, query):
         smt_query = self._predToCVC(query).not_op()
         for p in asserts:
             smt_query &= self._predToCVC(p)

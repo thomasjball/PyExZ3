@@ -37,8 +37,7 @@ class CVCWrapper(object):
 
     def _findModel(self):
         self.solver.push()
-        exprbuilder = ExprBuilder(self.solver)
-        exprbuilder.toCVC(self.asserts, self.query)
+        exprbuilder = ExprBuilder(self.asserts, self.query, self.solver)
         try:
             result = self.solver.checkSat()
             log.debug("Solver returned %s" % result.toString())
