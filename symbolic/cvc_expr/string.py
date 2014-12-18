@@ -13,7 +13,7 @@ class CVCString(CVCExpression):
     def variable(cls, name, solver):
         em = solver.getExprManager()
         expr = em.mkVar(name, em.stringType())
-        return cls(expr, solver, variables={name: expr})
+        return cls(expr, solver)
 
     @classmethod
     def constant(cls, v, solver):

@@ -5,7 +5,7 @@ import utils
 import CVC4
 from CVC4 import ExprManager, SmtEngine, SExpr
 
-from symbolic.cvc_expr.exprbuilder import toCVC
+from symbolic.cvc_expr.exprbuilder import ExprBuilder
 
 log = logging.getLogger("se.cvc")
 
@@ -37,7 +37,9 @@ class CVCWrapper(object):
 
     def _findModel(self):
         self.solver.push()
-        variables = toCVC(self.asserts, self.query, self.solver)
+        exprbuilder = ExprBuilder(self.solver)
+        exprbuilder.toCVC(self.asserts, self.query)
+        variables = exprbuilder.cvc_vars
         try:
             result = self.solver.checkSat()
             log.debug("Solver returned %s" % result.toString())

@@ -34,7 +34,7 @@ class CVCInteger(CVCExpression):
     def variable(cls, name, solver):
         em = solver.getExprManager()
         expr = em.mkVar(name, em.integerType())
-        return cls(expr, solver, variables={name: expr})
+        return cls(expr, solver)
 
     @classmethod
     def constant(cls, v, solver):
@@ -46,7 +46,7 @@ class CVCInteger(CVCExpression):
         return em.mkExpr(CVC4.PLUS, l, r)
 
     def __add__(self, other):
-        return CVCInteger(self.em.mkExpr(CVC4.PLUS, self.cvc_expr, self.cvc_expr), self.solver, self.vars|self.other)
+        return CVCInteger(self.em.mkExpr(CVC4.PLUS, self.cvc_expr, self.cvc_expr), self.solver)
 
     def sub(self, l, r, solver):
         em = solver.getExprManager()
