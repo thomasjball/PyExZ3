@@ -5,7 +5,6 @@ import logging
 import os
 
 from .z3_wrap import Z3Wrapper
-from .cvc_wrap import CVCWrapper
 from .path_to_constraint import PathToConstraint
 from .invocation import FunctionInvocation
 from .symbolic_types import symbolic_type, SymbolicType
@@ -31,6 +30,7 @@ class ExplorationEngine:
 		if solver == "z3":
 			self.solver = Z3Wrapper()
 		elif solver == "cvc":
+			from .cvc_wrap import CVCWrapper
 			self.solver = CVCWrapper()
 		else:
 			raise Exception("Unknown solver %s" % solver)
