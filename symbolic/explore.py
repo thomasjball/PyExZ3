@@ -5,6 +5,7 @@ import logging
 import os
 
 from .z3_wrap import Z3Wrapper
+from .cvc_wrap import CVCWrapper
 from .path_to_constraint import PathToConstraint
 from .invocation import FunctionInvocation
 from .symbolic_types import symbolic_type, SymbolicType
@@ -12,7 +13,7 @@ from .symbolic_types import symbolic_type, SymbolicType
 log = logging.getLogger("se.conc")
 
 class ExplorationEngine:
-	def __init__(self, funcinv):
+	def __init__(self, funcinv, solver="z3"):
 		self.invocation = funcinv
 		# the input to the function
 		self.symbolic_inputs = {}  # string -> SymbolicType
@@ -27,7 +28,12 @@ class ExplorationEngine:
 		# link up SymbolicObject to PathToConstraint in order to intercept control-flow
 		symbolic_type.SymbolicObject.SI = self.path
 
-		self.solver = Z3Wrapper()
+		if solver == "z3":
+			self.solver = Z3Wrapper()
+		elif solver == "cvc":
+			self.solver = CVCWrapper()
+		else:
+			raise Exception("Unknown solver %s" % solver)
 
 		# outputs
 		self.generated_inputs = []

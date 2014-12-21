@@ -133,3 +133,18 @@ provision the machine.
 provisioning takes a while as Git is compiled from source as Debian's
 Git is incompatible with [CodePlex](http://www.codeplex.com/) where Z3
 is hosted.
+
+### CVC SMT Solver
+
+By default PyExZ3 uses the Z3 to solve path predicates. Optionally, the 
+[CVC SMT](http://cvc4.cs.nyu.edu/web/) solver can be enabled with the 
+`--cvc` argument. While the two solvers offer a similar feature set, the 
+integration of CVC differs from Z3 in a number of ways. Most 
+predominately, the CVC integration uses an unbounded rational number 
+representation for Python numbers, converting to bit vectors only for 
+bitwise operations. The Z3 integration uses bounded bit vectors for all 
+numbers. For programs that use any significant number of bitwise 
+operations, the default Z3-based configuration is strongly recommended. 
+Additionally, CVC does not support generating models for non-linear 
+relationships causing a few of the included PyExZ3 test cases to fail 
+with a `LogicException`.

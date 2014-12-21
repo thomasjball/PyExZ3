@@ -1,6 +1,6 @@
 from symbolic.args import *
 
-@symbolic(s=1)
+@symbolic(s="foo")
 def testit(s):
 	if (s=="bar"):
 		return 0
