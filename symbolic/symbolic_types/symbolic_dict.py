@@ -19,9 +19,11 @@ class SymbolicDict(SymbolicObject,dict):
 		SymbolicObject.__init__(self,name,None)
 		dict.__init__(self,kwargs)
 
-
 	def getConcrValue(self):
 		return self
+		
+	def __bool__(self):
+		return bool(len(self))
 
 #	def wrap(conc,sym):
 #		pass # TODO
