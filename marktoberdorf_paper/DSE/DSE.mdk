@@ -41,7 +41,7 @@ Dynamic symbolic execution (DSE) is a well-known technique
 for automatically generating tests to achieve higher levels
 of coverage in a program. Two keys ideas of DSE are
 to: (1) seed symbolic execution by executing a program on an
-initial input; (2) using concrete values from the program
+initial input; (2) use concrete values from the program
 execution in place of symbolic expressions whenever symbolic
 reasoning is hard or not desired. We describe
 DSE for a simple core language and then present
@@ -140,7 +140,7 @@ uses concrete values from the execution $P(i)$ in place of symbolic expressions
 whenever symbolic reasoning is not possible or desired [@GodefroidKS05;@CadarE05].
 The major benefit of DSE is to
 simplify the construction of a symbolic execution tool by
-leveraging the concrete execution behavior (given by
+leveraging concrete execution behavior (given by
 actually running the program).
 As DSE combines both 
 concrete and symbolic reasoning, it also has been called "concolic" 
@@ -197,15 +197,7 @@ new inputs that will explore execution prefixes of path $p$ of increasing length
 
 The purpose of taking execution order into account should be clear, as the
 comparison `(a<c)` only executes in the case where `(not (a<b) and not (c<d))`
-holds.
-
-<!--
-
-assertions, query
-
--->
-
-Integer solutions to the above three systems of constraints are:
+holds. Integer solutions to the above three systems of constraints are:
 
  * `a == 0 and b == 2 and c == 0 and d == 0`
  * `a == 0 and b == 0 and c == 0 and d == 3`
@@ -213,8 +205,8 @@ Integer solutions to the above three systems of constraints are:
 
 In the three cases above, we sought solutions that kept as many of
 the variables as possible equal to the original input (in which 
-all variables are equal to 0). Execution the `max4` function on the input
-corresponding to the first solution produces the path-condition
+all variables are equal to 0). Execution of the `max4` function 
+on the input corresponding to the first solution produces the path-condition
 `((a<b) and not(c<d) and not(b < c))`, from which we can produce more
 inputs.   For this (loop-free function), there are a finite number
 of path-conditions. We leave it as an exercise to the reader to 
