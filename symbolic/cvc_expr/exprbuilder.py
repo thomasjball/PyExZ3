@@ -59,7 +59,8 @@ class ExprBuilder(object):
         if isinstance(expr, list):
             op = expr[0]
             args = [self._astToCVCExpr(a, env) for a in expr[1:]]
-            cvc_l, cvc_r = args[0], args[1]
+            cvc_l = args[0]
+            cvc_r = args[1] if len(args) > 1 else None
             log.debug("Building %s %s %s" % (cvc_l, op, cvc_r))
 
             # arithmetical operations
@@ -85,6 +86,10 @@ class ExprBuilder(object):
                 return cvc_l | cvc_l
             elif op == "&":
                 return cvc_l & cvc_r
+                
+            # string
+            elif op == "str.len":
+                return cvc_l.len()
 
             # equality gets coerced to integer
             elif op == "==":
