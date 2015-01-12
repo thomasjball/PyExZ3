@@ -22,8 +22,3 @@ class CVCString(CVCExpression):
     def getvalue(self):
         ce = self.solver.getValue(self.cvc_expr)
         return ce.getConstString().toString()
-
-    def effectivebool(self):
-        strlen = self.em.mkExpr(CVC4.STRING_LENGTH, self.cvc_expr)
-        zero = self.em.mkConst(Rational(Integer(str(0))))
-        return CVCExpression(self.em.mkExpr(CVC4.EQUAL, strlen.cvc_expr, zero), self.solver)
