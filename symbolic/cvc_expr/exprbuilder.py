@@ -86,7 +86,7 @@ class ExprBuilder(object):
                 return cvc_l | cvc_l
             elif op == "&":
                 return cvc_l & cvc_r
-                
+
             # string
             elif op == "str.len":
                 return cvc_l.len()
