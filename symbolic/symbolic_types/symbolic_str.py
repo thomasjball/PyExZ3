@@ -26,7 +26,7 @@ class SymbolicStr(SymbolicObject, str):
 	    return SymbolicObject.__bool__(self.__len__() != 0)
 
 	def __len__(self):
-		return self._do_sexpr([self], len,
+		return self._do_sexpr([self], lambda x: len(x),
 		                        "str.len", SymbolicInteger.wrap)
 
 
