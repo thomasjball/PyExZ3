@@ -1,7 +1,7 @@
 from symbolic.args import *
 
 @symbolic(s="foo")
-def testit(s):
+def stringtest(s):
 	if (s=="bar"):
 		return 0
 	else:
