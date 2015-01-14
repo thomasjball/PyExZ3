@@ -3,6 +3,7 @@ import logging
 import CVC4
 
 from .expression import CVCExpression
+from .integer import CVCInteger
 
 log = logging.getLogger("se.cvc.string")
 
@@ -22,3 +23,6 @@ class CVCString(CVCExpression):
     def getvalue(self):
         ce = self.solver.getValue(self.cvc_expr)
         return ce.getConstString().toString()
+
+    def len(self):
+        return CVCInteger(self.em.mkExpr(CVC4.STRING_LENGTH, self.cvc_expr), self.solver)
