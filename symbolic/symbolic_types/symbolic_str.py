@@ -31,7 +31,7 @@ class SymbolicStr(SymbolicObject, str):
 
 
 # Currently only a subset of string operations are supported.
-ops =  [("add", "+")]
+ops = [("add", "+")]
 
 def make_method(method,op,a):
 	code  = "def %s(self,other):\n" % method
