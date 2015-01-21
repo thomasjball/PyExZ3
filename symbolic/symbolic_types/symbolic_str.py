@@ -30,8 +30,8 @@ class SymbolicStr(SymbolicObject, str):
 		                        "str.len", SymbolicInteger.wrap)
 
 
-# Currently no String operations are supported.
-ops =  []
+# Currently only a subset of string operations are supported.
+ops =  [("add", "+")]
 
 def make_method(method,op,a):
 	code  = "def %s(self,other):\n" % method

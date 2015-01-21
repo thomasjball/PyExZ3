@@ -34,3 +34,7 @@ class CVCString(CVCExpression):
 
     def len(self):
         return CVCInteger(self.em.mkExpr(CVC4.STRING_LENGTH, self.cvc_expr), self.solver)
+
+    def __add__(self, other):
+        return CVCString(self.em.mkExpr(CVC4.STRING_CONCAT, 
+            self.cvc_expr, other.cvc_expr), self.solver)
