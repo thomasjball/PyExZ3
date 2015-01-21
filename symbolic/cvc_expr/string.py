@@ -18,7 +18,15 @@ class CVCString(CVCExpression):
     @classmethod
     def constant(cls, v, solver):
         em = solver.getExprManager()
-        return cls(em.mkConst(CVC4.CVC4String(v)), solver)
+
+        # The CVC4 String constructor treats '' as a string of length 1 containing the null byte.
+        # The empty constructor actually creates an empty string.
+        if len(v) == 0:
+            cvcstr = CVC4.CVC4String()
+        else:
+            cvcstr = CVC4.CVC4String(v)
+
+        return cls(em.mkConst(cvcstr), solver)
 
     def getvalue(self):
         ce = self.solver.getValue(self.cvc_expr)
