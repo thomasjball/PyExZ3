@@ -1,7 +1,7 @@
 from symbolic.args import *
 
 @symbolic(s="foo")
-def bad_eq_str(s):
+def stringadd(s):
     x = s + "bar"
     if x == "nobar":
         return 0
