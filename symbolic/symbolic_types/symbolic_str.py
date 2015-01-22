@@ -3,46 +3,49 @@ from symbolic.symbolic_types.symbolic_int import SymbolicInteger
 
 class SymbolicStr(SymbolicObject, str):
 
-	def __new__(cls, name, v, expr=None):
-		return str.__new__(cls, v)
+    def __new__(cls, name, v, expr=None):
+        return str.__new__(cls, v)
 
-	def __init__(self, name, v, expr=None):
-		SymbolicObject.__init__(self, name, expr)
-		self.val = v
+    def __init__(self, name, v, expr=None):
+        SymbolicObject.__init__(self, name, expr)
+        self.val = v
 
-	def getConcrValue(self):
-		return self.val
+    def getConcrValue(self):
+        return self.val
 
-	def wrap(conc, sym):
-		return SymbolicStr("se", conc, sym)
+    def wrap(conc, sym):
+        return SymbolicStr("se", conc, sym)
 
-	def __hash__(self):
-		return hash(self.val)
+    def __hash__(self):
+        return hash(self.val)
 
-	def _op_worker(self, args, fun, op):
-		return self._do_sexpr(args, fun, op, SymbolicStr.wrap)
+    def _op_worker(self, args, fun, op):
+        return self._do_sexpr(args, fun, op, SymbolicStr.wrap)
 
-	def __bool__(self):
-	    return SymbolicObject.__bool__(self.__len__() != 0)
+    def __bool__(self):
+        return SymbolicObject.__bool__(self.__len__() != 0)
 
-	def __len__(self):
-		return self._do_sexpr([self], lambda x: len(x),
-		                        "str.len", SymbolicInteger.wrap)
+    def __len__(self):
+        return self._do_sexpr([self], lambda x: len(x),
+                                "str.len", SymbolicInteger.wrap)
 
+    def __contains__(self, item):
+        return self._do_sexpr([self, item], lambda x, y: str.__contains__(x, y),
+                                "in", SymbolicInteger.wrap)
 
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]
 
 def make_method(method,op,a):
-	code  = "def %s(self,other):\n" % method
-	code += "   return self._op_worker(%s,lambda x,y : x %s y, \"%s\")" % (a,op,op)
-	locals_dict = {}
-	exec(code, globals(), locals_dict)
-	setattr(SymbolicStr, method, locals_dict[method])
+    code  = "def %s(self,other):\n" % method
+    code += "   return self._op_worker(%s,lambda x,y : x %s y, \"%s\")" % (a,op,op)
+    locals_dict = {}
+    exec(code, globals(), locals_dict)
+    setattr(SymbolicStr, method, locals_dict[method])
 
 for (name,op) in ops:
-	method  = "__%s__" % name
-	make_method(method,op,"[self,other]")
-	rmethod  = "__r%s__" % name
-	make_method(rmethod,op,"[other,self]")
+    method  = "__%s__" % name
+    make_method(method,op,"[self,other]")
+    rmethod  = "__r%s__" % name
+    make_method(rmethod,op,"[other,self]")
 

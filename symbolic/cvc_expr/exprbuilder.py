@@ -104,6 +104,8 @@ class ExprBuilder(object):
                 return self._wrapIf((cvc_l <= cvc_r), env)
             elif op == ">=":
                 return self._wrapIf((cvc_l >= cvc_r), env)
+            elif op == "in":
+                return self._wrapIf((cvc_r.__contains__(cvc_l)), env)
             else:
                 utils.crash("Unknown BinOp during conversion from ast to CVC (expressions): %s" % op)
 
