@@ -40,6 +40,6 @@ class CVCString(CVCExpression):
             self.cvc_expr, other.cvc_expr), self.solver)
 
     def __contains__(self, item):
-        return CVCExpression(
-            self.em.mkExpr(CVC4.STRING_IN_REGEXP, item.cvc_expr, self.em.mkExpr(CVC4.STRING_TO_REGEXP, self.cvc_expr)),
-            self.solver)
+        return CVCExpression(self.em.mkExpr(CVC4.STRING_STRCTN, 
+            item.cvc_expr, self.cvc_expr), self.solver)
+
