@@ -9,5 +9,4 @@ def strmiddle(s):
         return 1
 
 def expected_result():
-	return [0, 1]
-    
+    return [0, 1]
