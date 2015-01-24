@@ -33,6 +33,9 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr([self, item], lambda x, y: str.__contains__(x, y),
                                 "in", SymbolicInteger.wrap)
 
+    def count(self, sub):
+        return self._do_sexpr([self, sub], lambda  x, y: str.count(x, y), "str.count", SymbolicInteger.wrap)
+
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]
 

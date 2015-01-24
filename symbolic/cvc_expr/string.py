@@ -43,3 +43,12 @@ class CVCString(CVCExpression):
         return CVCExpression(self.em.mkExpr(CVC4.STRING_STRCTN,
             item.cvc_expr, self.cvc_expr), self.solver)
 
+    def count(self, sub):
+        """Count is encoded into the SMT formula by taking the difference in length between
+        the original string and the string with the substring removed divided by the length
+        of the substring."""
+        substituted_string = CVCString(
+            self.em.mkExpr(CVC4.STRING_STRREPL, self.cvc_expr, sub.cvc_expr,
+                           CVCString.constant("", self.solver).cvc_expr),
+            self.solver)
+        return (self.len() - substituted_string.len()) / sub.len()
