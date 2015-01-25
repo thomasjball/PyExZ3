@@ -33,6 +33,24 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr([self, item], lambda x, y: str.__contains__(x, y),
                                 "in", SymbolicInteger.wrap)
 
+    def replace(self, old, new, max=-1):
+        """CVC only replaces the first occurrence of old with new 
+        (max=1). For this reason, SymbolicStr's replace is implemented 
+        as a recurrence of single replaces."""
+        # If max == 0, return
+        if max == 0:
+            return self
+        # If old is not in string, return
+        elif old not in self:
+            return self
+        # Replace once, recurse on substring and max - 1
+        else:
+            # Find occurrence of old
+            idx = self.find(old)
+            # Take substring of 0 -> end of occurrence
+            # Return replaced substring + replaced rest of string
+            
+
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]
 
