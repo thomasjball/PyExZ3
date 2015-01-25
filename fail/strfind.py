@@ -3,7 +3,7 @@ from symbolic.args import *
 @symbolic(s="foo")
 def strfind(s):
     find_idx = s.find("bar")
-    if find_idx == 15:
+    if find_idx == 3:
         return 0
     elif find_idx == -1:
         return 1
