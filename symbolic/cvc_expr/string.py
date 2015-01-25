@@ -43,3 +43,7 @@ class CVCString(CVCExpression):
         return CVCExpression(self.em.mkExpr(CVC4.STRING_STRCTN,
             item.cvc_expr, self.cvc_expr), self.solver)
 
+    def find(self, findstr):
+        return CVCInteger(
+            self.em.mkExpr(CVC4.STRING_STRIDOF, self.cvc_expr, findstr.cvc_expr, CVCInteger.constant(0, 
+        self.solver).cvc_expr), self.solver)
