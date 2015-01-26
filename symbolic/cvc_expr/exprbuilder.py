@@ -62,7 +62,7 @@ class ExprBuilder(object):
             cvc_l = args[0]
             cvc_r = args[1] if len(args) > 1 else None
             cvc_3 = args[2] if len(args) > 2 else None
-            log.debug("Building %s %s %s" % (cvc_l, op, cvc_r, cvc_3))
+            log.debug("Building %s" % args)
 
             # arithmetical operations
             if op == "+":
