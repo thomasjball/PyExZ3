@@ -93,6 +93,10 @@ class ExprBuilder(object):
             elif op == "str.find":
                 return cvc_l.find(cvc_r)
 
+            # collection operators
+            elif op == "getitem":
+                return cvc_l[cvc_r]
+
             # equality gets coerced to integer
             elif op == "==":
                 return self._wrapIf((cvc_l == cvc_r), env)
@@ -107,7 +111,7 @@ class ExprBuilder(object):
             elif op == ">=":
                 return self._wrapIf((cvc_l >= cvc_r), env)
             elif op == "in":
-                return self._wrapIf((cvc_r.__contains__(cvc_l)), env)
+                return self._wrapIf((cvc_l.__contains__(cvc_r)), env)
             else:
                 utils.crash("Unknown BinOp during conversion from ast to CVC (expressions): %s" % op)
 
