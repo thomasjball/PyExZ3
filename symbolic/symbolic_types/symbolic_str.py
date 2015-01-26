@@ -33,6 +33,10 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr([self, item], lambda x, y: str.__contains__(x, y),
                                 "in", SymbolicInteger.wrap)
 
+    def find(self, findstr):
+        return self._do_sexpr([self, findstr], lambda x, y: str.find(x, findstr), 
+                                "str.find", SymbolicInteger.wrap)
+
     def count(self, sub):
         return self._do_sexpr([self, sub], lambda  x, y: str.count(x, y), "str.count", SymbolicInteger.wrap)
 

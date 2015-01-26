@@ -52,3 +52,13 @@ class CVCString(CVCExpression):
                            CVCString.constant("", self.solver).cvc_expr),
             self.solver)
         return (self.len() - substituted_string.len()) / sub.len()
+
+    def find(self, findstr):
+        """CVC4's String IndexOf functionality is capable of specifying
+        an index to begin the search. However, the current
+        implementation searches from the beginning of the string."""
+        return CVCInteger(
+            self.em.mkExpr(CVC4.STRING_STRIDOF, self.cvc_expr,
+                findstr.cvc_expr, CVCInteger.constant(0, self.solver).cvc_expr),
+            self.solver)
+
