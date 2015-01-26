@@ -93,6 +93,10 @@ class ExprBuilder(object):
             elif op == "str.find":
                 return cvc_l.find(cvc_r)
 
+            # collection operators
+            elif op == "getitem":
+                return cvc_l[cvc_r]
+
             # equality gets coerced to integer
             elif op == "==":
                 return self._wrapIf((cvc_l == cvc_r), env)

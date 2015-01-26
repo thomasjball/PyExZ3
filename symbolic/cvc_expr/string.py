@@ -43,6 +43,9 @@ class CVCString(CVCExpression):
         return CVCExpression(self.em.mkExpr(CVC4.STRING_STRCTN,
             item.cvc_expr, self.cvc_expr), self.solver)
 
+    def __getitem__(self, item):
+        return CVCString(self.em.mkExpr(CVC4.STRING_CHARAT, self.cvc_expr, item.cvc_expr), self.solver)
+
     def find(self, findstr):
         """CVC4's String IndexOf functionality is capable of specifying
         an index to begin the search. However, the current
