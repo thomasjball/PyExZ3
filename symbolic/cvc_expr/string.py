@@ -49,7 +49,7 @@ class CVCString(CVCExpression):
             self.solver.assertFormula((item.start < self.len()).cvc_expr)
             self.solver.assertFormula((item.start >= CVCInteger.constant(0, self.solver)).cvc_expr)
             self.solver.assertFormula((offset >= CVCInteger.constant(0, self.solver)).cvc_expr)
-        return CVCString(self.em.mkExpr(CVC4.STRING_SUBSTR, self.cvc_expr, item.start.cvc_expr, offset.cvc_expr), self.solver)
+            return CVCString(self.em.mkExpr(CVC4.STRING_SUBSTR, self.cvc_expr, item.start.cvc_expr, offset.cvc_expr), self.solver)
         return CVCString(self.em.mkExpr(CVC4.STRING_CHARAT, self.cvc_expr, item.cvc_expr), self.solver)
 
     def find(self, findstr):
