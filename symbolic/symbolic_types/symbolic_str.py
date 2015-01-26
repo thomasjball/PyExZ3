@@ -34,6 +34,7 @@ class SymbolicStr(SymbolicObject, str):
                                 "in", SymbolicInteger.wrap)
 
     def __getitem__(self, key):
+        """Negative indexes, out of bound slices, and slice skips are not currently supported."""
         if isinstance(key, slice):
             start = key.start if key.start is not None else 0
             stop = key.stop if key.stop is not None else self.__len__()
