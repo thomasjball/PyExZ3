@@ -41,5 +41,23 @@ class CVCString(CVCExpression):
 
     def __contains__(self, item):
         return CVCExpression(self.em.mkExpr(CVC4.STRING_STRCTN,
-            item.cvc_expr, self.cvc_expr), self.solver)
+            self.cvc_expr, item.cvc_expr), self.solver)
+
+    def __getitem__(self, item):
+        if isinstance(item, slice):
+            offset = item.stop - item.start
+            self.solver.assertFormula((item.start < self.len()).cvc_expr)
+            self.solver.assertFormula((item.start >= CVCInteger.constant(0, self.solver)).cvc_expr)
+            self.solver.assertFormula((offset >= CVCInteger.constant(0, self.solver)).cvc_expr)
+            return CVCString(self.em.mkExpr(CVC4.STRING_SUBSTR, self.cvc_expr, item.start.cvc_expr, offset.cvc_expr), self.solver)
+        return CVCString(self.em.mkExpr(CVC4.STRING_CHARAT, self.cvc_expr, item.cvc_expr), self.solver)
+
+    def find(self, findstr):
+        """CVC4's String IndexOf functionality is capable of specifying
+        an index to begin the search. However, the current
+        implementation searches from the beginning of the string."""
+        return CVCInteger(
+            self.em.mkExpr(CVC4.STRING_STRIDOF, self.cvc_expr,
+                findstr.cvc_expr, CVCInteger.constant(0, self.solver).cvc_expr),
+            self.solver)
 

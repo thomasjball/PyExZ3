@@ -61,7 +61,8 @@ class ExprBuilder(object):
             args = [self._astToCVCExpr(a, env) for a in expr[1:]]
             cvc_l = args[0]
             cvc_r = args[1] if len(args) > 1 else None
-            log.debug("Building %s %s %s" % (cvc_l, op, cvc_r))
+            cvc_3 = args[2] if len(args) > 2 else None
+            log.debug("Building %s" % args)
 
             # arithmetical operations
             if op == "+":
@@ -90,7 +91,14 @@ class ExprBuilder(object):
             # string
             elif op == "str.len":
                 return cvc_l.len()
+            elif op == "str.find":
+                return cvc_l.find(cvc_r)
 
+            # collection operators
+            elif op == "getitem":
+                return cvc_l[cvc_r]
+            elif op == "slice":
+                return cvc_l[cvc_r:cvc_3]
             # equality gets coerced to integer
             elif op == "==":
                 return self._wrapIf((cvc_l == cvc_r), env)
@@ -105,7 +113,7 @@ class ExprBuilder(object):
             elif op == ">=":
                 return self._wrapIf((cvc_l >= cvc_r), env)
             elif op == "in":
-                return self._wrapIf((cvc_r.__contains__(cvc_l)), env)
+                return self._wrapIf((cvc_l.__contains__(cvc_r)), env)
             else:
                 utils.crash("Unknown BinOp during conversion from ast to CVC (expressions): %s" % op)
 

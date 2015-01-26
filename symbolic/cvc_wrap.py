@@ -25,6 +25,7 @@ class CVCWrapper(object):
         self.solver.setOption("produce-models", SExpr("true"))
         self.solver.setOption("strings-exp", SExpr("true")) # Enable experimental string support
         self.solver.setOption("rewrite-divk", SExpr("true")) # Enable modular arithmetic with constant modulus
+        self.solver.setOption("tlimit-per", SExpr("5000")) # Per Query timeout of 10 seconds
         self.solver.setLogic("ALL_SUPPORTED")
         self.query = query
         self.asserts = self._coneOfInfluence(asserts, query)

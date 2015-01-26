@@ -33,9 +33,36 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr([self, item], lambda x, y: str.__contains__(x, y),
                                 "in", SymbolicInteger.wrap)
 
+    def __getitem__(self, key):
+        """Negative indexes, out of bound slices, and slice skips are not currently supported."""
+        if isinstance(key, slice):
+            start = key.start if key.start is not None else 0
+            stop = key.stop if key.stop is not None else self.__len__()
+            return self._do_sexpr([self, start, stop],
+                                  lambda x, y, z: str.__getitem__(x, slice(y, z)), "slice", SymbolicStr.wrap)
+        return self._do_sexpr([self, key], lambda x, y: str.__getitem__(x, y),
+                              "getitem", SymbolicStr.wrap)
+
+    def find(self, findstr):
+        return self._do_sexpr([self, findstr], lambda x, y: str.find(x, findstr), 
+                                "str.find", SymbolicInteger.wrap)
+
+    def count(self, sub):
+        """String count is not a native function of the SMT solver. Instead, we implement count as a recursive series of
+        find operations. Note that not all of the functionality of count is supported at this time, such as the start
+        index."""
+        if sub == "" or sub not in self:
+            ret = 0
+        else:
+            find_idx = self.find(sub)
+            reststr = self[find_idx + sub.__len__():]
+            ret = reststr.count(sub) + 1
+        assert str.count(self, sub) == ret
+        return ret
+
     def replace(self, old, new, max=-1):
-        """CVC only replaces the first occurrence of old with new 
-        (max=1). For this reason, SymbolicStr's replace is implemented 
+        """CVC only replaces the first occurrence of old with new
+        (max=1). For this reason, SymbolicStr's replace is implemented
         as a recurrence of single replaces."""
         # If max == 0, return
         if max == 0:
@@ -49,7 +76,6 @@ class SymbolicStr(SymbolicObject, str):
             idx = self.find(old)
             # Take substring of 0 -> end of occurrence
             # Return replaced substring + replaced rest of string
-            
 
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]
