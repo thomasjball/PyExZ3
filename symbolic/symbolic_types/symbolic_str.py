@@ -60,22 +60,25 @@ class SymbolicStr(SymbolicObject, str):
         assert str.count(self, sub) == ret
         return ret
 
-    def replace(self, old, new, max=-1):
+    def _replace(self, old, new):
+        return self._do_sexpr([self, old, new], lambda x, y, z: str.replace(x, y, z),
+                              "str.replace", SymbolicStr.wrap)
+
+    def replace(self, old, new, maxreplace=-1):
         """CVC only replaces the first occurrence of old with new
         (max=1). For this reason, SymbolicStr's replace is implemented
         as a recurrence of single replaces."""
-        # If max == 0, return
-        if max == 0:
-            return self
-        # If old is not in string, return
-        elif old not in self:
-            return self
-        # Replace once, recurse on substring and max - 1
+        if max == 0 or old not in self:
+            ret = self
         else:
             # Find occurrence of old
-            idx = self.find(old)
-            # Take substring of 0 -> end of occurrence
-            # Return replaced substring + replaced rest of string
+            pivot_point = self.find(old) + old.__len__()
+            first_half = self[:pivot_point]
+            first_half = first_half._replace(old, new)
+            second_half = self[pivot_point:]
+            ret = first_half + second_half.replace(old, new, maxreplace-1)
+        assert ret == str.replace(self, old, new, maxreplace)
+        return ret
 
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]

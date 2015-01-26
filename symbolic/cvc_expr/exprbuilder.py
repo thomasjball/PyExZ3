@@ -93,6 +93,8 @@ class ExprBuilder(object):
                 return cvc_l.len()
             elif op == "str.find":
                 return cvc_l.find(cvc_r)
+            elif op == "str.replace":
+                return cvc_l.replace(cvc_r, cvc_3)
 
             # collection operators
             elif op == "getitem":

@@ -61,3 +61,5 @@ class CVCString(CVCExpression):
                 findstr.cvc_expr, CVCInteger.constant(0, self.solver).cvc_expr),
             self.solver)
 
+    def replace(self, old, new):
+        return CVCString(self.em.mkExpr(CVC4.STRING_STRREPL, self.cvc_expr, old.cvc_expr, new.cvc_expr), self.solver)
