@@ -33,6 +33,16 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr([self, item], lambda x, y: str.__contains__(x, y),
                                 "in", SymbolicInteger.wrap)
 
+    def __getitem__(self, key):
+        """Negative indexes, out of bound slices, and slice skips are not currently supported."""
+        if isinstance(key, slice):
+            start = key.start if key.start is not None else 0
+            stop = key.stop if key.stop is not None else self.__len__()
+            return self._do_sexpr([self, start, stop],
+                                  lambda x, y, z: str.__getitem__(x, slice(y, z)), "slice", SymbolicStr.wrap)
+        return self._do_sexpr([self, key], lambda x, y: str.__getitem__(x, y),
+                              "getitem", SymbolicStr.wrap)
+
     def find(self, findstr):
         return self._do_sexpr([self, findstr], lambda x, y: str.find(x, findstr), 
                                 "str.find", SymbolicInteger.wrap)
