@@ -38,7 +38,16 @@ class SymbolicStr(SymbolicObject, str):
                                 "str.find", SymbolicInteger.wrap)
 
     def count(self, sub):
-        return self._do_sexpr([self, sub], lambda  x, y: str.count(x, y), "str.count", SymbolicInteger.wrap)
+        """String count is not a native function of the SMT solver. Instead, we implement count as a recursive series of
+        find operations."""
+        if sub == "":
+            return 0
+        elif sub not in self:
+            return 0
+        else:
+            find_idx = self.find(sub)
+            reststr = self[find_idx + len(sub):]
+            return reststr.count(sub) + 1
 
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]

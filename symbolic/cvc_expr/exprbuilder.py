@@ -90,8 +90,6 @@ class ExprBuilder(object):
             # string
             elif op == "str.len":
                 return cvc_l.len()
-            elif op == "str.count":
-                return cvc_l.count(cvc_r)
             elif op == "str.find":
                 return cvc_l.find(cvc_r)
 
