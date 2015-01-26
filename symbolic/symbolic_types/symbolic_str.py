@@ -49,7 +49,8 @@ class SymbolicStr(SymbolicObject, str):
 
     def count(self, sub):
         """String count is not a native function of the SMT solver. Instead, we implement count as a recursive series of
-        find operations."""
+        find operations. Note that not all of the functionality of count is supported at this time, such as the start
+        index."""
         if sub == "":
             assert str.count(self, sub) == 0
             return 0
