@@ -11,5 +11,4 @@ def strfind(s):
         return 2
 
 def expected_result():
-	return [0, 1, 2]
-    
+    return [0, 1, 2]
