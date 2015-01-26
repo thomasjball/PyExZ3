@@ -51,13 +51,17 @@ class SymbolicStr(SymbolicObject, str):
         """String count is not a native function of the SMT solver. Instead, we implement count as a recursive series of
         find operations."""
         if sub == "":
+            assert str.count(self, sub) == 0
             return 0
         elif sub not in self:
+            assert str.count(self, sub) == 0
             return 0
         else:
             find_idx = self.find(sub)
-            reststr = self[find_idx + len(sub):]
-            return reststr.count(sub) + 1
+            reststr = self[find_idx + sub.__len__():]
+            ret = reststr.count(sub) + 1
+            assert str.count(self, sub) == ret
+            return ret
 
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]
