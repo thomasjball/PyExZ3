@@ -57,7 +57,7 @@ class SymbolicStr(SymbolicObject, str):
             find_idx = self.find(sub)
             reststr = self[find_idx + sub.__len__():]
             ret = reststr.count(sub) + 1
-        assert int(ret) == str.count(self, sub)
+        assert int(ret) == str.count(str(self), str(sub))
         return ret
 
     def _replace(self, old, new):
@@ -77,7 +77,7 @@ class SymbolicStr(SymbolicObject, str):
             first_half = first_half._replace(old, new)
             second_half = self[pivot_point:]
             ret = first_half + second_half.replace(old, new, maxreplace-1)
-        assert str(ret) == str.replace(self, old, new, maxreplace)
+        assert str(ret) == str.replace(str(self), str(old), str(new), int(maxreplace))
         return ret
 
 # Currently only a subset of string operations are supported.
