@@ -66,12 +66,11 @@ class SymbolicStr(SymbolicObject, str):
 
     def replace(self, old, new, maxreplace=-1):
         """CVC only replaces the first occurrence of old with new
-        (max=1). For this reason, SymbolicStr's replace is implemented
+        (maxreplace=1). For this reason, SymbolicStr's replace is implemented
         as a recurrence of single replaces."""
         if maxreplace == 0 or old not in self:
             ret = self
         else:
-            # Find occurrence of old
             pivot_point = self.find(old) + old.__len__()
             first_half = self[:pivot_point]
             first_half = first_half._replace(old, new)
