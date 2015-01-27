@@ -7,6 +7,11 @@ import sys
 from .invocation import FunctionInvocation
 from .symbolic_types import SymbolicInteger, getSymbolic
 
+# The built-in definition of len wraps the return value in an int() constructor, destroying any symbolic types.
+# By redefining len here we can preserve symbolic integer types.
+import builtins
+builtins.len = (lambda x : x.__len__())
+
 class Loader:
 	def __init__(self, filename, entry):
 		self._fileName = os.path.basename(filename)
