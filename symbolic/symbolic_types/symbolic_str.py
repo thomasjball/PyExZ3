@@ -68,7 +68,7 @@ class SymbolicStr(SymbolicObject, str):
         """CVC only replaces the first occurrence of old with new
         (max=1). For this reason, SymbolicStr's replace is implemented
         as a recurrence of single replaces."""
-        if max == 0 or old not in self:
+        if maxreplace == 0 or old not in self:
             ret = self
         else:
             # Find occurrence of old
