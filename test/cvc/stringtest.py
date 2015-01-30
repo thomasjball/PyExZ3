@@ -4,6 +4,8 @@ from symbolic.args import *
 def stringtest(s):
 	if (s=="bar"):
 		return 0
+	elif (s=='\\'):
+		return 2
 	else:
 		return 1
 
