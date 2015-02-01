@@ -19,18 +19,18 @@ class CVCString(CVCExpression):
     def constant(cls, v, solver):
         em = solver.getExprManager()
 
-        # The CVC4 String constructor treats '' as a string of length 1 containing the null byte.
-        # The empty constructor actually creates an empty string.
-        if len(v) == 0:
-            cvcstr = CVC4.CVC4String()
-        else:
-            cvcstr = CVC4.CVC4String(v)
+        # The CVC4 API requires escaping according to the SMT-LIB standard.
+        cvcstr = CVC4.CVC4String(v.replace("\\", "\\\\"))
+        assert cvcstr.size() == len(v)
 
         return cls(em.mkConst(cvcstr), solver)
 
     def getvalue(self):
         ce = self.solver.getValue(self.cvc_expr)
-        return ce.getConstString().toString()
+        v = ce.getConstString().toString()
+        v = v.replace("\\\\", "\\")
+        assert len(v) == ce.getConstString().size()
+        return v
 
     def len(self):
         return CVCInteger(self.em.mkExpr(CVC4.STRING_LENGTH, self.cvc_expr), self.solver)
