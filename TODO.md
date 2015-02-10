@@ -2,6 +2,7 @@ TODO List
 =========
 
 - add basic support for SymbolicDictionary
+  - 
 - need to capture exceptions thrown by code under test as test results
 - interesting question arises about re-initialization of input arguments
 by ExplorationEngine and re-import of module under test in the face of

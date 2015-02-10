@@ -12,16 +12,27 @@
 \RequirePackage{longtable}
 \RequirePackage{enumitem}
 \RequirePackage{booktabs}
-\RequirePackage{hyperref}
+\RequirePackage{pdfcomment}
+%\RequirePackage[bookmarks=true]{hyperref} % loaded by pdfcomment
 \RequirePackage{amsmath}
 \RequirePackage{amsfonts}
 \RequirePackage{amssymb}
 \RequirePackage{stmaryrd}
 \RequirePackage{textcomp}
 \RequirePackage{pifont}
-\RequirePackage{pdfcomment}
 \RequirePackage{wrapfig}
 
+
+%-------------------------------------------------------------
+% Process options 
+%-------------------------------------------------------------
+\newcommand{\mdHeadingBase}{1}
+\DeclareOptionX{heading-base}[1]{\gdef\mdHeadingBase{#1}}
+\ProcessOptionsX
+
+%-------------------------------------------------------------
+% Conditionals
+%-------------------------------------------------------------
 % conditionals
 \newif\ifmathmode
 \newif\ifbeamer
@@ -29,10 +40,6 @@
 \@ifclassloaded{beamer}{\beamertrue}{\beamerfalse}
 \ifdef\mathmode{\mathmodetrue}{\mathmodefalse}
 
-% use '\defcommand' to define a command no matter if it is predefined or not
-\def\defcommand{\@ifstar\defcommand@S\defcommand@N}
-\def\defcommand@S#1{\let#1\outer\renewcommand*#1}
-\def\defcommand@N#1{\let#1\outer\renewcommand#1} 
 
 %-------------------------------------------------------------
 % Setup packages 
@@ -41,7 +48,7 @@
 
 % hyperref
 \hypersetup{
-  colorlinks=true,linkcolor=Navy,urlcolor=Blue,filecolor=Maroon,bookmarks=true,bookmarksdepth=3,bookmarksopenlevel=1
+  colorlinks=true,linkcolor=Navy,urlcolor=Blue,filecolor=Maroon,bookmarksdepth=3,bookmarksopenlevel=1
 }
 
 % booktabs
@@ -95,9 +102,23 @@
 % short underscore
 \mdDefineUnicode{818}{\leavevmode\kern 0.06em\vbox{\hrule width 0.3em}}
 
+% qed
+\providecommand{\qedsymbol}{\ensuremath{\Box}}
+\providecommand{\qed}{\hfill\qedsymbol}
+
 % break and nbsp
-\newcommand{\mdBr}{\ifvmode\leavevmode\fi\\}
+\newcommand{\mdBr}{\ifvmode\leavevmode\fi\\{}}
 \newcommand{\mdNbsp}{\nobreak\rule{0pt}{0pt}~}
+
+\newcommand{\mdBrSep}[2]{%
+  \expandafter\ifx#1\relax\relax #2\else
+  \expandafter\ifx#2\relax\relax #1\else
+  #1\mdBr #2\fi\fi
+}
+
+% fix nobreakspace in case the user loads a T1 encoding in LaTeX
+\DeclareTextCommandDefault{\nobreakspace}{\leavevmode\nobreak\ }
+
 
 % logo
 \cssClassRuleDoBefore{madokologo}{\vfill}
@@ -127,44 +148,50 @@
 % LATEX: \author{ ... } \date
 
 \ifdef\date{\date{}}{}
-\providecommand{\email}[1]{\textsf{#1}}%
+\providecommand{\email}[1]{\normalsize\textsf{#1}}%
+\providecommand{\affaddr}[1]{\normalsize{#1}}%
+\providecommand{\alignauthor}{\\[2ex]}
+\providecommand{\aufnt}[1]{{\large #1}}
+\providecommand{\numberofauthors}[1]{}
+
 \ifbeamer\providecommand{\inst}[1]{$^{\mbox{#1}}$}\fi%
 
 % If there is no \authorinfo, we provide a simple one that works
 % with some other common styles
-\newcounter{@mdAuthorcount}
+\newcounter{mdAuthorCount}
 \newcommand{\@mdauthors}{}   % fancy list of authors
-\newcommand{\@mdauthorss}{}  % simple list of authors
 \newcommand{\@mdinsts}{}
 \providerobustcmd{\@and}{\and}
-\providecommand{\authorinfo}[3]{%
-  \stepcounter{@mdAuthorcount}%
+\providerobustcmd{\authorinfo}[3]{%
+  \stepcounter{mdAuthorCount}%
   \ifdef{\institute}{%  
-    \ifnum\value{@mdAuthorcount}>1%
+    \ifnum\value{mdAuthorCount}>1%
      \gappto\@mdauthors{\@and}%
-     \ifx\relax#2\else\gappto\@mdinsts{\@and}\fi
+     \ifx\relax#2\relax\else\gappto\@mdinsts{\@and}\fi%
     \fi%    
     \ifdef{\inst}%
     {%LLNCS, Beamer
       \gappto\@mdauthors{#1}%
-      \gappto\@mdinsts{#2}%
-      \ifx\relax#3\else\gappto\@mdinsts{\mdBr\email{#3}}\fi
+      \ifx\relax#2\relax\else\gappto\@mdinsts{#2}\fi%
+      \ifx\relax#3\relax\else\gappto\@mdinsts{\mdBr\email{#3}}\fi
     }%
     {% EPTCS
       \gappto\@mdauthors{#1%
-        \ifx\relax#2\else\protect\institute{#2}\fi%
-        \ifx\relax#3\else\protect\email{#3}\fi}%
+        \ifx\relax#2\relax\else\protect\institute{#2}\fi%
+        \ifx\relax#3\relax\else\protect\email{#3}\fi}%
     }%
   }%
   {% Our own simple style (similar to sigplanconf)
-   \ifnum\value{@mdAuthorcount}>1%
-     \gappto\@mdauthors{\\[2ex]}%
+   \ifnum\value{mdAuthorCount}>1%
+     \gappto\@mdauthors{\alignauthor}%
    \fi%
-   \gappto\@mdauthors{{\large #1}}%
-   \ifx\relax#2\relax\else\gappto\@mdauthors{\\[0.25ex]\normalsize #2}\fi%
-   \ifx\relax#3\relax\else\gappto\@mdauthors{\\\normalsize\email{#3}}\fi%
+   \gappto\@mdauthors{\aufnt{#1}}%
+   \protected@edef\@more{#2#3}%
+   \expandafter\ifx\@more\relax\relax \else
+     \gappto\@mdauthors{\\[0.25ex]\mdBrSep{#2}{#3}}%
+   \fi   
   }%
-  \ifnum\value{@mdAuthorcount}>1%
+  \ifnum\value{mdAuthorCount}>1%
     \gappto\@mdauthorsx{, #1}%
   \else
     \global\def\@mdauthorsx{#1}%
@@ -178,18 +205,18 @@
 }
 \cssClassRuleCmd{inst}{\mdInst}
 
-
 \newcommand{\mdTitle}[1]{\gdef\@mdTitle{#1}\title{\@mdTitle}\mdTitlerunning{#1}}
 \newcommand{\mdSubtitle}[1]{\gappto\@mdTitle{\\{\Large #1}}\title{\@mdTitle}}
-\newcommand{\mdAuthorAddressNote}[2]{%
-  #1%
-  \ifx\relax#2\relax\else\\ #2\fi%
-}
+
+% legacy
 \newcommand{\mdAuthor}[4]{%
-  \authorinfo{#1}{\mdAuthorAddressNote{#2}{#4}}{#3}%
+  \authorinfo{#1}{\mdBrSep{#2}{#4}}{#3}%
 }
+
+% and finally maketitle
 \newcommand{\mdMaketitle}[1]{%  
-  \ifnum\value{@mdAuthorcount}>0%
+  \ifnum\value{mdAuthorCount}>0%
+    \expandnext{\numberofauthors}{\arabic{mdAuthorCount}}%
     \author{\@mdauthors}%
     \ifdef\inst{\ifdef\institute{\institute{\@mdinsts}}{}}{}%
   \fi
@@ -198,7 +225,7 @@
     {%\gappto\@mdTitle{\titlenote{#1}}\title{\@mdTitle}}
      \mdSubtitle{\normalfont\normalsize #1}}%
      % {\date{#1}}%
-  \fi%
+  \fi%  
   \maketitle%
 }
 
@@ -216,6 +243,45 @@
       \rightmargin\leftmargin}\item[\hskip\labelsep\bfseries Abstract.]}
     {\endlist}
 }
+
+
+%-------------------------------------------------------------
+% Hooks to use maketitle from standard title blocks
+%-------------------------------------------------------------
+
+\def\@mdTitleNote{}
+\newcounter{mdxAuthorCount} 
+\defcommand{\mdxTitle}[2][]{\mdTitle{\mdSpan[#1]{#2}}}
+\defcommand{\mdxTitleNote}[2][]{\gdef\@mdTitleNote{\mdSpan[#1]{#2}}}
+\defcommand{\mdxTitleFooter}[2][]{\gappto{\@mdauthors}{\\[1ex]\mdSpan[#1]{#2}}}
+\defcommand{\mdxSubTitle}[2][]{\mdSubtitle{\mdSpan[#1]{#2}}}    
+\defcommand{\mdxAuthorName}[2][]{\csgdef{@mdAuthorName\the\value{mdxAuthorCount}}{\mdSpan[#1]{#2}}}
+\defcommand{\mdxAuthorAddress}[2][]{\csgdef{@mdAuthorAff\the\value{mdxAuthorCount}}{\mdSpan[#1]{#2}}}
+\defcommand{\mdxAuthorEmail}[2][]{\csgdef{@mdAuthorEmail\the\value{mdxAuthorCount}}{\mdSpan[#1]{\email{#2}}}}
+\defcommand{\mdxAuthorNote}[2][]{%
+  \ifcsdef{@mdAuthorAff\the\value{mdxAuthorCount}}%
+    {\csgappto{@mdAuthorAff\the\value{mdxAuthorCount}}{\mdBr\mdSpan[#1]{#2}}}
+    {\csgdef{@mdAuthorAff\the\value{mdxAuthorCount}}{\mdSpan[#1]{#2}}}
+ }
+\cssClassRuleDoBefore{titleblockmaketitle}{%
+  \setcounter{mdxAuthorCount}{0}%
+}
+\cssClassRuleDoBefore{authormaketitle}{%
+  \global\stepcounter{mdxAuthorCount}%
+}
+\cssClassRuleDoAfter{authormaketitle}{%
+  \providecsgdef{@mdAuthorName\the\value{mdxAuthorCount}}{}%
+  \providecsgdef{@mdAuthorAff\the\value{mdxAuthorCount}}{}%
+  \providecsgdef{@mdAuthorEmail\the\value{mdxAuthorCount}}{}%
+  \expandnextiii{\authorinfo}%
+      {\csname @mdAuthorName\the\value{mdxAuthorCount}\endcsname}%
+      {\csname @mdAuthorAff\the\value{mdxAuthorCount}\endcsname}%
+      {\csname @mdAuthorEmail\the\value{mdxAuthorCount}\endcsname}%
+}
+\cssClassRuleDoAfter{titleblockmaketitle}{%
+  \mdMaketitle{\@mdTitleNote}%
+}
+
 
 %-------------------------------------------------------------
 % Paragraphs and indentation 
@@ -273,22 +339,35 @@
 %-------------------------------------------------------------
 \cssNewKey{css}{bookmark}{\cssBookmark}{}
 \newcommand{\mdBookmark}[3]{\eifstrequal{#2}{}{}{\pdfbookmark[#1]{#2}{#3}}}
-\newcommand{\mdHBookmark}[2]{\cssInitKeys{#2}\mdBookmark{#1}{\cssBookmark}{\cssId}}
+\newcommand{\mdHBookmark}[2]{%
+  \ifnum#1<\mdHeadingBase\edef\@mdlevel{#1}\else\edef\@mdlevel{\the\numexpr#1-\mdHeadingBase}\fi%
+  \cssInitKeys{#2}\mdBookmark{\@mdlevel}{\cssBookmark}{\cssId}%
+}
 
-\newcommand{\mdH}[2][]{\mdHBookmark{0}{#1}\part*{\cssInline[elem=h0,#1]{#2}}}
-\newcommand{\mdHx}[2][]{\mdHBookmark{1}{#1}\chapter*{\cssInline[elem=h1,#1]{#2}}}
-\newcommand{\mdHxx}[2][]{\mdHBookmark{2}{#1}\section*{\cssInline[elem=h2,#1]{#2}}}
-\newcommand{\mdHxxx}[2][]{\mdHBookmark{3}{#1}\subsection*{\cssInline[elem=h3,#1]{#2}}}
-\newcommand{\mdHxxxx}[2][]{\mdHBookmark{4}{#1}\subsubsection*{\cssInline[elem=h4,#1]{#2}}}
-\newcommand{\mdHxxxxx}[2][]{\paragraph*{\cssInline[elem=h5,#1]{#2}}}
-\newcommand{\mdHxxxxxx}[2][]{\paragraph*{\cssInline[elem=h6,#1]{#2}}}
+\cssNewKey{css}{starform}{\cssStarForm}{}
+\newcommand{\mdCommandStar}[3][]{%
+  \cssInitKeys{#1}%
+  \eifstrequal{\cssStarForm}{true}{\csname #2\endcsname*{#3}}{\csname #2\endcsname{#3}}%
+}
+\newcommand{\mdCommandUnStar}[3][]{%
+  \cssInitKeys{#1}%
+  \eifstrequal{\cssStarForm}{false}{\csname #2\endcsname{#3}}{\csname #2\endcsname*{#3}}%
+}
+
+\newcommand{\mdH}[2][]{\mdHBookmark{0}{#1}\mdCommandUnStar[#1]{part}{\cssInline[elem=h0,#1]{#2}}}
+\newcommand{\mdHx}[2][]{\mdHBookmark{1}{#1}\mdCommandUnStar[#1]{chapter}{\cssInline[elem=h1,#1]{#2}}}
+\newcommand{\mdHxx}[2][]{\mdHBookmark{2}{#1}\mdCommandUnStar[#1]{section}{\cssInline[elem=h2,#1]{#2}}}
+\newcommand{\mdHxxx}[2][]{\mdHBookmark{3}{#1}\mdCommandUnStar[#1]{subsection}{\cssInline[elem=h3,#1]{#2}}}
+\newcommand{\mdHxxxx}[2][]{\mdHBookmark{4}{#1}\mdCommandUnStar[#1]{subsubsection}{\cssInline[elem=h4,#1]{#2}}}
+\newcommand{\mdHxxxxx}[2][]{\mdCommandUnStar[#1]{paragraph}{\cssInline[elem=h5,#1]{#2}}}
+\newcommand{\mdHxxxxxx}[2][]{\mdCommandUnStar[#1]{paragraph}{\cssInline[elem=h6,#1]{#2}}}
 \newenvironment{mdSection}[1][]{\mdHBookmark{2}{#1}\begin{mdDiv}[#1]}{\end{mdDiv}}
 
 %\patchcmd{\@startsection}%
-%	{\@ssect{#3}{#4}{#5}{#6}}%
-%	{\@dblarg{\@sect{#1}{\@m}{#3}{#4}{#5}{#6}}}%
-%	{}%
-%	{\PackageError{madoko}{Unable to patch \string\@startsection}\@ehd}
+% {\@ssect{#3}{#4}{#5}{#6}}%
+% {\@dblarg{\@sect{#1}{\@m}{#3}{#4}{#5}{#6}}}%
+% {}%
+% {\PackageError{madoko}{Unable to patch \string\@startsection}\@ehd}
 
 %-------------------------------------------------------------
 % Common block elements
@@ -320,15 +399,16 @@
   \cssNewLengthKey{csspre}{height}{\cssImageHeight}
   \cssInline[elem=img,#1]{%   
     \renewcommand{\@imgArgs}{keepaspectratio=true}%
-    \ifdim\cssImageWidth=0pt\else\appto{\@imgArgs}{,width=\cssImageWidth}\fi
-    \ifdim\cssImageHeight=0pt\else\appto{\@imgArgs}{,height=\cssImageHeight}\fi
+    \ifdim\cssImageWidth=2sp\def\cssImageWidth{\linewidth}\fi%
+    \ifdim\cssImageWidth<3sp\else\appto{\@imgArgs}{,width=\cssImageWidth}\fi%
+    \ifdim\cssImageHeight<3sp\else\appto{\@imgArgs}{,height=\cssImageHeight}\fi
     \eifstrequal{\@imgArgs}{}%
       {\includegraphics{#2}}%
     {\eifstrequal{\cssVerticalAlign}{top}%
-      {\@expandafter{\@imgInclude{t}{\cssImageWidth}{#2}}{\@imgArgs}}%
+      {\expandnext{\@imgInclude{t}{\cssImageWidth}{#2}}{\@imgArgs}}%
     {\eifstrequal{\cssVerticalAlign}{middle}%
-      {\@expandafter{\@imgInclude{c}{\cssImageWidth}{#2}}{\@imgArgs}}%
-      {\@expandafter{\@imgInclude{b}{\cssImageWidth}{#2}}{\@imgArgs}}}%
+      {\expandnext{\@imgInclude{c}{\cssImageWidth}{#2}}{\@imgArgs}}%
+      {\expandnext{\@imgInclude{b}{\cssImageWidth}{#2}}{\@imgArgs}}}%
     }%
   }%
   \endgroup%
@@ -362,35 +442,77 @@
 \cssClassRuleCmd{equation-before}{\mdEquationbefore}
 
 
+%-------------------------------------------------------------
+% Helper to allow use of standard math environments
+%-------------------------------------------------------------
+
+\cssNewKey{css}{env}{\cssEnv}{theorem}
+\newsavebox{\mdThmBox}
+\newenvironment{mdThmCaption}[1][]
+  {\global\setbox\mdThmBox\hbox\bgroup\ignorespaces}
+  {\egroup}
+\newenvironment{mdThm}[1][]%
+  {\cssInitKeys{#1}\begin{\cssEnv}%
+   \global\setbox\mdThmBox\hbox{}}%
+  {\end{\cssEnv}}
+
 
 %-------------------------------------------------------------
 % Lists
 %-------------------------------------------------------------
 
-\newcounter{mdListNesting}
-
 
 \newlength{\xtopsep}
 \newenvironment{mdUl}[1][]%
   {\begin{mdDiv}[#1]%
-   \advance\c@mdListNesting by 1% use advance to be local
    \setlength{\xtopsep}{\topsep}%
    \addtolength{\topsep}{-\cssMarginTop}%
-   \begin{itemize}[topsep=\xtopsep]%
+   \eifstrequal{\cssListStyleType}{}%
+     {\def\@endlist{\end{itemize}}\begin{itemize}[topsep=\xtopsep]}%
+     {\@mdSetListLabel%
+      \def\@endlist{\end{enumerate}}\expandnext{\begin{enumerate}[topsep=\xtopsep,start=\cssStart,}{\@label}]}%
    \cssIfHasClass{compact}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{}%
   }%
-  {\strut\end{itemize}\end{mdDiv}}
+  {\strut\@endlist\end{mdDiv}}
 
-\cssNewKey{css}{start}{\cssStart}{}
+\cssNewKey{css}{start}{\cssStart}{1}
+\cssNewKey{css}{list-style-type}{\cssListStyleType}{}
+
+\newcommand{\@mdSetListLabel}{%
+  \cssIfHasClass{list-sep-paren}%
+    {\def\@labelsep{)}%
+     \eifstrequal{\cssListStyleType}{}{\def\cssListStyleType{decimal}}{}}%
+    {\def\@labelsep{.}}
+  \eifstrequal{\cssListStyleType}{lower-roman}%
+    {\def\@label{label=\roman*\@labelsep}}%
+  {\eifstrequal{\cssListStyleType}{upper-roman}%
+    {\def\@label{label=\Roman*\@labelsep}}%
+  {\eifstrequal{\cssListStyleType}{lower-alpha}%
+    {\def\@label{label=\alph*\@labelsep}}%
+  {\eifstrequal{\cssListStyleType}{upper-alpha}%
+    {\def\@label{label=\Alph*\@labelsep}}%
+  {\eifstrequal{\cssListStyleType}{decimal}%
+    {\def\@label{label=\arabic*\@labelsep}}%
+  {\eifstrequal{\cssListStyleType}{disc}%
+    {\def\@label{label=\textbullet}}%
+  {\eifstrequal{\cssListStyleType}{circle}%
+    {\def\@label{label=$\circ$}}%
+  {\eifstrequal{\cssListStyleType}{square}%
+    {\def\@label{label=$\blacksquare$}}%
+  {\eifstrequal{\cssListStyleType}{dash}%
+    {\def\@label{label={--}}}%
+  {\eifstrequal{\cssListStyleType}{none}%
+    {\def\@label{label=}}%
+    {\def\@label{}}}}}}}}}}}%
+}
+
 \newenvironment{mdOl}[1][]%
-  {\begin{mdDiv}[#1]%
-  \advance\c@mdListNesting by 1% use advance to be local
+  {\ifdef\@enhook{\PackageError{madoko}{You cannot use the package "enumerate" in madoko;\MessageBreak use the "enumitem" package instead\MessageBreak (which is available by default)}{}}{}%
+  \begin{mdDiv}[#1]%
   \setlength{\xtopsep}{\topsep}%
   \addtolength{\topsep}{-\cssMarginTop}%
-  \begin{enumerate}[topsep=\xtopsep]%
-  \eifstrequal{\cssStart}{}{}%
-    {\addtocounter{enum\roman{mdListNesting}}{\cssStart}%
-     \addtocounter{enum\roman{mdListNesting}}{-1}}%
+  \@mdSetListLabel%
+  \expandnext{\begin{enumerate}[topsep=\xtopsep,start=\cssStart,}{\@label}]%
   \cssIfHasClass{compact}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}{}%
   }%
   {\strut\end{enumerate}\end{mdDiv}}
@@ -399,7 +521,6 @@
 
 \newenvironment{mdDl}[1][]%
   {\begin{mdDiv}[#1]%
-   \advance\c@mdListNesting by 1% use advance to be local
    \setlength{\xtopsep}{\topsep}%
    \addtolength{\topsep}{-\cssMarginTop}%
    \begin{itemize}[leftmargin=0pt,topsep=\xtopsep]%
@@ -432,7 +553,7 @@
 
 
 \newcommand{\mdBibDisplay}{inline}
-
+\newcommand{\mdBibBefore}{\ifdef\inst{\vspace{-4ex}}{}}
 \newcommand{\@ignore}[2][]{} % ignore argument (and optional argument)
 
 \newenvironment{mdBibliography}[1][]{%
@@ -441,7 +562,7 @@
   \ifdef\chapter{\def\chapter{\@ifstar\@ignore\@ignore}}{}% suppress bibliography header
   \providecommand{\markboth}[2]{}%
   \cssIfHasClass{bib-authoryear}{\def\mdBibDisplay{hidden}}{}%
-  \begin{thebibliography}{\cssCaption}\setlength{\topsep}{0pt}\vspace{-4ex}}%
+  \begin{thebibliography}{\cssCaption}\setlength{\topsep}{0pt}\mdBibBefore}%
   {\markboth{}{}\end{thebibliography}\end{mdDiv}}
 
 
@@ -524,7 +645,8 @@
 % Figures
 % ---------------------------------------------------
 \cssNewKey{css}{page-align}{\cssPageAlign}{}
-\cssElemRuleDo{figure}{%
+\cssNewKey{css}{float-env}{\cssFloatEnv}{figure}
+\newcommand{\mdFloating}{%
   \eifstrequal{\cssPageAlign}{top}%
     {\def\@pagealign{t}}%
   {\eifstrequal{\cssPageAlign}{bottom}%
@@ -542,11 +664,12 @@
   {\eifstrequal{\cssFloat}{right}%
     {}%
   {\cssIfHasClass{wide}%
-    {\cssDoBefore{\@expandafter{\begin{figure*}[}{\@pagealign}]}\cssDoAfter{\end{figure*}}}%
-    {\cssDoBefore{\@expandafter{\begin{figure}[}{\@pagealign}]}\cssDoAfter{\end{figure}}}%
+    {\cssDoBefore{\expandnext{\begin{\cssFloatEnv*}[}{\@pagealign}]}\cssDoAfter{\end{\cssFloatEnv*}}}%
+    {\cssDoBefore{\expandnext{\begin{\cssFloatEnv}[}{\@pagealign}]}\cssDoAfter{\end{\cssFloatEnv}}}%
   }}%
   %\cssDoBefore{\cssSaveFootnotes}%
 }
+\cssElemRuleDo{floating}{\mdFloating}
 
 \newlength{\mdCaptionlen}
 \newcommand{\mdCaption}[1]{%
@@ -557,8 +680,25 @@
     \parbox{\linewidth}{\noindent #1}%
   \fi%
 }
+
 \cssClassRuleCmd{figure-caption}{\mdCaption}
 \cssClassRule{figure-caption}{text-align=justify}% prevents insertion of hspace{\fill} due to outer align-center
+
+% participate in listoffigures and listoftables
+\newcommand{\mdCaptionText}[1]{%
+  \addcontentsline{\csname ext@\@captype\endcsname}{\@captype}%
+    {\protect\numberline{\@mdCaptionLabel}{\ignorespaces #1}}%
+  #1    
+}
+\cssClassRuleCmd{caption-text}{\mdCaptionText}
+
+\newcommand{\mdCaptionLabel}[1]{%
+  \global\gdef\@mdCaptionLabel{#1}%
+  #1
+}
+\cssClassRuleCmd{figure-label}{\mdCaptionLabel}
+\cssClassRuleCmd{table-label}{\mdCaptionLabel}
+
 
 \newcommand{\mdHr}[2][]{%
   \begingroup%  

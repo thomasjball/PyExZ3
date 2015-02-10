@@ -54,11 +54,27 @@
 \definecolor{Aqua}{HTML}{00FFFF}
 \definecolor{Fuchsia}{HTML}{FF00FF}
 
-\newcommand{\@swap}[2]{#2{#1}}
-\newcommand{\@expandafter}[2]{\expandafter\@swap\expandafter{#2}{#1}}
+% ---------------------------------------------
+% Basic LaTeX helpers
+% ---------------------------------------------
+
+% use '\defcommand' to define a command no matter if it is predefined or not
+\def\defcommand{\@ifstar\defcommand@S\defcommand@N}
+\def\defcommand@S#1{\let#1\outer\renewcommand*#1}
+\def\defcommand@N#1{\let#1\outer\renewcommand#1} 
+
+\def\providecsgdef#1{\ifcsdef{#1}{\providecommand\@foo}{\csgdef{#1}}}
+
+\providecommand\@swap[2]{#2#1}
+\providecommand\@swaparg[2]{#2{#1}}
+\providecommand\expandnext[2]{\expandafter\@swaparg\expandafter{#2}{#1}}
+\newcommand\@expandafter\expandnext %legacy
+\newcommand\expandnextii[3]{\expandnext{\expandnext{#1}{#2}}{#3}}
+\newcommand\expandnextiii[4]{\expandnext{\expandnextii{#1}{#2}{#3}}{#4}}
+\newcommand\expandnextiv[5]{\expandnext{\expandnextiii{#1}{#2}{#3}{#4}}{#5}}   
 
 \newcommand{\eifstrequal}{\expandafter\ifstrequal\expandafter}
-\newcommand{\eeifstrequal}[2]{\@expandafter{\eifstrequal{#1}}{#2}}
+\newcommand{\eeifstrequal}[2]{\expandnext{\eifstrequal{#1}}{#2}}
 
 \providecommand\providelength[1]{%
   \begingroup
@@ -162,7 +178,7 @@
 \newcommand{\@doAfter}{}
 \newcommand{\@wrapCmd}[1]{#1}
 
-\newcommand{\@cssUseCmd}{\renewcommand{\@wrapCmd}[1]{##1}\@usewraptrue}
+\newcommand{\@cssUseCmd}{\renewcommand{\@wrapCmd}[1]{##1}\renewcommand{\@doAfter}{}\@usewraptrue}
 \newcommand{\@cssUseEnv}{\renewcommand{\@doBefore}{}\renewcommand{\@doAfter}{}\@usewrapfalse}
 
 \newcommand{\@cssApplyCmd}[1]{{\@wrapCmd{#1}}}
@@ -181,8 +197,12 @@
 \newcommand{\@cmdAfter}[2]{#2#1}
 
 \newcommand{\cssWrapCmd}[1]{\apptox{\@wrapCmd}{#1}}
+\newcommand{\cssDoBeforeX}[1]{#1}
+\newcommand{\cssDoAfterX}[1]{\preto\@doAfter{#1}}
 \newcommand{\cssDoBefore}[1]{\if@usewrap\cssWrapCmd{\@cmdBefore{#1}}\else #1\fi}
 \newcommand{\cssDoAfter}[1]{\if@usewrap\cssWrapCmd{\@cmdAfter{#1}}\else\preto\@doAfter{#1}\fi}
+%\newcommand{\cssDoBeforeX}[1]{\if@usewrap\cssWrapCmd{\@cmdBefore{#1}}\else #1\fi}
+%\newcommand{\cssDoAfterX}[1]{\if@usewrap\cssWrapCmd{\@cmdAfter{#1}}\else\preto\@doAfter{#1}\fi}
 
 \newcommand{\cssDoEnv}[1]{\cssDoBefore{\protect\begin{#1}}\cssDoAfter{\protect\end{#1}}}
 \newcommand{\cssDoEnvOpt}[2]{\cssDoBefore{\begin{#1}[#2]}\cssDoAfter{\end{#1}}}
@@ -258,14 +278,14 @@
 \newcommand{\@cssProcessMargins}{%
 	\eifstrequal{\cssDisplay}{block}%
 		{\@cssBlockEndPar\@cssBlockMargins}%
-	{\eifstrequal{\cssDisplay}{block-inline}%
+	{\eifstrequal{\cssDisplay}{inline-block}%
 		{\@cssBlockMargins}%
 		{\@cssInlineMargins}%
 	}%
 }
 
 \newcommand{\@cssBlockEndPar}{%
-	\cssIfHasClass{para-continue,para-block}{}{\cssDoAfter{\relax\ifhmode\par\global\hangindent=0pt\fi}}%
+	\cssIfHasClass{para-continue,para-block}{}{\cssDoAfterX{\leavevmode\par\global\hangindent=0pt\relax}}%
 }
 
 \newif\if@hasdim
@@ -294,8 +314,8 @@
 			\addtolength{\cssWidthFull}{\cssWidth}%
 		\fi%
 		%minipage				
-		\ifdim\cssMarginTop=0pt\else\cssDoBefore{\vspace{\cssMarginTop}}\fi
-		\ifdim\cssMarginLeft=0pt\else\cssDoBefore{\hspace*{\cssMarginLeft}}\fi
+		\ifdim\cssMarginTop=0pt\else\cssDoBeforeX{\vspace{\cssMarginTop}}\fi
+		\ifdim\cssMarginLeft=0pt\else\cssDoBeforeX{\hspace*{\cssMarginLeft}}\fi
 		\setlength{\@cssParIndent}{\parindent}% save parskip and parindent since minipage resets it
 		\setlength{\@cssParSkip}{\parskip}%
 		\eifstrequal{\cssVerticalAlign}{bottom}{\def\@cssValign{b}}%
@@ -303,15 +323,15 @@
 		{\eifstrequal{\cssVerticalAlign}{top}{\def\@cssValign{t}}%
 		{\def\@cssValign{c}}}}% including `middle`
 		\ifdim\cssHeight=1sp%
-	   		\cssDoBefore{\begin{minipage}[\@cssValign]{\cssWidthFull}}%
+	   		\cssDoBeforeX{\begin{minipage}[\@cssValign]{\cssWidthFull}}%
 		\else
-			\cssDoBefore{\begin{minipage}[\@cssValign][\cssHeightFull]{\cssWidthFull}}%
+			\cssDoBeforeX{\begin{minipage}[\@cssValign][\cssHeightFull]{\cssWidthFull}}%
 		\fi
-		\cssDoBefore{\cssSaveFootnotes\setlength{\parskip}{\@cssParSkip}\setlength{\parindent}{\@cssParIndent}}%
+		\cssDoBeforeX{\cssSaveFootnotes\setlength{\parskip}{\@cssParSkip}\setlength{\parindent}{\@cssParIndent}}%
 		%note: DoAfter prepends, so in opposite order
-		\ifdim\cssMarginBottom=0pt\else\cssDoAfter{\vspace{\cssMarginBottom}}\fi
-		\ifdim\cssMarginRight=0pt\else\cssDoAfter{\hspace*{\cssMarginRight}}\fi
-		\cssDoAfter{\end{minipage}\cssRestoreFootnotes}%
+		\ifdim\cssMarginBottom=0pt\else\cssDoAfterX{\vspace{\cssMarginBottom}}\fi
+		\ifdim\cssMarginRight=0pt\else\cssDoAfterX{\hspace*{\cssMarginRight}}\fi
+		\cssDoAfterX{\end{minipage}\cssRestoreFootnotes}%
 	\else
 		% no height/width: trivlist
 		\@hasdimfalse
@@ -319,9 +339,9 @@
 		\ifdim\cssMarginRight=0pt\else\@hasdimtrue\fi
 		\ifdim\cssMarginTop=0pt\else\@hasdimtrue\fi
 		\ifdim\cssMarginBottom=0pt\else\@hasdimtrue\fi
-	  	\if@hasdim
+	  \if@hasdim
 			\setlength{\@cssMarginAfter}{\dimexpr\cssMarginBottom-\cssMarginTop\relax}%
-			\cssDoEnvArgII{list}{}{%
+			\list{}{%
 				\leftmargin=\cssMarginLeft%
 				\rightmargin=\cssMarginRight%
 				\topsep=\cssMarginTop%
@@ -331,10 +351,18 @@
 				\partopsep=0pt%	
 				\listparindent=\parindent%	
 			}%
+			\cssDoAfterX{\endlist}%
 			\ifdim\@cssMarginAfter=0pt\else\cssDoAfter{\vspace{\@cssMarginAfter}}\fi%
+			\eifstrequal{\cssTextAlign}{left}% we need to do alignment here for inline cmds' with a display=block
+				{\raggedright}%
+			{\eifstrequal{\cssTextAlign}{right}%
+				{\raggedleft}%
+			{\eifstrequal{\cssTextAlign}{center}%
+				{\centering}%
+			{}}}%
 			\cssIfHasClass{math-display}%
-				{\cssDoBefore{\item\@cssFixMathSpacing}}%
-				{\cssDoBefore{\item}}%	\fi
+				{\item\@cssFixMathSpacing}%
+				{\item\relax}%	
 		\fi
 	\fi
 }
@@ -426,8 +454,8 @@
 		\eifstrequal{\cssBorderRightStyle}{none}{\appto{\@cssFramedArgs}{,rightline=false}}%		
 			{\addtolength{\cssBorderWidthTotal}{\cssBorderWidth}}%	
 		\cssIfHasClass{math-display}%
-			{\@expandafter{\cssDoEnvOpt{mdmathframed}}{\@cssFramedArgs}}%
-			{\@expandafter{\cssDoEnvOpt{mdframed}}{\@cssFramedArgs}}%
+			{\expandnext{\cssDoEnvOpt{mdmathframed}}{\@cssFramedArgs}}%
+			{\expandnext{\cssDoEnvOpt{mdframed}}{\@cssFramedArgs}}%
 		% insert a minipage if height or width was set so the frame is as large
 		\@hasdimfalse
 		\ifdim\cssWidth=1sp\else\@hasdimtrue\fi
@@ -543,7 +571,7 @@
 % css: Textalign, textindent etc 
 %-------------------------------------------------------------
 
-\cssNewLengthKey{css}{text-indent}{\cssTextIndent}
+\cssNewLengthKey[1sp]{css}{text-indent}{\cssTextIndent}
 \cssNewKey{css}{text-align}{\cssTextAlign}{justify}
 \cssNewLengthKey{css}{line-height}{\cssLineHeight}
 \cssNewKey{css}{float}{\cssFloat}{}
@@ -552,7 +580,7 @@
 	\cssDefNormalizeColor{@fcolor}{#1}\color{\@fcolor}%
 }
 \DeclareRobustCommand{\@robustColorbox}[2]{%
-	\cssDefNormalizeColor{@fcolor}{#1}\colorbox{\@fcolor}{#2}%
+	\cssDefNormalizeColor{@bcolor}{#1}\colorbox{\@bcolor}{#2}%
 }
 
 
@@ -568,7 +596,7 @@
 
 \newcommand{\@cssBlockText}{%
 	\eifstrequal{\cssId}{}{}{\label{\cssId}}% set label
-		\eifstrequal{\cssTextAlign}{left}%
+	\eifstrequal{\cssTextAlign}{left}%
 		{\cssDoBefore{\protect\raggedright}}%
 	{\eifstrequal{\cssTextAlign}{right}%
 		{\cssDoBefore{\protect\raggedleft}}%
@@ -576,7 +604,7 @@
 		{\cssDoBefore{\protect\centering}}%
 	{}}}%
 	\ifdim\cssLineHeight=0pt\else\setlength{\baselineskip}{\cssLineHeight}\fi
-	\noindent\ifdim\cssTextIndent=0pt\else\hspace*{\cssTextIndent}\fi	
+	\ifdim\cssTextIndent=1sp\else\noindent\hspace*{\cssTextIndent}\fi	
 }
 
 \newcommand{\@cssInlineText}{%
@@ -632,7 +660,7 @@
       	{\cssDoBefore\upshape}%
       	{}}%
   	\eifstrequal{\cssFontStyle}{italic}%
-    	{\cssDoBefore\itshape\hspace{-0.2ex}}%
+    	{\cssDoBefore\itshape}%
     {\eifstrequal{\cssFontStyle}{oblique}%
    		{\cssDoBefore\slshape}%
     {\eifstrequal{\cssFontStyle}{normal}%
@@ -653,7 +681,8 @@
 		{\cssDoBefore\Large}%
 	{\eifstrequal{\cssFontSize}{xx-large}%
 		{\cssDoBefore\LARGE}%
-		{}}}}}}}}%
+		{\cssDoBefore{\fontsize{\cssFontSize}{1em}\selectfont}%
+	}}}}}}}}%
 	%
 	\eifstrequal{\cssColor}{}{}%
 		{\strsplit{\cssColor}%			
@@ -689,7 +718,7 @@
   \@for\@ii:=#3\do{%
     \ifcsmacro{@rule@#1@\@ii}{%
       \edef\@args{\csname @rule@#1@\@ii\endcsname}%
-      \@expandafter{\setkeys{#2}}{\@args}%
+      \expandnext{\setkeys{#2}}{\@args}%
     }{}%
   }%	
 }
@@ -755,21 +784,22 @@
 	 \@cssElemDoRules%
 	 \@cssProcessMargins\@cssProcessPadding%
 	 \@cssClassDoRules%
-	 \@cssProcessText\@cssProcessFont%
+	 \@cssProcessText%
+	 \@cssProcessFont%
 	 \@cssApplyBefore}%
-	{\@cssApplyAfter}
+	{\@cssApplyAfter}%
 
 \newenvironment{cssBlock}[1][]%
 	{\begin{cssBlockX}{}{#1}}{\end{cssBlockX}}
 
 \newcommand{\cssInlineX}[4]%
-	{\@cssReset\@cssUseCmd\@cssProcessAttrs{display=inline,#1}{#2}%
+	{\begingroup\@cssReset\@cssUseCmd\@cssProcessAttrs{display=inline,#1}{#2}%
 	 \@cssElemDoRules%
 	 \@cssProcessMargins\@cssProcessPadding%
 	 \@cssClassDoRules%
 	 #3%
 	 \@cssProcessText\@cssProcessFont%
-	 \@cssApplyCmd{#4}%
+	 \@cssApplyCmd{#4}\@cssApplyAfter\endgroup%
 	}%	 
 
 \newcommand{\cssInline}[2][]{\cssInlineX{}{#1}{}{#2}}
