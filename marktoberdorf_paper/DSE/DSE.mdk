@@ -84,7 +84,7 @@ to program $P$ such that for any $i \in I$, the execution $P(i)$ follows path $p
 
 If the formula $\phi_p$ is unsatisfiable then $I$ is empty and so path $p$ is not feasible; 
 if the formula is satisfiable then $I$ is not empty and so path $p$ is feasible.
-In this case, a model of $\phi_p$ provides a witness $i \in I$.  Thus, an ATP
+In this case, a model of $\phi_p$ provides a witness $i \in I$.  Thus, a model-generating ATP
 that can provide such models can be used in conjunction with
 symbolic execution to automatically generate tests to cover paths
 in a program. Combined with a search strategy, one gets, in the limit,
