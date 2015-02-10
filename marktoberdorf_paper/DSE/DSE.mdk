@@ -85,7 +85,7 @@ to program $P$ such that for any $i \in I$, the execution $P(i)$ follows path $p
 If the formula $\phi_p$ is unsatisfiable then $I$ is empty and so path $p$ is not feasible; 
 if the formula is satisfiable then $I$ is not empty and so path $p$ is feasible.
 In this case, a model of $\phi_p$ provides a witness $i \in I$.  Thus, a model-generating ATP
-that can provide such models can be used in conjunction with
+can be used in conjunction with
 symbolic execution to automatically generate tests to cover paths
 in a program. Combined with a search strategy, one gets, in the limit,
 an exhaustive white-box testing procedure, for which there are many
@@ -316,7 +316,7 @@ in the Python language that follows the instrumented semantics pattern closely
 Section [#sec-int2z3] describes the symbolic encoding of Python integer 
 operations using two decision procedures of Z3: linear arithmetic with
 uninterpreted functions in place of non-linear operations;
-fixed-width bitvectors with precise encodings of most operations.
+fixed-width bit-vectors with precise encodings of most operations.
 Section [#sec-extensions] offers a number of ideas for projects
 to extend the capabilities of [PyExZ3].
 
@@ -428,9 +428,9 @@ and $R'$ is a subtype of $R$ from universe $U'$.
 Looked at another way, the universe $U'$ represents the "tainting" of
 types from $U$. Tainted values flow from program inputs to the 
 operands of operators. If an operator has been redefined
-(as above) then taintedness propagates from its inputs to its outputs.
+(as above) then the taint propagates from its inputs to its outputs.
 On the other hand, if the operator has not been redefined, then it will
-not propagate taintedness. In the context of DSE, "taintedness" means
+not propagate the taint. In the context of DSE, "taint" means
 that the instrumented semantics carries along a symbolic expression tree $e$
 along with a concrete value $c$.
 
@@ -481,7 +481,7 @@ is defined by the following five rules:
 ~
 
 Rule (1) defines the strongest postcondition for 
-the assignment statement. The assignment is modelled
+the assignment statement. The assignment is modeled
 logically by the equality $x = E$ where any free occurrence of $x$ in $E$
 is replaced by the existentially quantified variable $y$, which represents
 the value of $x$ in the pre-state. The same substitution ($[x \rightarrow y ]$)
@@ -855,22 +855,22 @@ be converted to LIA (without the use of UF) in order to make
 use of "satisfiable" answers from the LIA solver.
 
 If the translation to `Z3Integer` does not return "unsatisfiable", we
-use Z3's bit vector decision procedure (via the class
+use Z3's bit-vector decision procedure (via the class
 `Z3BitVector`) to heuristically
 try to find satisfiable answers, even in the presence of non-linear 
-arithmetic. We start with bitvectors of size $N=32$ and *bound* the values
+arithmetic. We start with bit-vectors of size $N=32$ and *bound* the values
 of the symbolic constants to fit within 8 bits in order to find 
 satisfiable solutions
 with small values. Also, because Python integers do not overflow/underflow, 
-the bound helps us reserve space in the bitvector to allow the
+the bound helps us reserve space in the bit-vector to allow the
 results of operations to exceed the bound while not overflowing
-the bitvector. As long as Z3 returns "unsatisfiable" we increase
+the bit-vector. As long as Z3 returns "unsatisfiable" we increase
 the bound. If the bound reaches $N$, we increase $N$ by 8 bits,
 leaving the bound where it is and continue. 
 
 If Z3 returns
 "satisfiable", it may be the case that Z3 found a solution
-that involved overflow in the bitvector world of arithmetic
+that involved overflow in the bit-vector world of arithmetic
 (modulo $2^N-1$). Therefore,
 the solution is validated back in the
 Python world by evaluating the formula under that solution
