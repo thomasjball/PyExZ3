@@ -12,9 +12,12 @@ log = logging.getLogger("se.cvc")
 
 class CVCWrapper(object):
     options = {'produce-models': 'true',
-               'strings-exp': 'true',  # Enable experimental string support
-               'rewrite-divk': 'true',  # Enable modular arithmetic with constant modulus
-               'tlimit-per': 5000,  # Per Query timeout of 5 seconds
+               # Enable experimental string support
+               'strings-exp': 'true',
+               # Enable modular arithmetic with constant modulus
+               'rewrite-divk': 'true',
+               # Per Query timeout of 5 seconds
+               'tlimit-per': 5000,
                'output-language': 'smt2',
                'input-language': 'smt2'}
     logic = 'ALL_SUPPORTED'
