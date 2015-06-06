@@ -107,7 +107,8 @@ class Z3Expression(object):
 				return self._astToZ3Expr(expr.expr,solver,env)
 
 		elif isinstance(expr, SymbolicType):
-			utils.crash("{} is an unsupported SymbolicType of {}".format(expr, type(expr)))
+			utils.crash("{} is an unsupported SymbolicType of {}".
+						format(expr, type(expr)))
 
 		elif isinstance(expr, int):
 			if env == None:
