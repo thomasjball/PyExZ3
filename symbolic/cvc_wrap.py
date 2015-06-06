@@ -11,6 +11,17 @@ log = logging.getLogger("se.cvc")
 
 
 class CVCWrapper(object):
+    options = {'produce-models': 'true',
+               # Enable experimental string support
+               'strings-exp': 'true',
+               # Enable modular arithmetic with constant modulus
+               'rewrite-divk': 'true',
+               # Per Query timeout of 5 seconds
+               'tlimit-per': 5000,
+               'output-language': 'smt2',
+               'input-language': 'smt2'}
+    logic = 'ALL_SUPPORTED'
+
     def __init__(self):
         self.asserts = None
         self.query = None
@@ -22,11 +33,9 @@ class CVCWrapper(object):
            asserts remains valid."""
         self.em = ExprManager()
         self.solver = SmtEngine(self.em)
-        self.solver.setOption("produce-models", SExpr("true"))
-        self.solver.setOption("strings-exp", SExpr("true")) # Enable experimental string support
-        self.solver.setOption("rewrite-divk", SExpr("true")) # Enable modular arithmetic with constant modulus
-        self.solver.setOption("tlimit-per", SExpr("5000")) # Per Query timeout of 5 seconds
-        self.solver.setLogic("ALL_SUPPORTED")
+        for name, value in CVCWrapper.options.items():
+            self.solver.setOption(name, SExpr(str(value)))
+        self.solver.setLogic(CVCWrapper.logic)
         self.query = query
         self.asserts = self._coneOfInfluence(asserts, query)
         result = self._findModel()
