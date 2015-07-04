@@ -1,5 +1,6 @@
 from . symbolic_type import SymbolicObject
 from symbolic.symbolic_types.symbolic_int import SymbolicInteger
+from string import whitespace
 
 class SymbolicStr(SymbolicObject, str):
 
@@ -43,9 +44,25 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr([self, key], lambda x, y: str.__getitem__(x, y),
                               "getitem", SymbolicStr.wrap)
 
-    def find(self, findstr):
-        return self._do_sexpr([self, findstr], lambda x, y: str.find(x, findstr), 
+    def find(self, findstr, beg=0):
+        return self._do_sexpr([self, findstr, beg], lambda x, y, z: str.find(x, y, z),
                                 "str.find", SymbolicInteger.wrap)
+
+    def startswith(self, prefix):
+        return self._do_sexpr([self, prefix], lambda x, y: str.startswith(x, y),
+                                "str.startswith", SymbolicInteger.wrap)
+
+    def split(self, sep=None, maxsplit=None):
+        if sep is None:
+            sep = " "
+        if len(self) == 0:
+            return []
+        elif maxsplit == 0 or sep not in self:
+            return [self]
+        else:
+            sep_idx = self.find(sep)
+            maxsplit = None if maxsplit is None else maxsplit - 1
+            return [self[0:sep_idx]] + self[sep_idx + 1:].split(sep, maxsplit)
 
     def count(self, sub):
         """String count is not a native function of the SMT solver. Instead, we implement count as a recursive series of
@@ -80,6 +97,19 @@ class SymbolicStr(SymbolicObject, str):
             ret = first_half + second_half.replace(old, new, maxreplace-1)
         assert str(ret) == str.replace(str(self), str(old), str(new), int(maxreplace))
         return ret
+
+    def strip(self, chars=None):
+        if chars is None:
+            chars = whitespace
+        if self.__len__() == 0:
+            return self
+        for char in chars:
+            if self[0] == char:
+                return self[1:].strip(chars)
+        for char in chars:
+            if self[self.__len__() - 1] == char:
+                return self[:self.__len__() - 1].strip(chars)
+        return self
 
 # Currently only a subset of string operations are supported.
 ops = [("add", "+")]

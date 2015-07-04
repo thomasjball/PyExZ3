@@ -48,6 +48,7 @@ class CVCWrapper(object):
     def _findModel(self):
         self.solver.push()
         exprbuilder = ExprBuilder(self.asserts, self.query, self.solver)
+        self.solver.assertFormula(exprbuilder.query.cvc_expr)
         try:
             result = self.solver.checkSat()
             log.debug("Solver returned %s" % result.toString())
@@ -69,7 +70,7 @@ class CVCWrapper(object):
     def _getModel(variables):
         """Retrieve the model generated for the path expression."""
         return {name: cvc_var.getvalue() for (name, cvc_var) in variables.items()}
-	
+
     @staticmethod
     def _coneOfInfluence(asserts, query):
         cone = []

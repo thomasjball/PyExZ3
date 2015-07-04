@@ -12,20 +12,21 @@ log = logging.getLogger("se.cvc_expr.exprbuilder")
 class ExprBuilder(object):
     def __init__(self, asserts, query, solver):
         self.solver = solver
+        self.solver.guards = []
         self.em = self.solver.getExprManager()
         self.cvc_vars = {}
-        self._toCVC(asserts, query)
+        self.query = self._toCVC(asserts, query)
 
     def _toCVC(self, asserts, query):
         smt_query = self._predToCVC(query).not_op()
         for p in asserts:
             smt_query &= self._predToCVC(p)
-        log.debug("Querying solver for %s" % smt_query)
-        self.solver.assertFormula(smt_query.cvc_expr)
+        for guard in self.solver.guards:
+            smt_query &= guard
+        return smt_query
 
     def _predToCVC(self, pred, env=None):
         sym_expr = self._astToCVCExpr(pred.symtype, env)
-        log.debug("Converting predicate %s to CVC expression %s" % (pred, sym_expr))
         if env is None:
             if not sym_expr.cvc_expr.getType().isBoolean():
                 sym_expr = (sym_expr == CVCInteger.constant(0, self.solver)).not_op()
@@ -55,14 +56,12 @@ class ExprBuilder(object):
             return expr
 
     def _astToCVCExpr(self, expr, env=None):
-        log.debug("Converting %s (type: %s) to CVC expression" % (expr, type(expr)))
         if isinstance(expr, list):
             op = expr[0]
             args = [self._astToCVCExpr(a, env) for a in expr[1:]]
             cvc_l = args[0]
             cvc_r = args[1] if len(args) > 1 else None
             cvc_3 = args[2] if len(args) > 2 else None
-            log.debug("Building %s" % args)
 
             # arithmetical operations
             if op == "+":
@@ -92,9 +91,11 @@ class ExprBuilder(object):
             elif op == "str.len":
                 return cvc_l.len()
             elif op == "str.find":
-                return cvc_l.find(cvc_r)
+                return cvc_l.find(cvc_r, cvc_3)
             elif op == "str.replace":
                 return cvc_l.replace(cvc_r, cvc_3)
+            elif op == "str.startswith":
+                return self._wrapIf(cvc_l.startswith(cvc_r), env)
 
             # collection operators
             elif op == "getitem":
@@ -103,9 +104,15 @@ class ExprBuilder(object):
                 return cvc_l[cvc_r:cvc_3]
             # equality gets coerced to integer
             elif op == "==":
-                return self._wrapIf((cvc_l == cvc_r), env)
+                if cvc_l is None or cvc_r is None:
+                    return self._wrapIf(self._astToCVCExpr(0, env) != self._astToCVCExpr(0, env), env)
+                else:
+                    return self._wrapIf((cvc_l == cvc_r), env)
             elif op == "!=":
-                return self._wrapIf((cvc_l != cvc_r), env)
+                if cvc_l is None or cvc_r is None:
+                    return self._wrapIf(self._astToCVCExpr(0, env) == self._astToCVCExpr(0, env), env)
+                else:
+                    return self._wrapIf((cvc_l != cvc_r), env)
             elif op == "<":
                 return self._wrapIf((cvc_l < cvc_r), env)
             elif op == ">":
@@ -137,7 +144,8 @@ class ExprBuilder(object):
                     return CVCString.constant(expr, self.solver)
             else:
                 return expr
-
+        elif expr is None:
+            return None
         else:
             utils.crash("Unknown node during conversion from ast to CVC (expressions): %s" % expr)
     

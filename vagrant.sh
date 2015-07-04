@@ -51,7 +51,7 @@ cd CVC4
 ./autogen.sh
 contrib/get-antlr-3.4
 export PYTHON_CONFIG=/usr/bin/python3.2-config
-./configure --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3 --enable-language-bindings=python
+./configure --enable-optimized --with-antlr-dir=/tmp/CVC4/antlr-3.4 ANTLR=/tmp/CVC4/antlr-3.4/bin/antlr3 --enable-language-bindings=python
 echo "python_cpp_SWIGFLAGS = -py3" >> src/bindings/Makefile.am
 autoreconf
 make
@@ -65,6 +65,12 @@ cd
 
 # Installation
 ln -s /vagrant $INSTALLDIR
+ln -s $INSTALLDIR/symbolic /usr/lib/python3/dist-packages/
+cat > /usr/bin/pyex <<EOF
+#/bin/sh
+PYTHONPATH=\$PYTHONPATH:"\$(pwd)" python3 $INSTALLDIR/pyexz3.py \$*
+EOF
+chmod a+x /usr/bin/pyex
 
 # Tests
 cd $INSTALLDIR
