@@ -1,8 +1,10 @@
-from symbolic.args import *
+from symbolic.args import symbolic
+
 
 @symbolic(s="foo")
 def strsubstring(s):
-    """Test case for Python slicing, negative indices and steps are not currently tested."""
+    """Test case for Python slicing, negative
+    indices and steps are not currently tested."""
     if s[2:] == "obar":
         return 0
     elif s[:2] == "bb":
@@ -11,6 +13,7 @@ def strsubstring(s):
         return 2
     else:
         return 3
+
 
 def expected_result():
     return [0, 1, 2, 3]

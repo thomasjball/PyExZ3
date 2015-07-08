@@ -1,4 +1,5 @@
-from symbolic.args import *
+from symbolic.args import symbolic
+
 
 @symbolic(s="foo")
 def stringadd(s):
@@ -7,6 +8,6 @@ def stringadd(s):
         return 0
     return 1
 
+
 def expected_result():
 	return [0, 1]
-    

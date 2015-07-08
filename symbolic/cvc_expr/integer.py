@@ -100,5 +100,7 @@ class CVCInteger(CVCExpression):
 
     def _assert_bvbounds(self, bvexpr):
         bitextract = self.em.mkConst(CVC4.BitVectorExtract(0, 0))
-        self.solver.guards.append((CVCExpression(self.em.mkExpr(CVC4.EQUAL, self.em.mkExpr(bitextract, bvexpr),
-                                                             self.em.mkConst(CVC4.BitVector(1, 0))), self.solver)))
+        self.solver.guards.append((CVCExpression(
+            self.em.mkExpr(CVC4.EQUAL, self.em.mkExpr(bitextract, bvexpr),
+                           self.em.mkConst(CVC4.BitVector(1, 0))),
+            self.solver)))

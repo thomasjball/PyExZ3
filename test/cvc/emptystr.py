@@ -1,4 +1,4 @@
-from symbolic.args import *
+from symbolic.args import symbolic
 
 @symbolic(s="foo")
 def emptystr(s):

@@ -1,4 +1,5 @@
-from symbolic.args import *
+from symbolic.args import symbolic
+
 
 @symbolic(s="x")
 def strmiddle(s):
@@ -7,6 +8,7 @@ def strmiddle(s):
         return 0
     else:
         return 1
+
 
 def expected_result():
     return [0, 1]

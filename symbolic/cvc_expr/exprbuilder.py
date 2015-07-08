@@ -105,7 +105,9 @@ class ExprBuilder(object):
             # equality gets coerced to integer
             elif op == "==":
                 if cvc_l is None or cvc_r is None:
-                    return self._wrapIf(self._astToCVCExpr(0, env) != self._astToCVCExpr(0, env), env)
+                    # forces false condition no model contains None
+                    return self._wrapIf(self._astToCVCExpr(0, env) !=
+                                        self._astToCVCExpr(0, env), env)
                 else:
                     return self._wrapIf((cvc_l == cvc_r), env)
             elif op == "!=":

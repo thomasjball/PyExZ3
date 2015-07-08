@@ -45,12 +45,14 @@ class SymbolicStr(SymbolicObject, str):
                               "getitem", SymbolicStr.wrap)
 
     def find(self, findstr, beg=0):
-        return self._do_sexpr([self, findstr, beg], lambda x, y, z: str.find(x, y, z),
-                                "str.find", SymbolicInteger.wrap)
+        return self._do_sexpr([self, findstr, beg],
+                              lambda x, y, z: str.find(x, y, z),
+                              "str.find", SymbolicInteger.wrap)
 
     def startswith(self, prefix):
-        return self._do_sexpr([self, prefix], lambda x, y: str.startswith(x, y),
-                                "str.startswith", SymbolicInteger.wrap)
+        return self._do_sexpr([self, prefix],
+                              lambda x, y: str.startswith(x, y),
+                              "str.startswith", SymbolicInteger.wrap)
 
     def split(self, sep=None, maxsplit=None):
         if sep is None:
@@ -62,7 +64,8 @@ class SymbolicStr(SymbolicObject, str):
         else:
             sep_idx = self.find(sep)
             maxsplit = None if maxsplit is None else maxsplit - 1
-            return [self[0:sep_idx]] + self[sep_idx + 1:].split(sep, maxsplit)
+            return [self[0:sep_idx]] + \
+                   self[sep_idx + 1:].split(sep, maxsplit)
 
     def count(self, sub):
         """String count is not a native function of the SMT solver. Instead, we implement count as a recursive series of
