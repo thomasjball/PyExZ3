@@ -1,4 +1,5 @@
-from symbolic.args import *
+from symbolic.args import symbolic
+
 
 @symbolic(string="foo")
 def escape(string):
@@ -6,6 +7,7 @@ def escape(string):
         return 0
     else:
         return 1
+
 
 def expected_result_set():
     return {0, 1}

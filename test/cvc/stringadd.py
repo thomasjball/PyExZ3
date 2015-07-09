@@ -10,4 +10,4 @@ def stringadd(s):
 
 
 def expected_result():
-	return [0, 1]
+    return [0, 1]

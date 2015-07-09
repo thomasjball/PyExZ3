@@ -1,4 +1,5 @@
-from symbolic.args import *
+from symbolic.args import symbolic
+
 
 @symbolic(s="foo")
 def strcount(s):
@@ -10,6 +11,7 @@ def strcount(s):
         return 3
     else:
         return 0
+
 
 def expected_result_set():
     return {0, 1, 2, 3}

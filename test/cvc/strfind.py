@@ -1,4 +1,5 @@
-from symbolic.args import *
+from symbolic.args import symbolic
+
 
 @symbolic(s="foo")
 def strfind(s):
@@ -9,6 +10,7 @@ def strfind(s):
         return 1
     else:
         return 2
+
 
 def expected_result():
     return [0, 1, 2]
