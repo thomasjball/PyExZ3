@@ -28,6 +28,8 @@ class CVCInteger(CVCExpression):
 
     3) Encode in the formula a BITVECTOR_TO_INT conversion that performs two's complement arithmetic."""
 
+    CVC_TYPE = 'Int'
+
     _bv_size = 8
 
     @classmethod
@@ -92,11 +94,13 @@ class CVCInteger(CVCExpression):
 
     def _bvhelper(self, other, op):
         calculation = self.em.mkExpr(op, self.tobv(), other.tobv())
-        self.solver.assertFormula((self.bvsanity() & other.bvsanity()).cvc_expr)
+        self.solver.guards.append(self.bvsanity() & other.bvsanity())
         self._assert_bvbounds(calculation)
         return CVCInteger(self.em.mkExpr(CVC4.BITVECTOR_TO_NAT, calculation), self.solver)
 
     def _assert_bvbounds(self, bvexpr):
         bitextract = self.em.mkConst(CVC4.BitVectorExtract(0, 0))
-        self.solver.assertFormula(self.em.mkExpr(CVC4.EQUAL, self.em.mkExpr(bitextract, bvexpr),
-                                                 self.em.mkConst(CVC4.BitVector(1, 0))))
+        self.solver.guards.append((CVCExpression(
+            self.em.mkExpr(CVC4.EQUAL, self.em.mkExpr(bitextract, bvexpr),
+                           self.em.mkConst(CVC4.BitVector(1, 0))),
+            self.solver)))

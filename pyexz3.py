@@ -56,8 +56,9 @@ try:
 		file.write(path.toDot())	
 		file.close()
 
-except ImportError:
+except ImportError as e:
 	# createInvocation can raise this
+	logging.error(e)
 	sys.exit(1)
 
 if result == None or result == True:

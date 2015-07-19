@@ -7,6 +7,8 @@ log = logging.getLogger("se.cvc_expr.expr")
 
 
 class CVCExpression(object):
+    CVC_TYPE = 'Bool'
+
     def __init__(self, cvc_expr, solver):
         self.cvc_expr = cvc_expr
         self.solver = solver

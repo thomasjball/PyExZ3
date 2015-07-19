@@ -1,9 +1,9 @@
 from symbolic.args import symbolic
 
 
-@symbolic(s="bar")
-def strreplace(s):
-    if "faa" == s.replace("o", "a"):
+@symbolic(string="foo")
+def escape(string):
+    if string and '\\' not in string and string.find(':') > 0:
         return 0
     else:
         return 1
