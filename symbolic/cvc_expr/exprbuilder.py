@@ -29,6 +29,7 @@ class ExprBuilder(object):
         sym_expr = self._astToCVCExpr(pred.symtype, env)
         if env is None:
             if not sym_expr.cvc_expr.getType().isBoolean():
+                # noinspection PyUnresolvedReferences
                 sym_expr = (sym_expr == CVCInteger.constant(0, self.solver)).not_op()
             if not pred.result:
                 sym_expr = sym_expr.not_op()
@@ -150,4 +151,3 @@ class ExprBuilder(object):
             return None
         else:
             utils.crash("Unknown node during conversion from ast to CVC (expressions): %s" % expr)
-    
