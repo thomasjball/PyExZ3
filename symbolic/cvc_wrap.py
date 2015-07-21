@@ -14,7 +14,7 @@ class CVCWrapper(object):
                # Enable modular arithmetic with constant modulus
                'rewrite-divk': 'true',
                # Per Query timeout of 5 seconds
-               'tlimit-per': 5000,
+               'tlimit-per': 10000,
                'output-language': 'smt2',
                'input-language': 'smt2'}
     logic = 'ALL_SUPPORTED'
