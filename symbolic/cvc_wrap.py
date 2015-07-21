@@ -1,8 +1,5 @@
 import logging
 
-import utils
-
-import CVC4
 from CVC4 import ExprManager, SmtEngine, SExpr
 
 from symbolic.cvc_expr.exprbuilder import ExprBuilder
