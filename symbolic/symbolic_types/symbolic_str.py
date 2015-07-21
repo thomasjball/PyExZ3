@@ -24,7 +24,6 @@ class SymbolicStr(SymbolicObject, str):
         return self._do_sexpr(args, fun, op, SymbolicStr.wrap)
 
     def __bool__(self):
-        # noinspection PyCallByClass,PyTypeChecker
         return SymbolicObject.__bool__(self.__len__() != 0)
 
     def __len__(self):

@@ -59,7 +59,6 @@ class CVCString(CVCExpression):
             # solution space is a significant undertaking.
             self.solver.guards.append(self.len() > item.start)
             self.solver.guards.append(self.len() >= item.stop)
-            # noinspection PyUnresolvedReferences
             return CVCString(self.em.mkExpr(CVC4.STRING_SUBSTR, self.cvc_expr,
                                             item.start.cvc_expr, offset.cvc_expr),
                              self.solver)
