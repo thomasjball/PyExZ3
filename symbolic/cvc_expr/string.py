@@ -40,11 +40,11 @@ class CVCString(CVCExpression):
 
     def __add__(self, other):
         return CVCString(self.em.mkExpr(CVC4.STRING_CONCAT,
-            self.cvc_expr, other.cvc_expr), self.solver)
+                                        self.cvc_expr, other.cvc_expr), self.solver)
 
     def __contains__(self, item):
         return CVCExpression(self.em.mkExpr(CVC4.STRING_STRCTN,
-            self.cvc_expr, item.cvc_expr), self.solver)
+                                            self.cvc_expr, item.cvc_expr), self.solver)
 
     def __getitem__(self, item):
         if isinstance(item, slice):

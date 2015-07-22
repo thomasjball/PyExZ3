@@ -1,6 +1,7 @@
 import ast
 import sys
-from . symbolic_type import SymbolicObject
+from .symbolic_type import SymbolicObject
+
 
 # SymbolicDict: the key and values will both be SymbolicType for full generality
 
@@ -10,22 +11,22 @@ from . symbolic_type import SymbolicObject
 
 # TODO: big simplification: can only initialize with
 # an empty dictionary
-class SymbolicDict(SymbolicObject,dict):
-	def __new__(cls, name, *args, **kwargs):
-		self = dict.__new__(cls,args,kwargs)
-		return self
+class SymbolicDict(SymbolicObject, dict):
+    def __new__(cls, name, *args, **kwargs):
+        self = dict.__new__(cls, args, kwargs)
+        return self
 
-	def __init__(self, name, kwargs):
-		SymbolicObject.__init__(self,name,None)
-		dict.__init__(self,kwargs)
+    def __init__(self, name, kwargs):
+        SymbolicObject.__init__(self, name, None)
+        dict.__init__(self, kwargs)
 
-	def getConcrValue(self):
-		return self
-		
-	def __bool__(self):
-		return bool(len(self))
+    def getConcrValue(self):
+        return self
 
-#	def wrap(conc,sym):
+    def __bool__(self):
+        return bool(len(self))
+
+# def wrap(conc,sym):
 #		pass # TODO
 
 #	def __getitem__(self,key):
@@ -55,4 +56,3 @@ class SymbolicDict(SymbolicObject,dict):
 #			pass
 #			# self.expr = Delete(self.expr,key)
 #		dict.__delitem__(self,key)
-

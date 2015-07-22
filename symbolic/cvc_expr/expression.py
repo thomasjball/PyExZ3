@@ -2,7 +2,6 @@ import logging
 
 import CVC4
 
-
 log = logging.getLogger("se.cvc_expr.expr")
 
 

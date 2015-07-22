@@ -150,4 +150,3 @@ class ExprBuilder(object):
             return None
         else:
             utils.crash("Unknown node during conversion from ast to CVC (expressions): %s" % expr)
-    
