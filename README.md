@@ -1,7 +1,7 @@
 PyExZ3
 ======
 
-###Python Exploration with Z3
+### Python Exploration with Z3
 
 This code is a substantial rewrite of the NICE project's
 (http://code.google.com/p/nice-of/) symbolic execution engine for
@@ -31,7 +31,7 @@ execution; no AST rewriting or bytecode instrumentation is required,
 This significantly improves the robustness and portability of **PyExZ3**, 
 as well as reducing its size.
 
-###Setup instructions:
+### Setup instructions:
 
 - Make sure that you use Python 32-bit (64-bit) if-and-only-if you use the Z3 32-bit (64-bit) binaries. 
 Testing so far has been on Python 3.2.3 and 32-bit.
