@@ -70,15 +70,17 @@ analyzing functions with loops and/or recursion. Specify a bound using the `max-
 (with initial value 0) for each parameter of the starting function. Import from
 `symbolic.args` to get the `@concrete` and `@symbolic` decorators that let you override
 the defaults on the starting function:
-  ```
+
+```
 from symbolic.args import *
 
 @concrete(a=1,b=2)
 @symbolic(c=3)
 def startingfun(a,b,c,d):
     ...
-  ```
-  The `@concrete` decorator declares that a parameter will not be treated symbolically and
+```
+  
+The `@concrete` decorator declares that a parameter will not be treated symbolically and
 provides an initial value for the parameter.
 The `@symbolic` decorator declares that a parameter will be treated symbolically - the type 
 of the associated initial value for the argument will be used to determine the proper symbolic 
